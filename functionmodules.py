@@ -103,21 +103,20 @@ code_and_regs_file_name = 'assets\\CodeAndRegSectionsToUse.xlsx'
 
 
 
-# married_df = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='married')
-# single_df = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='single')
-# hoh_df = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='hoh')
-#GO LOOK FOR createRatesDF.py to do this for the new year
-
-# Also for each new year, uncomment the inflation brackets, upload the new Inflation Revenue Procedure (it is in the assets folder), and upload the revised function modules.
-
+# f"married_df_{current_year}" = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='married')
+# f"single_df_{current_year}" = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='single')
+# f"hoh_df_{current_year}" = pd.read_excel(f'TaxRates{current_year}.xlsx',sheet_name='hoh')
+#GO LOOK FOR createRatesDF.py to do this for the new year, and then create the appropriate dictionary below with all of the inflation adjustments.
+# Also for each new year, upload the new Inflation Revenue Procedure (it is in the assets folder).
 
 
-#FOR 2024:
-married_df = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 23200, 2: 94300, 3: 201050, 4: 383900, 5: 487450, 6: 731200}, 'TopOfBracket': {0: 23200, 1: 94300, 2: 201050, 3: 383900, 4: 487450, 5: 731200, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 2320.0, 2: 10852.0, 3: 34337.0, 4: 78221.0, 5: 111357.0, 6: 196669.5}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
 
-single_df = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 11600, 2: 47150, 3: 100525, 4: 191950, 5: 243725, 6: 609350}, 'TopOfBracket': {0: 11600, 1: 47150, 2: 100525, 3: 191950, 4: 243725, 5: 609350, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 1160.0, 2: 5426.0, 3: 17168.5, 4: 39110.5, 5: 55678.5, 6: 183647.25}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
+# 2024 inflation brackets:
+married_df_2024 = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 23200, 2: 94300, 3: 201050, 4: 383900, 5: 487450, 6: 731200}, 'TopOfBracket': {0: 23200, 1: 94300, 2: 201050, 3: 383900, 4: 487450, 5: 731200, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 2320.0, 2: 10852.0, 3: 34337.0, 4: 78221.0, 5: 111357.0, 6: 196669.5}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
 
-hoh_df = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 16550, 2: 63100, 3: 100500, 4: 191950, 5: 243700, 6: 609350}, 'TopOfBracket': {0: 16550, 1: 63100, 2: 100500, 3: 191950, 4: 243700, 5: 609350, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 1655.0, 2: 7241.0, 3: 15469.0, 4: 37417.0, 5: 53977.0, 6: 181954.5}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
+single_df_2024 = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 11600, 2: 47150, 3: 100525, 4: 191950, 5: 243725, 6: 609350}, 'TopOfBracket': {0: 11600, 1: 47150, 2: 100525, 3: 191950, 4: 243725, 5: 609350, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 1160.0, 2: 5426.0, 3: 17168.5, 4: 39110.5, 5: 55678.5, 6: 183647.25}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
+
+hoh_df_2024 = pd.DataFrame({'BottomOfBracket': {0: 0, 1: 16550, 2: 63100, 3: 100500, 4: 191950, 5: 243700, 6: 609350}, 'TopOfBracket': {0: 16550, 1: 63100, 2: 100500, 3: 191950, 4: 243700, 5: 609350, 6: 1000000}, 'AmountToAdd': {0: 0.0, 1: 1655.0, 2: 7241.0, 3: 15469.0, 4: 37417.0, 5: 53977.0, 6: 181954.5}, 'MarginalRate': {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37}})
     
 adjustments_2023_dict = {
         'married_st_ded':27700,
@@ -150,7 +149,10 @@ adjustments_2024_dict = {
         'eitc_max_credit':6960,#for unmarried, two children, EITC 
         'eitc_investment_limit':11600,
         'rev_proc':'Rev. Proc. 2023-34',
-        'social security cutoff':168600
+        'social security cutoff':168600,
+        'married_df':married_df_2024,
+        'single_df':single_df_2024,
+        'hoh_df':hoh_df_2024
         }
 
 adjustments_dict_dict = {2023:adjustments_2023_dict,2024:adjustments_2024_dict}
@@ -164,9 +166,9 @@ old_qri_limit = 1000000
 
 
 # status, brackets, standard deduction, section 24 threshold, section 121 threshold. Only st ded changes
-married = FilingStatus('Married Filing Jointly',married_df,infl_dict['married_st_ded'],400000,500000) ##
-single = FilingStatus('Single',single_df,infl_dict['single_st_ded'],200000,250000) ##
-hoh = FilingStatus('Head of Household',hoh_df,infl_dict['hoh_st_ded'],200000,250000) ##
+married = FilingStatus('Married Filing Jointly',infl_dict['married_df'],infl_dict['married_st_ded'],400000,500000) ##
+single = FilingStatus('Single',infl_dict['single_df'],infl_dict['single_st_ded'],200000,250000) ##
+hoh = FilingStatus('Head of Household',infl_dict['hoh_df'],infl_dict['hoh_st_ded'],200000,250000) ##
 
 # [threshold amount, amount of phaseout] Only threshold amount changes       
 qbi_dict = {'Married Filing Jointly':[infl_dict['qbi_married_thresh'],100000],'Single':[infl_dict['qbi_single_thresh'],50000],'Head of Household':[infl_dict['qbi_hoh_thresh'],50000]} ##
