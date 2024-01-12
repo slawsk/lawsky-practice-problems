@@ -41,7 +41,7 @@ nav_item = dbc.Nav(
         dbc.NavLink('Quizzes',href='/quizzes'),
         dbc.NavLink('Code and Regs', href='/codeandregs'),
         dbc.NavLink('About', href='/about'),
-        dbc.NavLink('Other Projects', href='/otherprojects'),
+        dbc.NavLink('Open Source', href='/otherprojects'),
         
     ],
     navbar=True,
@@ -72,8 +72,14 @@ fed_tax_layout = html.Div(children=[
         navbar,
         
         html.Br(),
+
+        html.Div([
+
+        html.H3(id='title-language',children=['Federal Income Tax'],  style={'display': 'inline-block', 'margin-right': '10px'}),
+
+        html.H3('Practice Problems',style={'display': 'inline-block'}),
         
-        html.H3(id='title-language',children=['Federal Income Tax']),
+        ]),
         
         dbc.Button(children=['Switch to Partnership'],id='switch_problem_type_button', n_clicks=0),
           
@@ -121,7 +127,9 @@ fed_tax_layout = html.Div(children=[
 rates_layout = html.Div([
    navbar,
           
-    html.Br(),        
+    html.Br(),
+
+    html.H3('Rates'),
             
     html.Div("What is the taxpayer's filing status?"),
 
@@ -171,6 +179,8 @@ rates_layout = html.Div([
 faq_layout = html.Div([
   navbar, 
   html.Br(),
+  html.H3('FAQ'),
+
   html.Div(html.H5('General Information and Questions')),
     dcc.Markdown(faq.general_faq,dangerously_allow_html=True),
     html.Hr(),
@@ -192,6 +202,9 @@ faq_layout = html.Div([
 code_and_regs_layout = html.Div([
   navbar, 
   html.Br(),
+  html.H3('Create Code and Regs Book'),
+
+
     dcc.Markdown(faq.codeandregsdownload,dangerously_allow_html=True),
     html.Hr(),      
         html.Div(html.H4('STEP 1: FORMAT YOUR SPREADSHEET OF CODE AND REG SECTIONS')),
@@ -273,7 +286,9 @@ statutes_layout = html.Div(children=[
         navbar,
                 
         html.Br(),
-        
+
+        html.H3('Practicing Statutory Language'),
+
         dcc.Markdown(st.instruction_language,dangerously_allow_html=True),
         
 
@@ -307,7 +322,9 @@ quiz_layout = html.Div(children=[
                
         
         html.Br(),
-        
+        html.H3('Quizzes'),
+
+
         dcc.Markdown(faq.quiz_explanation),
         html.Hr(),
         html.Div('Enter the number of questions on the quiz, up to a maximum of 10. If you do not enter a number, the quiz will have five questions.'),
@@ -437,6 +454,7 @@ rates_layout = html.Div([
    navbar,
 
     html.Br(),
+    html.H3('Tax Rates'),
 
     html.Div("What is the taxpayer's filing status?"),
 
@@ -551,7 +569,7 @@ def pick_type_problem(n_click,type_value):
                  State('type-dropdown-id','value')])
 def create_problem(n_clicks_submit_types,type_value,dropdown_id_value):
     
-    pick_dictionary = {'Federal Income Tax':bt,'Partnership Tax':pt}
+    pick_dictionary = {'Federal Income Tax Practice Problems':bt,'Partnership Tax Practice Problems':pt}
     
     return fm.create_problem(n_clicks_submit_types,dropdown_id_value,pick_dictionary[type_value[0]])
 
