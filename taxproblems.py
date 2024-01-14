@@ -569,7 +569,7 @@ def pick_type_problem(n_click,type_value):
                  State('type-dropdown-id','value')])
 def create_problem(n_clicks_submit_types,type_value,dropdown_id_value):
     
-    pick_dictionary = {'Federal Income Tax Practice Problems':bt,'Partnership Tax Practice Problems':pt}
+    pick_dictionary = {'Federal Income Tax':bt,'Partnership Tax':pt}
     
     return fm.create_problem(n_clicks_submit_types,dropdown_id_value,pick_dictionary[type_value[0]])
 
