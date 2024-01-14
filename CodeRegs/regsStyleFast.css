@@ -1,0 +1,87 @@
+@charset "UTF-8";
+
+@page {
+    size: letter;
+    margin: .75in;
+}
+
+body {
+    font-size: 11pt;
+    font-family: "Times New Roman", Times, serif;
+    line-height: 13pt;
+}
+
+table {
+  table-layout: auto;
+  width: 50%;
+  border: 1px black;
+  padding-bottom: 3pt;
+}
+
+th {
+  text-align: left;
+   padding-top: 11pt;
+}
+
+h1 {
+    font-size: 100%;
+    font-weight: bold;
+}
+
+h4, h2 {
+    margin-left: 0pt;
+    font-size: 14pt;
+    font-weight: bold;
+    padding-top: 24pt;
+    padding-bottom: -14pt;
+    text-transform: uppercase;
+    line-height: 15pt;
+}
+
+a {
+    color: #000;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+
+p.indent-1 {
+    margin-left: 0pt;
+    padding-top: 2pt;
+}
+
+p.indent-2 {
+    margin-left: 11pt;
+    padding-top: 2pt;
+}
+
+.indent-3 {
+    margin-left: 30pt;
+    padding-top: 2pt;
+}
+
+.indent-4 {
+    margin-left: 38pt;
+    padding-top: 2pt;
+}
+
+.indent-5 {
+    margin-left: 45pt;
+    padding-top: 2pt;
+}
+
+.indent-6 {
+    margin-left: 48pt;
+    padding-top: 2pt;
+}
+
+.indent-7 {
+    margin-left: 51pt;
+    padding-top: 2pt;
+}
+
+.indent-8 {
+    margin-left: 53pt;
+    padding-top: 2pt;
+}
+

@@ -1,0 +1,86 @@
+@charset "UTF-8";
+
+@page {
+    size: letter;
+    margin: .75in;
+}
+
+body {
+    font-size: 11pt;
+    font-family: "Times New Roman", Times, serif;
+    line-height: 13pt;
+}
+
+table {
+  table-layout: auto;
+  width: 50%;
+  border: 1px black;
+  padding-bottom: 3pt;
+
+}
+
+th {
+  text-align: left;
+  padding-top: 11pt;
+}
+
+h1  {
+    margin-left: 0pt;
+    font-size: 14pt;
+    font-weight: bold;
+    padding-top: 24pt;
+    padding-bottom: -14pt;
+    text-transform: uppercase;
+    line-height: 15pt;
+}
+
+h2  {
+    margin-left: 0pt;
+    font-size: 100%;
+    font-weight: bold;
+    padding-top: 8pt;
+    padding-bottom: -14pt;
+}
+
+h3,
+h4,
+h5  {
+    margin-left: 8pt;
+    font-size: 11pt;
+    display: inline;
+    padding-right: 8pt
+}
+
+.paragraph {
+    margin-left: 11pt;
+    padding-top: 10pt;
+}
+
+.subparagraph {
+    margin-left: 15pt;
+    padding-top: 10pt;
+}
+
+.clause {
+    margin-left: 18pt;
+    padding-top: 8pt;
+}
+
+.subclause {
+    margin-left: 21pt;
+    padding-top: 6pt;
+}
+
+a {
+    color: #000; 
+    text-decoration: none;
+    pointer-events: none;
+}
+
+p {
+    margin-left: 0pt;
+    font-size: 100%;
+    padding-top: 8pt;
+    padding-bottom: -14pt;
+
+}
