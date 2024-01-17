@@ -9,7 +9,6 @@ from bs4 import BeautifulSoup
 import re
 
 type_run = 'home'
-#type_run = 'pa'
 
 if type_run == 'home':
     introtext = '''<!DOCTYPE html>
@@ -17,13 +16,6 @@ if type_run == 'home':
     <meta charset="UTF-8">
     <link href="../CodeRegs/codeStyleFast.css" rel="stylesheet" />
     
-    </head>'''
-
-else:        
-    introtext = '''<!DOCTYPE html>
-    <head>
-    <meta charset="UTF-8">
-    <link href="/home/slawsky/taxappfiles/CodeRegs/codeStyleFast.css" rel="stylesheet" />
     </head>'''
 
 def uppercase_match(match):
