@@ -40,11 +40,6 @@ intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_content
 
 possible_files_list = list(possible_include_dict.keys())
 
-# all_code_title_xml = f'CodeNoNotes_{current_year}.xml'
-# all_code_title_html = f'CodeNoNotes_{current_year}.html'
-# all_regs_title = f'RegsNoNotes_{current_year}.html'
-
-
 type_run = convertfile.type_run
 
 
@@ -199,11 +194,8 @@ def createRegsFile():
             content = file.read()
 
         # Replace the URLs using the regex pattern
-        if location == 'home':
-            content = re.sub(url_pattern, "../CodeRegs/jpg_pictures/", content)
-        elif location == 'PA':
-            content = re.sub(
-                url_pattern, "/home/slawsky/taxappfiles/CodeRegs/jpg_pictures/", content)
+ 
+        content = re.sub(url_pattern, "../CodeRegs/jpg_pictures/", content)
 
         # Replace .png with .jpg
         content = content.replace(".png", ".jpg")
@@ -212,7 +204,7 @@ def createRegsFile():
         with open(file_path_out, 'w', encoding='utf-8') as file:
             file.write(content)
 
-    replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPGForPA.txt', "PA")
+    
     replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPG.txt', "home")
 
 
@@ -368,22 +360,15 @@ def parseRegs(sectionsToUse, outputTitle):
 
     # create the intro and endtext that allows the css file
 
-    if type_run == 'home':
-        introtext = """<!doctype html>
+    
+    introtext = """<!doctype html>
         <html>
           <head>
           <meta charset="utf-8">
             <link href="../CodeRegs/regsStyleFast.css" rel="stylesheet" />
           </head>
           <body>"""
-    else:
-        introtext = """<!doctype html>
-        <html>
-          <head>
-          <meta charset="utf-8">
-            <link href="/home/slawsky/taxappfiles/CodeRegs/regsStyleFast.css" rel="stylesheet" />
-          </head>
-          <body>"""
+
 
     endtext = """  </body>
     </html>"""
