@@ -23,15 +23,7 @@ from itertools import chain
 current_year = fm.current_year_for_book
 rev_proc = fm.rev_proc_for_book
 
-# DO NOT FORGET TO CHANGE THIS WHEN YOU UPLOAD IT!!!
-
-location = 'home'
-# location = 'PA'
-
-location_dictionary = {'home': 'CodeRegs/RegDictionaryWithJPG.txt',
-                       'PA': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
-
-correct_reg_dict = location_dictionary[location]
+correct_reg_dict = 'CodeRegs/RegDictionaryWithJPG.txt'
 
 max_length = 450
 code_file_name = '04BCode'
