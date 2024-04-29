@@ -326,8 +326,8 @@ def transfers_to_partnership():
         new_1231_asset = n.name
         section_1231_assets.append(new_1231_asset)
     
-    other_assets = [f'patent created by {person1.name}', f'invention created by {person1.name}', f'design created by {person1.name}', f'a secret formula created by {person1.name}', f'copyright created by {person1.name}', f'literary composition created by {person1.name}', f'musical composition created by {person1.name}', f'artistic composition created by {person1.name}',f"accounts receivable from {person1.name}'s business", f"set of supplies {person1.name} regularly used in {person1.poss} business","inventory"]
-    
+    other_assets = [f'patent created by {person1.name}', f'invention created by {person1.name}', f'design created by {person1.name}', f'secret formula created by {person1.name}', f'copyright created by {person1.name}', f'literary composition created by {person1.name}', f'musical composition created by {person1.name}', f'artistic composition created by {person1.name}',f"accounts receivable from {person1.name}'s business", f"set of supplies {person1.name} regularly used in {person1.poss} business","collection of inventory"]
+
     all_assets = capital_assets + section_1231_assets + other_assets
     
     partnership_name = random.choice(abc.animals_by_country_dict['English'])
@@ -340,106 +340,117 @@ def transfers_to_partnership():
     number_assets = 3
     tack_dict = {}
 
-    for n in range(number_assets):
-    
-        while True:
-            fmv = 1000*random.randint(50,100)
-            basis = fm.generate_random_item(fmv,10,45)            
 
-            if fmv not in price_list and basis not in price_list and fmv != basis:
-                price_list.append(fmv)
-                price_list.append(basis)
-                break
-    
-        if n == 0:
-            asset = random.choice(other_assets)
-            class_asset = "other"
-            asset_list_name.append(asset)
-        
-        elif n == 1:
-            asset = random.choice(capital_assets+section_1231_assets)
-            if asset in capital_assets:
-                class_asset = 'capital'
-            else:
-                class_asset = '1231'
-            asset_list_name.append(asset)
-        
-        else:        
+    while True:
+
+        for n in range(number_assets):
+
             while True:
-                asset = random.choice(all_assets)
+                fmv = 1000*random.randint(50,100)
+                basis = fm.generate_random_item(fmv,10,45)
+
+                if fmv not in price_list and basis not in price_list and fmv != basis:
+                    price_list.append(fmv)
+                    price_list.append(basis)
+                    break
+
+            if n == 0:
+                asset = random.choice(other_assets)
+                class_asset = "other"
+                asset_list_name.append(asset)
+
+            elif n == 1:
+                asset = random.choice(capital_assets+section_1231_assets)
                 if asset in capital_assets:
                     class_asset = 'capital'
-                elif asset in section_1231_assets:
+                else:
                     class_asset = '1231'
-                elif asset in other_assets:
-                    class_asset = 'other'
-                
-                if asset not in asset_list_name:
-                    asset_list_name.append(asset)
-                    break
-        
-        tack_dict = {'capital':fmv,'1231':basis,'other':0}
-        
-        fullasset = ContributedAsset(asset,fmv,basis,class_asset,'','',0,tack_dict[class_asset])
-        
-        asset_list.append(fullasset)
+                asset_list_name.append(asset)
 
-        asset_language_1 = f"{fm.pick_a_an(fullasset.name)} {fullasset.name} with a fair market value of {fm.as_curr(fullasset.fmv)} and a basis of {fm.as_curr(fullasset.basis)}"
+            else:
+                while True:
+                    asset = random.choice(all_assets)
+                    if asset in capital_assets:
+                        class_asset = 'capital'
+                    elif asset in section_1231_assets:
+                        class_asset = '1231'
+                    elif asset in other_assets:
+                        class_asset = 'other'
 
-        if n < number_assets-1:
-            asset_language_0 = ''
-            asset_language_3 = "; "
+                    if asset not in asset_list_name:
+                        asset_list_name.append(asset)
+                        break
+
+            tack_dict = {'capital':fmv,'1231':basis,'other':0}
+
+            fullasset = ContributedAsset(asset,fmv,basis,class_asset,'','',0,tack_dict[class_asset])
+
+            asset_list.append(fullasset)
+
+            asset_language_1 = f"{fm.pick_a_an(fullasset.name)} {fullasset.name} with a fair market value of {fm.as_curr(fullasset.fmv)} and a basis of {fm.as_curr(fullasset.basis)}"
+
+            if n < number_assets-1:
+                asset_language_0 = ''
+                asset_language_3 = "; "
+            else:
+                asset_language_0 = "and "
+                asset_language_3 = "."
+
+            if asset in section_1231_assets:
+                asset_language_2 = f" that {person1.name} uses in {person1.poss} trade or business (all of the gain is due to depreciation)"
+            else:
+                asset_language_2 = ""
+
+            assets_acquired_language += (asset_language_0 + asset_language_1 + asset_language_2 + asset_language_3)
+
+
+        asset_choice = random.choice(asset_list)
+
+        partner_basis = f"{person1.name}'s basis in {partnership_name}"
+        partnership_question = f"{partnership_name}'s basis in and holding period for the {asset_choice.name}"
+        partner_hp = f"{person1.name}'s holding period in {person1.poss} interest in {partnership_name}"
+
+        partner_questions = [partner_basis,partner_hp]
+
+        type_partner_question = random.choice(partner_questions)
+
+        possiblequestions = [type_partner_question,partnership_question]
+        question = random.choice(possiblequestions)
+
+        problem = f"{person1.name} contributes the following to {partnership_name}, LLC, which is taxed as a partnership, in exchange for an interest in {partnership_name}: {assets_acquired_language} Which of the following is accurate with respect to {question}?"
+
+
+        for n in asset_list:
+            tack_correct += n.amount_tacked
+            total_fmv += n.fmv
+            total_basis += n.basis
+            if n.class_asset != 'other':
+                tack_basis += n.basis
+                tack_fmv += n.fmv
+
+
+        if tack_correct != tack_fmv:
+            depreciation_lang = 'Gain subject to recapture is treated as a separate asset that is not a capital asset or a 1231 asset, under <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(e)</a>.'
         else:
-            asset_language_0 = "and "
-            asset_language_3 = "."
+            depreciation_lang = ''
 
-        if asset in section_1231_assets:
-            asset_language_2 = f" that {person1.name} uses in {person1.poss} trade or business (all of the gain is due to depreciation)"
-        else:
-            asset_language_2 = ""
+        percent_tack = tack_correct / total_fmv
+        percent_no_tack = (total_fmv - tack_correct) / total_fmv
 
-        assets_acquired_language += (asset_language_0 + asset_language_1 + asset_language_2 + asset_language_3)
+        percent_fmv = tack_fmv / total_fmv
+        percent_no_tack_fmv = (total_fmv - tack_fmv) / total_fmv
+
+        percent_tack_basis = tack_basis / total_basis
+        percent_no_tack_basis = (total_basis - tack_basis) / total_basis
 
 
-    asset_choice = random.choice(asset_list)
-    
-    partner_basis = f"{person1.name}'s basis in {partnership_name}"
-    partnership_question = f"{partnership_name}'s basis in and holding period for the {asset_choice.name}"
-    partner_hp = f"{person1.name}'s holding period in {person1.poss} interest in {partnership_name}"
+        percent_list = [percent_tack,percent_tack_basis]
 
-    partner_questions = [partner_basis,partner_hp]
+        as_percent_list = list(map(fm.as_percent,percent_list))
+        # making sure that numbers for basis and FMV don't accidentally work out to be the same
+        if len(as_percent_list) == len(set(as_percent_list)):
+            break
 
-    type_partner_question = random.choice(partner_questions)
-
-    possiblequestions = [type_partner_question,partnership_question]
-    question = random.choice(possiblequestions)
-    
-    problem = f"{person1.name} contributes the following to {partnership_name}, LLC, which is taxed as a partnership, in exchange for an interest in {partnership_name}: {assets_acquired_language} Which of the following is accurate with respect to {question}?"
-    
-    
-    for n in asset_list:
-        tack_correct += n.amount_tacked
-        total_fmv += n.fmv
-        total_basis += n.basis
-        if n.class_asset != 'other':
-            tack_basis += n.basis
-            tack_fmv += n.fmv
- 
-    
-    if tack_correct != tack_fmv:
-        depreciation_lang = 'Gain subject to recapture is treated as a separate asset that is not a capital asset or a 1231 asset, under <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(e)</a>.'
-    else:
-        depreciation_lang = ''
-    
-    percent_tack = tack_correct / total_fmv
-    percent_no_tack = (total_fmv - tack_correct) / total_fmv
-    
-    percent_fmv = tack_fmv / total_fmv
-    percent_no_tack_fmv = (total_fmv - tack_fmv) / total_fmv
-   
-    percent_tack_basis = tack_basis / total_basis
-    percent_no_tack_basis = (total_basis - tack_basis) / total_basis
-    
     judgements = {}
     
     if question == partner_hp:
@@ -452,13 +463,18 @@ def transfers_to_partnership():
 
         correct = percent_tack_answer
 
-        possibleanswers = [all_tack_answer,no_tack_answer,percent_tack_answer,basis_percent_tack_answer,fmv_tack_answer]
+        possibleanswers = [all_tack_answer,no_tack_answer,percent_tack_answer,basis_percent_tack_answer]
+        section_1231_items_in_list = any(item in section_1231_assets for item in asset_list_name)
+
         
         judgements[all_tack_answer] = '<p>Does <a href="https://www.law.cornell.edu/uscode/text/26/1223" target="_new">Section 1223(1)</a> apply, or does <a href="https://www.law.cornell.edu/uscode/text/26/1223" target="_new">Section 1223(2)</a> apply?</p>'
         judgements[no_tack_answer] = f'<p>Consider <a href="https://www.law.cornell.edu/uscode/text/26/1223" target="_new">Section 1223</a>. How is the basis of {person1.name}\'s interest in {partnership_name} determined?</p>'
         judgements[percent_tack_answer] = f'<p>Correct. The holding period is divided under <a href="https://www.law.cornell.edu/uscode/text/26/1223" target="_new">Section 1223(1)</a>, which permits tacking only for the portion of the partnership interest received in exchange for capital assets and Section 1231 assets. {depreciation_lang} Under <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(b)</a>, the percent of the partnership interest that receives a tacked holding period is determined based on the relative fair market values of the capital assets and Section 1231 assets, on the one hand, and the other assets, on the other.</p>'
         judgements[basis_percent_tack_answer] = '<p>You are correct that the holding period is divided under <a href="https://www.law.cornell.edu/uscode/text/26/1223" target="_new">Section 1223(1)</a>, which permits tacking only for the portion of the partnership interest received in exchange for capital assets and Section 1231 assets. Consider <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(b)</a>, however, as you consider how to determine what percent of the partnership interest receives a tacked holding period.</p>'
-        judgements[fmv_tack_answer] = '<p>You are correct that the fair market value of the tacked assets is compared to the fair market value of the non-tacked assets. But what is the treatment of gain subject to recapture? Consider <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(e)</a>.</p>'
+
+        if section_1231_items_in_list:
+            possibleanswers.append(fmv_tack_answer)
+            judgements[fmv_tack_answer] = '<p>You are correct that the fair market value of the tacked assets is compared to the fair market value of the non-tacked assets. But what is the treatment of gain subject to recapture? Consider <a href="https://www.law.cornell.edu/uscode/text/26/1.1223-3" target="_new">Treas. Reg. 1.1223-3(e)</a>.</p>'
     
     elif question == partner_basis:
         
