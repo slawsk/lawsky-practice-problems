@@ -10,13 +10,15 @@ import re
 
 type_run = 'home'
 
+
 if type_run == 'home':
     introtext = '''<!DOCTYPE html>
     <head>
     <meta charset="UTF-8">
     <link href="../CodeRegs/codeStyleFast.css" rel="stylesheet" />
-    
+
     </head>'''
+
 
 def uppercase_match(match):
     # Return the original <h1> tags but with the inner text converted to uppercase
@@ -95,7 +97,8 @@ def convert_file_to_html(inputtitle,outputtitle):
     soupystring = re.sub(r'(?<!\))</h3>', '</h3>\u2014', soupystring)
     soupystring = re.sub(r'(?<!\))</h4>', '</h4>\u2014', soupystring)
     soupystring = re.sub(r'(?<!\))</h5>', '</h5>\u2014', soupystring)
-    
+    soupystring = re.sub(r'headingsixstart', '<h6>', soupystring)
+    soupystring = re.sub(r'headingsixend', '</h6>', soupystring)
     
     # Write out the modified soup as HTML
     with open(outputtitle, "w",encoding='utf-8') as f:

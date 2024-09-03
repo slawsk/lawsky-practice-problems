@@ -5,7 +5,10 @@ Created on Thu Oct  6 05:59:26 2022
 @author: Sarah
 """
 
-from bs4 import BeautifulSoup
+
+
+
+from bs4 import BeautifulSoup, Tag
 import pandas as pd
 import os
 import functionmodules as fm
@@ -23,7 +26,11 @@ from itertools import chain
 current_year = fm.current_year_for_book
 rev_proc = fm.rev_proc_for_book
 
+
+
 correct_reg_dict = 'CodeRegs/RegDictionaryWithJPG.txt'
+
+
 
 max_length = 450
 code_file_name = '04BCode'
@@ -39,6 +46,8 @@ intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_content
                   'Edited IRC Table of Contents (Partnership Tax)': ci.table_contents_info, 'Inflation Rev. Proc.': ci.inflation_info, 'Depreciation Rev. Proc.': ci.depreciation_info, code_dictionary_entry: ci.selected_sections_code_info, reg_dictionary_entry: ci.selected_sections_regs_info}
 
 possible_files_list = list(possible_include_dict.keys())
+
+
 
 type_run = convertfile.type_run
 
@@ -79,143 +88,14 @@ def merge_lists(listoflists):
     else:
         return merged_lists
 
-# AT LEAST ANNUALLY, OR WHEN LAW CHANGES
-# Download the files for the code and regulations.
 
-# Fix the problem in 1.704-2(m), 1.751-1(g), 1.1001-2(c), that the /div is in the wrong place and the regulations don't print:
-# Replace <div id="p-1.704-2(m)"><p class="indent-1" data-title="1.704-2(m)"><span class="paragraph-hierarchy"><span class="paren">(</span>m<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The principles of this section are illustrated by the following examples: </p></div> with <div id="p-1.704-2(m)"><p class="indent-1" data-title="1.704-2(m)"><span class="paragraph-hierarchy"><span class="paren">(</span>m<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The principles of this section are illustrated by the following examples: </p> and replace  that particular liability to the extent of the increase in minimum gain with respect to that liability.</p> </div> with  that particular liability to the extent of the increase in minimum gain with respect to that liability.</p> </div> </div>
-# Replace <div id="p-1.751-1(g)"><p class="indent-1" data-title="1.751-1(g)"><span class="paragraph-hierarchy"><span class="paren">(</span>g<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  Application of the provisions of section 751 may be illustrated by the following examples: </p></div> with <div id="p-1.751-1(g)"><p class="indent-1" data-title="1.751-1(g)"><span class="paragraph-hierarchy"><span class="paren">(</span>g<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  Application of the provisions of section 751 may be illustrated by the following examples: </p> AND REPLACE <p>(2) <em>The part of the distribution not under section 751(b).</em> The analysis under this subparagraph should be made in accordance with the principles illustrated in paragraph (e)(2) of examples 3, 4, and 5 of this paragraph.</p> </div> with <p>(2) <em>The part of the distribution not under section 751(b).</em> The analysis under this subparagraph should be made in accordance with the principles illustrated in paragraph (e)(2) of examples 3, 4, and 5 of this paragraph.</p> </div> </div>
-# Replace <div id="p-1.1001-2(c)"><p class="indent-1" data-title="1.1001-2(c)"><span class="paragraph-hierarchy"><span class="paren">(</span>c<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The provisions of this section may be illustrated by the following examples. In each example assume the taxpayer uses the cash receipts and disbursements method of accounting, makes a return on the basis of the calendar year, and sells or disposes of all property which is security for a given liability. </p></div> with <div id="p-1.1001-2(c)"><p class="indent-1" data-title="1.1001-2(c)"><span class="paragraph-hierarchy"><span class="paren">(</span>c<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The provisions of this section may be illustrated by the following examples. In each example assume the taxpayer uses the cash receipts and disbursements method of accounting, makes a return on the basis of the calendar year, and sells or disposes of all property which is security for a given liability. </p> AND REPLACE <p class="inline-paragraph">In 1980, F transfers to a creditor an asset with a fair market value of $6,000 and the creditor discharges $7,500 of indebtedness for which F is personally liable. The amount realized on the disposition of the asset is its fair market value ($6,000). In addition, F has income from the discharge of indebtedness of $1,500 ($7,500 − $6,000).</p> </div> with <p class="inline-paragraph">In 1980, F transfers to a creditor an asset with a fair market value of $6,000 and the creditor discharges $7,500 of indebtedness for which F is personally liable. The amount realized on the disposition of the asset is its fair market value ($6,000). In addition, F has income from the discharge of indebtedness of $1,500 ($7,500 − $6,000).</p> </div> </div>
-
-# Related to Section 1061(a)(2), in the Code, replace paragraphs (3) and (4) of sections\u202f<ref class=\"footnoteRef\" idref=\"fn002161\">1</ref> 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain with replace paragraphs (3) and (4) of sections [sic] 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain
-
-# Run create_clean_files()
-# Move Code Dictionary and Reg Dictionary to CodeRegs
-
-# Add the current updated Revenue Procedure to FilesForBook
-
-# update the current year for the book year in fm.current_year_for_book
-# update the current Rev Proc for the book year in fm.rev_proc_for_book
-
-# Update the introduction to FilesForBook (this can be automated to some extent)
-
-# Don't forget to change type_run in convertfile.py after you upload it Python Anywhere--this is about the path for the files
-
-# TO RUN ANNUALLY
+def bookmark_mark(item):
+    return f'<p>headingsixstart***{item}***headingsixend</p>'
 
 
-def create26NoNotes():
-    # URL: https://uscode.house.gov/download/download.shtml
-    # when you update the code, make sure to change code_updated in functionmodules
-    with open('CodeRegs/GovernmentDownloads/usc26.xml', encoding='utf8') as fp:
-        soup = BeautifulSoup(fp, 'xml')
-    to_remove = ["note", "notes", "sourceCredit"]
-    for r in to_remove:
-        for p in soup.find_all(r):
-            p.decompose()
+# Pull the sections that you want from the code and the regs. Run these on the files that have no notes except prospective amendment notes, that you have created by running create_clean_files
 
-    div_elements = soup.find_all('section')
-    div_library = {}
-    for div in div_elements:
-
-        section_number = div.num
-        section_title = div.heading
-        section_number_and_title = f"<section>{section_number}{section_title}</section>"
-        section_number_and_title = section_number_and_title.replace(
-            '\u2013', '-')
-
-        subsection_elements = div.find_all('subsection')
-        new_dict = {}
-        new_dict['num_title_string'] = section_number_and_title
-
-        if subsection_elements:
-            for item in subsection_elements:
-                subsection_number = item.get("identifier").rsplit('/', 1)[1]
-                new_dict[subsection_number] = str(item)
-
-        else:
-            num_tag = div.find('num')
-            if num_tag is not None:
-                num_tag.decompose()
-
-            heading_tag = div.find('heading')
-            if heading_tag is not None:
-                heading_tag.decompose()
-
-            new_dict['all'] = str(div)
-
-        div_library[find_code_for_usc_26(div.get("identifier"))] = new_dict
-
-    with open('CodeDictionary.txt', 'w', encoding='utf-8') as txt_file:
-        txt_file.write(json.dumps(div_library))
-
-# this creates the Regs files with no notes; use this as the input for creating the Code and regs. Run this annually.
-
-
-def createRegsFile():
-    # URL: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1 , save the HTML file
-    # for the 15a installment sale regs, https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-15a
-    # For the 301 regs, go to here and save the relevant regs with the appropriate titles (see below): https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR5ffaf3310af6b61
-
-    # string together all the relevant regulations
-    reg_string = ''
-    directory = 'CodeRegs/GovernmentDownloads/RegFiles'
-    for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        with open(f, encoding='utf8') as infile:
-            data = infile.read()
-            reg_string = reg_string + data
-
-    soup = BeautifulSoup(reg_string, 'lxml')
-
-    # get rid of the editorial notes
-    for p in soup.find_all('div', attrs={"class": "editorial-note"}):
-        p.decompose()
-
-    # get rid of the citations
-    for p in soup.find_all('p', attrs={"class": "citation"}):
-        p.decompose()
-
-    div_library = {}
-    div_elements = soup.find_all("div", attrs={"class": "section"})
-    for div in div_elements:
-        div_library[str(div.get("id"))] = str(div)
-
-    with open('RegDict.txt', 'w', encoding='utf-8') as txt_file:
-        txt_file.write(json.dumps(div_library))
-
-    # Now create the correct regulation dictionaries with the JPGS
-    def replace_text_in_file(file_path_in, file_path_out, location):
-        # Regular expression pattern for matching the URLs
-        url_pattern = r'https://img\.federalregister\.gov/.+?/'
-
-        # Read the original content of the file
-        with open(file_path_in, 'r', encoding='utf-8') as file:
-            content = file.read()
-
-        # Replace the URLs using the regex pattern
- 
-        content = re.sub(url_pattern, "../CodeRegs/jpg_pictures/", content)
-
-        # Replace .png with .jpg
-        content = content.replace(".png", ".jpg")
-
-        # Write the modified content back to the file
-        with open(file_path_out, 'w', encoding='utf-8') as file:
-            file.write(content)
-
-    
-    replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPG.txt', "home")
-
-
-def create_clean_files():
-    create26NoNotes()
-    createRegsFile()
-
-# create_clean_files()
-
-# Pull the sections that you want from the code and the regs. Run these on the files that have no notes, that you have created by running create_clean_files
-
+# createRegsFile()
 
 def fix_subsection(x):
     if isinstance(x, str):
@@ -243,8 +123,6 @@ def process_code_excel(sectionsToUse):
         lambda x: merge_lists(x)).reset_index()
     code_df['NumberToSort'] = code_df['Code'].apply(
         lambda x: find_the_number(x))
-    # print(code_df['SubsectionList'].dtypes)
-    # print(code_df['SubsectionList'].apply(type).value_counts())
     code_df = code_df.sort_values(by=['NumberToSort'])
 
     return code_df
@@ -289,6 +167,7 @@ def parse26(sectionsToUse, outputTitle):
     df = process_code_excel(sectionsToUse)
 
     code_sections_list = df['Code'].tolist()
+
     subsections_list = df['SubsectionList'].tolist()
     #listified = [x.split(",") for x in subsections_list]
 
@@ -301,8 +180,11 @@ def parse26(sectionsToUse, outputTitle):
     textstring = ""
     error_string = ""
     # include the relevant sections
-    try:
-        for item in code_sections_list:
+
+    for item in code_sections_list:
+        try:
+            textstring += bookmark_mark(item)
+
             subsection_dict = code_dict[str(item)]
 
             textstring += subsection_dict['num_title_string']
@@ -312,8 +194,9 @@ def parse26(sectionsToUse, outputTitle):
             for subsection in selected_subsections:
                 textstring += subsection_dict[subsection]
 
-    except:
-        error_string += f"Section {item}, "
+        except:
+            error_string += f"Section {item}, "
+            code_sections_list.remove(item)
 
     file = open(outputTitle, 'w', encoding='utf-8')
     file.write(introtext)
@@ -360,15 +243,22 @@ def parseRegs(sectionsToUse, outputTitle):
 
     # create the intro and endtext that allows the css file
 
-    
-    introtext = """<!doctype html>
+    if type_run == 'home':
+        introtext = """<!doctype html>
         <html>
           <head>
           <meta charset="utf-8">
-            <link href="../CodeRegs/regsStyleFast.css" rel="stylesheet" />
+            <link href="/mnt/c/Users/sbl083/Dropbox/Python/taxwebsite/CodeRegs/regsStyleFast.css" rel="stylesheet" />
           </head>
           <body>"""
-
+    else:
+        introtext = """<!doctype html>
+        <html>
+          <head>
+          <meta charset="utf-8">
+            <link href="/home/slawsky/taxappfiles/CodeRegs/regsStyleFast.css" rel="stylesheet" />
+          </head>
+          <body>"""
 
     endtext = """  </body>
     </html>"""
@@ -394,6 +284,7 @@ def parseRegs(sectionsToUse, outputTitle):
     for item in reg_sections_list:
         item = item.strip()
         try:
+            textstring += bookmark_mark(item)
             selected_subsections = lookupdict[item]
             if selected_subsections[0] in ['all', 'All', ""] or item in messed_up_list:
                 textstring += reg_dict[item].replace('§ ', '§')
@@ -413,6 +304,7 @@ def parseRegs(sectionsToUse, outputTitle):
                         textstring += (str(subsection_to_add))
         except:
             error_string += f"Section {item}, "
+            reg_sections_list.remove(item)
 
     def uppercase_match(match):
         # Return the original <h1> tags but with the inner text converted to uppercase
@@ -421,7 +313,8 @@ def parseRegs(sectionsToUse, outputTitle):
     textstring += endtext
     textstring = re.sub(r'<h4>(.*?)</h4>', uppercase_match,
                         textstring, flags=re.DOTALL)
-    #textstring  = re.sub(r'<a[^>]*>.*?</a>', '', textstring )
+    textstring = re.sub(r'headingsixstart', '<h6>', textstring)
+    textstring = re.sub(r'headingsixend', '</h6>',textstring)
     file = open(outputTitle, 'w', encoding='utf-8')
     file.write(textstring)
     file.close()
@@ -474,17 +367,6 @@ def add_page_numbers(input_path, output_path, pagenumbers):
         font_size = 10  # Replace with your desired font size
         font_name = "TiRo"
 
-        # These patterns are for adding the footers
-        code_pattern = r'§\d+[a-zA-Z]?(-\d+)?\.\s'  # FOOTERS DO NOT WORK
-        #reg_pattern = r"§\d+(\.\d+)?([a-zA-Z]?)-(\d+|[a-zA-Z]+)"
-        #reg_pattern = r"(§[0-9A-Z\(\)]+\.[A-Z0-9()-]+) (?=[^a-z]+\.)"
-        reg_pattern = r"§\d+[a-zA-Z]*(?:\([a-zA-Z]+\))?\.\d+[a-zA-Z]?(?:\([a-zA-Z]\))?-[a-zA-Z\d]+"
-        cover_page_pattern = 'Cover Page'
-
-        code_regex = re.compile(code_pattern)
-        reg_regex = re.compile(reg_pattern)
-        cover_page_regex = re.compile(cover_page_pattern)
-
         # keep a running list for the footers
         bookmark_list = [" "]
 
@@ -507,28 +389,26 @@ def add_page_numbers(input_path, output_path, pagenumbers):
                 text = text.replace('\uFFFD', ' ')
 
                 # search for the patterns in the page for the footers
-                cover_page_matches = cover_page_regex.findall(text)
-                code_matches = [match.group()
-                                for match in code_regex.finditer(text)]
-                reg_matches = [match.group()
-                               for match in reg_regex.finditer(text)]
-                #reg_matches = reg_regex.findall(text)
+                def extract_matches(text):
+                        pattern = r'\*\*\*(.*?)\*\*\*'
+                        match = re.findall(pattern, text)
+                        return match
+
+                matches = extract_matches(text)
+
+                cover_page_matches = re.search('Cover Page',text)
 
                 # if it is a cover page, there shouldn't be a footer. I put "Cover Page" in white text on all the cover pages. It's a space so that the footer from the previous page doesn't carry over
                 if cover_page_matches:
                     bookmark = " "
                     bookmark_list.append(bookmark)
 
-                # if the code pattern matches, the first match is what goes in the footer, and the last match goes in the list. This is for both the code and the regs
-                elif code_matches:
-                    bookmark = f"Code {code_matches[0][:-2]}"
-                    bookmark_to_add = f"Code {code_matches[-1][:-2]}"
+                # if the pattern matches, the first match is what goes in the footer, and the last match goes in the list. This is for both the code and the regs
+                elif matches:
+                    bookmark = f"§{matches[0]}"
+                    bookmark_to_add = f"§{matches[-1]}"
                     bookmark_list.append(bookmark_to_add)
-                elif reg_matches:
 
-                    bookmark = f"Reg. {reg_matches[0]}"
-                    bookmark_to_add = f"Reg. {reg_matches[-1]}"
-                    bookmark_list.append(bookmark_to_add)
                 # if there wasn't a match, put the last item on the bookmark list into the footer. This is what makes the footer be the last section that started on a previous page if there are no matches.
                 else:
                     bookmark = bookmark_list[-1]
@@ -571,24 +451,17 @@ def add_bookmarks(document, codelist, outputname):
     toc = doc.get_toc()
 
     for item in codelist:
-        # Define the string to search for. The regs don't have a period after them, but the code sections do. You have to search for the code section with a period after it or it will find the reg for example §1 in §1.61-1.
-        if "." in str(item) and "-" in str(item):
-            pattern = fr'§{item}'
-            to_add = pattern
-        else:
-            pattern = fr'§{item}.'
-            to_add = pattern[:-1]  # get rid of the period
+        # Define the pattern to search for: item surrounded by three asterisks
+        pattern = rf'\*\*\*{re.escape(str(item))}\*\*\*'
+        to_add = f'§ {item}'  # Bookmark text
 
-        # Search for the string on each page
+        # Search for the pattern on each page
         for i in range(len(doc)):
             page = doc[i]
             text = page.get_text()
-            # Search for the string. make the search case insensitive
-            patterntosearch = re.escape(str(pattern))
-            compiled_pattern = re.compile(patterntosearch, re.IGNORECASE)
 
-            # if the pattern is found on the page, add a bookmark to the page in the table of contents. the "2" in the list to append is because the Code and Reg sections are the second level of bookmarks, embedded under the first-level bookmarks of Code and Regulations. The first level of bookmarks goes in in merge_pdf and then this gets called after that function.
-            if re.search(compiled_pattern, text):
+            # Search for the pattern, case insensitive
+            if re.search(pattern, text, re.IGNORECASE):
                 toc.append([2, to_add, i + 1])
                 break
 
@@ -597,6 +470,7 @@ def add_bookmarks(document, codelist, outputname):
     doc.set_toc(toc)
 
     doc.save(f'{outputname}')
+
 
 
 def merge_pdfs(file_paths, output_path):
@@ -623,13 +497,13 @@ def merge_pdfs(file_paths, output_path):
                 title = line
                 break  # Split the text by newline and get the first line
 
-        if "§" not in title:
+        if "***" not in title:
             # Use title as the bookmark title
             toc.append([1, title, current_page])
 
         current_page += pdf.page_count  # Update current_page
         merger.insert_pdf(pdf)  # Now insert the contents of this file
-        # toc = sorted(toc, key=lambda x: x[2])
+
 
     merger.set_toc(toc)  # Set the TOC on the merged document
 

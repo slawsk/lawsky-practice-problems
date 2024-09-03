@@ -14,8 +14,11 @@ import time
 import base64
 import pandas as pd
 import io
-from flask import send_from_directory
+from flask import send_from_directory, jsonify
+from celery.result import AsyncResult
+from celery_tasks import create_code_book_task
 
+from celery_tasks import celery
 
 import faq
 import functionmodules as fm
@@ -24,7 +27,6 @@ import partnershiptaxproblems as pt
 import statutoryproblems as st
 import problemtopics as top
 import createCodeAndRegsImages as cc
-#import createCodeAndRegs as cc
 
 app=dash.Dash(__name__,meta_tags=[
         {"name": "viewport", "content": "width=device-width, initial-scale=1"},{'name':"description", 'content':"Free practice problems and quizzes for Federal Income Taxation law school classes."},{'name':"google-site-verification", 'content':"Cmw463c-ZgWSE_OZOraY3c4DGeppNfyb3MuTGLjFSGg"}
@@ -62,10 +64,13 @@ app.title = 'Lawsky Practice Problems'
 
 app.layout = html.Div([
         dcc.Location(id='url',refresh=False),
+        dcc.Interval(id='interval-component', interval=1000, n_intervals=0,disabled=True),
+        dcc.Store(id='task-id-store'),
+        dcc.Store(id='task-input-store'),
+        dcc.Store(id='reset-state', data=False),
         html.Div(id='page-content',style={'max-width':'1200px', 'margin':'0 auto', 'padding':'0 5%', 'background-color':'#fff','min-height':'100vh'})
 ],style={'background-color':'#95a5a6'})
 
-  
 
 fed_tax_layout = html.Div(children=[
         
@@ -145,10 +150,9 @@ rates_layout = html.Div([
     
     html.Br(),
     
-    dbc.Button('Submit Income',id='submitincome_button', n_clicks=0),
-    
-    html.Br(),
-    
+    dbc.Button('Submit Income',id='submitincome_button', n_clicks=0,style={'margin-bottom': '20px','display': 'block','width': '140px'}),
+
+
     dbc.Button('Reset Income',id='resetincome_button',style={'display': 'none'}, n_clicks=0),
     
     html.Br(),        
@@ -243,28 +247,20 @@ code_and_regs_layout = html.Div([
             children=dbc.Button('Upload File',id='submitfile-all',n_clicks=0),
             multiple=False
         ),
+        #dbc.Button('Upload File',id='submitfile-all',n_clicks=0),
+
         html.Br(),
         html.Div(html.H4('STEP 4: WAIT')),
         dcc.Markdown(faq.be_patient),
         html.Br(),
-        dcc.Loading(
-    id="loading-1",
-    type="default",
-    color='#95a5a6',
-    children=[
-        html.Div(
-            [             
-               
-                html.Div(id='upload-confirm-all'),
-            ]
-        )
-    ]
-),
+        html.Div([dcc.Markdown(id='upload-confirm-all', dangerously_allow_html=True)]),
+        html.Br(),
+        html.Br(),
         html.Div([html.Div(
             id='after-book-options',
             
             children = [
-        html.Div('Click here to reset the page in order upload a new set of desired sections and subsections.',id='offer-reset-book'),
+        html.Div('Click here to reset the page in order to upload a new set of desired sections and subsections.',id='offer-reset-book'),
         html.Br(),
         dbc.Button('Reset Book',id='book_reset_button', n_clicks=0),
         html.Br(),
@@ -450,56 +446,6 @@ other_projects_layout = html.Div(children=[
 
         ],style=fm.page_style_dict)
 
-rates_layout = html.Div([
-   navbar,
-
-    html.Br(),
-    html.H3('Tax Rates'),
-
-    html.Div("What is the taxpayer's filing status?"),
-
-    dcc.Dropdown(id='filing-status-pick',
-                options=[{'label':k, 'value':k} for k in fm.rates_dict.keys()],style={'width':'15em'},value='Single'
-                ),
-
-    html.Br(),
-
-    html.Div("What is the taxpayer's taxable income?"),
-
-    dbc.Input(id='taxable-income', type='number',style={'width':'15em','maxwidth':'100%'}),
-
-    html.Br(),
-
-    dbc.Button('Submit Income',id='submitincome_button', n_clicks=0),
-
-    html.Br(),
-
-    dbc.Button('Reset Income',id='resetincome_button',style={'display': 'none'}, n_clicks=0),
-
-    html.Br(),
-
-    dcc.Markdown(id='rates_answers'),
-
-    html.Br(),
-
-    html.Div([
-        dcc.Graph(
-            id='tax-rates-graph',
-        )
-    ],
-
-    style={'width': '100%', 'display': 'inline-block', 'padding': '0 20'}),
-
-
-
-    #this hidden button resets the explanation when someone picks a new type of problem
-    dbc.Button('Shhhh',id='hidden-counter-rates', n_clicks=0,style={'display': 'none'}),
-
-
-    html.Div(id='page-3-content'),
-],style=fm.page_style_dict)
-
-
                                                                                              
 @app.callback(Output('page-content', 'children'),
               [Input('url', 'pathname')],)
@@ -599,7 +545,7 @@ def rates_function(n_clickssubmit,filing_status,taxable_income):
        return '',{'display':'none'}
 
     else:
-       return bt.rates_facts(filing_status,taxable_income),{'display':'block'}
+       return bt.rates_facts(filing_status,taxable_income),{'display':'block','margin-top':'20px','width': '140px'}
 
 
 @app.callback(
@@ -880,6 +826,11 @@ def parse_contents(contents):
     return pd.ExcelFile(io.BytesIO(decoded))
 
 
+def parse_contents_code_book(contents):
+    content_type, content_string = contents.split(',')
+    decoded = base64.b64decode(content_string)
+    return decoded
+
 @app.server.route('/download/<path:path>')
 def serve_file_in_dir(path):
     if not os.path.isfile(path):
@@ -889,69 +840,100 @@ def serve_file_in_dir(path):
 
 
 
-@app.callback([Output('upload-confirm-all', 'children'),
-               Output('after-book-options','style')],
-              [Input('upload-data-all','contents')],
-              [State('submitfile-all','n_clicks'),
-               State('docs-dropdown','value'),
-               State('page-number-input','value')],prevent_initial_call=True)
-def create_code_regs(contents,nclicks,docsdropdown,pagenumbers):
-     
-    if contents is not None and contents != '' and nclicks>0:
-       
+@app.callback(
+    [Output('task-id-store', 'data', allow_duplicate=True),
+     Output('interval-component', 'disabled', allow_duplicate=True),
+     Output('reset-state', 'data', allow_duplicate=True)],
+    [Input('upload-data-all','contents'),
+     Input('reset-state', 'data')],
+    [State('submitfile-all','n_clicks'),
+     State('docs-dropdown','value'),
+     State('page-number-input','value')],
+    prevent_initial_call=True
+)
+def create_code_regs(contents, reset_state, nclicks, docsdropdown, pagenumbers):
+    if reset_state:
+        return {'task_id': None}, True, False
+
+    if contents is not None and contents != '' and nclicks > 0:
         fm.remove_old_files('saved_code')
         fm.remove_old_files('CodeRegs/FilesForBook')
-        full_file = parse_contents(contents)
+        full_file = parse_contents_code_book(contents)
+        full_file_b64 = base64.b64encode(full_file).decode('utf-8')
         now = datetime.timestamp(datetime.now())
         book_title = f'SelectedSections.{now}'
-        if 1 in pagenumbers:
-             pagenumber = True
+        with open(fm.counter_file, 'a') as f:
+            f.write(f"\n{now}")
+
+        pagenumber = 1 in pagenumbers
+
+        task = create_code_book_task.delay(book_title, full_file_b64, now, docsdropdown, pagenumber)
+
+        return {'task_id': task.id},False,False
+
+    return {'task_id': None},True,False
+
+@app.callback([Output('upload-confirm-all', 'children',allow_duplicate=True),
+             Output('after-book-options','style'),
+              Output('interval-component', 'disabled', allow_duplicate=True)],
+             [Input('interval-component', 'n_intervals')],
+             [State('task-id-store', 'data')],
+             prevent_initial_call = True)
+def update_results(n_intervals,task_data):
+
+    if task_data and task_data['task_id']:
+        task = AsyncResult(task_data['task_id'],app=celery)
+        if task.ready():
+
+            result = task.get()
+            if result['status']=='success':
+
+                all_errors = result['all_errors']
+                footer_error = result['footer_error']
+                download_link = f"[Download your Selected Sections book](/download/saved_code/{result['download_link']})"
+
+
+                if len(all_errors) > 3:
+                    reg_error = f"I could not find the following sections: {all_errors}."
+                else:
+                    reg_error = ""
+
+                if len(all_errors) > 3 or len(footer_error) > 1:
+                    message =  f"Your file was mostly processed successfully. However, I encountered the following issues. {reg_error} {footer_error} Click on the link below to download your Selected Sections book with those items omitted:\n\n [Download your Selected Sections book]({result['download_link']})"
+                else:
+                    message = f'''Your file was processed successfully. Click on the link below to download your Selected Sections book. Please check your book to make sure it contains all the sections you selected. The files from the government have some inconsistencies in how they are tagged. If you let me know about an issue pulling a particular section or subsection, I can fix the file so that it pulls correctly going forward.
+
+   [Download your Selected Sections book]({result['download_link']})
+
+    '''
+
+                return [message,{'display':'block'},True]
+            elif result['status'] == 'failure':
+                specific_problem =  result['error']
+                error_message = f'''
+    The spreadsheet was not able to be processed. Please check the formatting of the spreadsheet you uploaded and try again. The following string of text created an issue for the program: {specific_problem}.
+
+    '''
+                return [error_message,{'display':'block'},True]
         else:
-            pagenumber = False
-        try:
-        
-            all_errors,footer_error = cc.create_code_book(book_title,full_file,now,docsdropdown,pagenumber)
-            
-            download_link = f"[Download your Selected Sections book](/download/saved_code/{book_title}.pdf)"
-            if len(all_errors) > 3:
-                reg_error = f"I could not find the following sections: {all_errors}."
-            else:
-                reg_error = ""
-            
-            if len(all_errors) > 3 or len(footer_error) > 1:
-                message =  f"Your file was mostly processed successfully. However, I encountered the following issues. {reg_error} {footer_error} Click on the link below to download your Selected Sections book with those items omitted:\n\n{download_link}"
-            else:
-                message = f'''Your file was processed successfully. Click on the link below to download your Selected Sections book.
-
-{download_link}
-
-**Please check your book to make sure it contains all the sections you selected.** The files from the government have some inconsistencies in how they are tagged. If you let me know about an issue pulling a particular section or subsection, I can fix the file so that it pulls correctly going forward.
-'''
-        
-            return [dcc.Markdown(message,dangerously_allow_html=True),{'display':'block'}]
-        except Exception as e:
-            specific_problem =  str(e)
-            error_message = f'''
-The spreadsheet was not able to be processed. Please check the formatting of the spreadsheet you uploaded and try again. The following string of text created an issue for the program: {specific_problem}.
-
-'''
-            return [dcc.Markdown(error_message,dangerously_allow_html=True),{'display':'block'}]
+            return [random.choice(fm.waiting_list),{'display':'block'},False]
     else:
-        return ["",{'display':'none'}]
+        return ["",{'display':'none'},False]
 
-
-@app.callback([Output("submitfile-all", 'n_clicks'),
-               Output('docs-dropdown','value'),
-               Output('upload-data-all','contents')],
-              [Input('book_reset_button', 'n_clicks')])
-#              [State('file-number','children')])
+@app.callback(
+    [Output("submitfile-all", 'n_clicks'),
+    Output('upload-confirm-all', 'children',allow_duplicate=True),
+     Output('docs-dropdown','value'),
+     Output('upload-data-all','contents'),
+     Output('reset-state', 'data', allow_duplicate=True)],
+    [Input('book_reset_button', 'n_clicks')],
+     prevent_initial_call = True
+)
 def reset_code_book(n_clicks):
-    
     if n_clicks == 0:
         raise PreventUpdate
-    
     else:
-        return [0,"",""] 
+        return 0, "","", "", True
 
 if __name__ == '__main__':
     app.run_server(debug=False)
