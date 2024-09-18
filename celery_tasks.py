@@ -40,10 +40,5 @@ def create_code_book_task(book_title, full_file_b64, now, docsdropdown, pagenumb
             'error': str(e)
         }
 
-    finally:
-        # Close the connection
-        celery.backend.client.connection_pool.disconnect()
-        celery.broker_connection().connection_pool.disconnect()
-
     return result
 
