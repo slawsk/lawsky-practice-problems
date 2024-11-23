@@ -116,7 +116,7 @@ def pick_per_se_entity():
     else:
         country = random.choice(state)
         entity_type = "corporation"
-        entity_suffix = random.choice(['inc.','co.'])
+        entity_suffix = random.choice(['Inc.','Co.'])
         country_language = 'English'
     
     entity_name = random.choice(abc.animals_by_country_dict[country_language])
