@@ -36,31 +36,31 @@ state = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
 
 
 
-terms_by_country_ed_dict = {'Argentina': {'Sociedad Anonima': 'sa', 'Sociedad de Responsabilidad Limitada': 'srl', 'Sociedad en Comandita por Acciones': 'scpa'}, 
-                            'Australia': {'Limited Liability Partnership': 'LLP', 'Unlimited Proprietary Company': 'pty','Public Limited Company':'plc'}, 
-                            'Austria': {'eingetragenes Einzelunternehmen': 'eu', 'Aktiengesellschaft': 'ag', 'offene Gesellschaft': 'og', 'Kommanditgesellschaft': 'kg'}, 
-                            'Belgium': {'vereniging zonder winstoogmerk': 'vzw', 'vennootschap onder firma': 'vof', 'eenpersoons besloten vennootschap met beperkte aansprakelijkheid': 'ebvba', 'gewone commanditaire vennootschap': 'comm.v','Societe Anonyme':'sa'}, 
-                            'Brazil': {'Sociedade limitada': 'ltda', 'Sociedade Anonima': 'sa'}, 
-                            'Canada': {'Limited Partnership': 'lp', 'Corporation':'inc','Company':'co.'}, 
-                            'Chile': {'Empresa Individual de Responsabilidad Limitada': 'eirl', 'Sociedad Anonima': 'sa', 'Sociedad de responsabilidad limitada': 'ltda'}, 
-                            'Colombia': {'Sociedad Anonima': 'sa', 'Empresa Unipersonal': 'e.u.', 'Sociedad de Responsabilidad Limitada': 'ltda'}, 
-                            'Dominican Republic': {'Sociedad Anonima': 'sa', 'Sociedad de Resposabilidad Limitada': 'srl', 'Empresa Individual de Responsabilidad Limitada': 'eirl.'}, 
-                            'Ecuador': {'Sociedad Anonima': 'sa', 'Compania Limitada': 'Cia. Ltda.','Compania Anonima':'ca'}, 
-                            'France': {'Societe en nom collectif': 'snc', 'Societe en commandite simple': 'scs', 'Societe Anonyme': 'SA'}, 
-                            'Germany': {'Kommanditgesellschaft': 'kg', 'Gesellschaft burgerlichen Rechts': 'gbr', 'Offene Handelsgesellschaft': 'ohg', 'Gesellschaft mit beschrankter Haftung': 'gmbh', 'Aktiengesellschaft': 'ag'}, 
-                            'Guatemala': {'Sociedad Anonima': 'sa'}, 
-                            'Haiti': {'Sociedad Anonima': 'sa'}, 
-                            'India': {'Public Limited Company': 'ltd.'}, 
-                            'Luxembourg': {'Societe Anonyme': 'sa', 'Societe a responsabilite limitee': 'sarl'}, 
-                            'Mexico': {'Sociedad Anonima': 'sa', 'Sociedad de Responsabilidad Limitada': 's. de. r.l.', 'Sociedad en Comandita Simple': 's. en c.'}, 
-                            'Netherlands': {'Vennootschap onder firma': 'vof', 'Commanditaire vennootschap': 'nv','Naamloze Vennootschap':'nv'}, 
+terms_by_country_ed_dict = {'Argentina': {'Sociedad Anonima': 'SA', 'Sociedad de Responsabilidad Limitada': 'SRL', 'Sociedad en Comandita por Acciones': 'SCpA'}, 
+                            'Australia': {'Limited Liability Partnership': 'LLP', 'Unlimited Proprietary Company': 'Pty','Public Limited Company':'PLC'}, 
+                            'Austria': {'eingetragenes Einzelunternehmen': 'eu', 'Aktiengesellschaft': 'AG', 'offene Gesellschaft': 'OG', 'Kommanditgesellschaft': 'KG'}, 
+                            'Belgium': {'vereniging zonder winstoogmerk': 'vzw', 'vennootschap onder firma': 'vof', 'eenpersoons besloten vennootschap met beperkte aansprakelijkheid': 'ebvba', 'gewone commanditaire vennootschap': 'comm.v','Societe Anonyme':'SA'}, 
+                            'Brazil': {'Sociedade limitada': 'Ltda', 'Sociedade Anonima': 'SA'}, 
+                            'Canada': {'Limited Partnership': 'LP', 'Corporation':'Inc','Company':'Co.'}, 
+                            'Chile': {'Empresa Individual de Responsabilidad Limitada': 'EIRL', 'Sociedad Anonima': 'SA', 'Sociedad de responsabilidad limitada': 'Ltda'}, 
+                            'Colombia': {'Sociedad Anonima': 'SA', 'Empresa Unipersonal': 'E.U.', 'Sociedad de Responsabilidad Limitada': 'Ltda'}, 
+                            'Dominican Republic': {'Sociedad Anonima': 'SA', 'Sociedad de Resposabilidad Limitada': 'SRL', 'Empresa Individual de Responsabilidad Limitada': 'EIRL'}, 
+                            'Ecuador': {'Sociedad Anonima': 'SA', 'Compania Limitada': 'Cia. Ltda.','Compania Anonima':'CA'}, 
+                            'France': {'Societe en nom collectif': 'SNC', 'Societe en commandite simple': 'SCS', 'Societe Anonyme': 'SA'}, 
+                            'Germany': {'Kommanditgesellschaft': 'KG', 'Gesellschaft burgerlichen Rechts': 'GbR', 'Offene Handelsgesellschaft': 'OHg', 'Gesellschaft mit beschrankter Haftung': 'GmbH', 'Aktiengesellschaft': 'AG'}, 
+                            'Guatemala': {'Sociedad Anonima': 'SA'}, 
+                            'Haiti': {'Sociedad Anonima': 'SA'}, 
+                            'India': {'Public Limited Company': 'Ltd.'}, 
+                            'Luxembourg': {'Societe Anonyme': 'SA', 'Societe a responsabilite limitee': 'Sarl'}, 
+                            'Mexico': {'Sociedad Anonima': 'SA', 'Sociedad de Responsabilidad Limitada': 'S. de. R.L.', 'Sociedad en Comandita Simple': 'S. en C.'}, 
+                            'Netherlands': {'Vennootschap onder firma': 'Vof', 'Commanditaire vennootschap': 'CV','Naamloze Vennootschap':'NV'}, 
                             'New Zealand': {'limited liability company': 'limited','Limited Company':''}, 
-                            'Nigeria': {'Public Limited Company': 'plc', 'Private Limited Company': 'ltd.'}, 
-                            'Portugal': {'Limitada': 'lda.', 'Sociedade Anonima': 'sa'}, 
-                            'Spain': {'Sociedad Anonima': 'sa', 'Sociedad Limitada': 'sl', 'Sociedad Limitada Nueva Empresa': 's.l.n.e.', 'Sociedad Colectiva': 's.c.', 'Sociedad Comanditaria': 's.cra'}, 
-                            'Switzerland': {'Societe Anonyme': 'sa', 'Gesellschaft mit beschrankter Haftung': 'gmbh', 'Societe a responsabilite limitee': 'sarl','Aktiengesellschaft':'ag'}, 
-                            'United Kingdom': {'Public Limited Company': 'plc', 'Limited Liability Partnership': 'llp', 'Limited Partnership': 'lp'}, 
-                            'United States': {'Limited Liability Company': 'llc', 'corporation': 'inc', 'Limited Liability Partnership': 'llp', 'limited partnership': 'lp'}}
+                            'Nigeria': {'Public Limited Company': 'PLC', 'Private Limited Company': 'Ltd.'}, 
+                            'Portugal': {'Limitada': 'Lda.', 'Sociedade Anonima': 'SA'}, 
+                            'Spain': {'Sociedad Anonima': 'SA', 'Sociedad Limitada': 'SL', 'Sociedad Limitada Nueva Empresa': 'S.L.N.E.', 'Sociedad Colectiva': 'S.C.', 'Sociedad Comanditaria': 'S.Cra'}, 
+                            'Switzerland': {'Societe Anonyme': 'SA', 'Gesellschaft mit beschrankter Haftung': 'GmbH', 'Societe a responsabilite limitee': 'Sarl','Aktiengesellschaft':'AG'}, 
+                            'United Kingdom': {'Public Limited Company': 'PLC', 'Limited Liability Partnership': 'LLP', 'Limited Partnership': 'LP'}, 
+                            'United States': {'Limited Liability Company': 'LLC', 'corporation': 'Inc', 'Limited Liability Partnership': 'LLP', 'limited partnership': 'LP'}}
 
 languages = {'English':['Australia','Canada','India','United Kingdom','United States','New Zealand','Nigeria'],'Spanish':['Argentina','Chile','Colombia','Dominican Republic','Ecuador','Guatemala','Mexico','Spain','Peru'],'German':['Austria','Germany','Switzerland'],'Dutch':['Belgium','Netherlands'],'French':['France','Haiti','Luxembourg'],'Portugese':['Brazil','Portugal']}
 
@@ -77,13 +77,13 @@ dictionary_by_general_type = {
     'Private Company':[['United Kingdom','Private Company','']]}
 
 dictionary_by_general_type_no_US = {
-    'Limited Liability Company': [['Argentina', 'Sociedad Anonima', 'sa'], ['Argentina', 'Sociedad de Responsabilidad Limitada', 'srl'], ['Australia', 'Public Limited Company', 'plc'], ['Belgium', 'Societe Anonyme', 'sa'], ['Brazil', 'Sociedade Anonima', 'sa'], ['Chile', 'Sociedad Anonima', 'sa'], ['Colombia', 'Sociedad Anonima', 'sa'], ['Dominican Republic', 'Sociedad Anonima', 'sa'], ['Dominican Republic', 'Sociedad de Resposabilidad Limitada', 'srl'], ['Ecuador', 'Sociedad Anonima', 'sa'], ['Guatemala', 'Sociedad Anonima', 'sa'], ['Haiti', 'Sociedad Anonima', 'sa'], ['Luxembourg', 'Societe Anonyme', 'sa'], ['Luxembourg', 'Societe a responsabilite limitee', 'sarl'], ['Mexico', 'Sociedad Anonima', 'sa'], ['Netherlands', 'Commanditaire vennootschap', 'nv'], ['Netherlands', 'Naamloze Vennootschap', 'nv'], ['Nigeria', 'Public Limited Company', 'plc'], ['Portugal', 'Sociedade Anonima', 'sa'], ['Spain', 'Sociedad Anonima', 'sa'], ['Switzerland', 'Societe Anonyme', 'sa'], ['Switzerland', 'Societe a responsabilite limitee', 'sarl'], ['United Kingdom', 'Public Limited Company', 'plc']], 
-    'Limited Partnership': [['Argentina', 'Sociedad en Comandita por Acciones', 'scpa'], ['Austria', 'Kommanditgesellschaft', 'kg'], ['Belgium', 'gewone commanditaire vennootschap', 'comm.v'], ['Canada', 'Limited Partnership', 'lp'], ['France', 'Societe en commandite simple', 'scs'], ['Germany', 'Kommanditgesellschaft', 'kg'], ['Mexico', 'Sociedad en Comandita Simple', 's. en c.'], ['Spain', 'Sociedad Comanditaria', 's.cra'], ['United Kingdom', 'Limited Partnership', 'lp'], ['United States', 'limited partnership', 'lp']], 'Limited Liability Partnership': [['Australia', 'Limited Liability Partnership', 'llp'], ['United Kingdom', 'Limited Liability Partnership', 'llp']], 
-    'Corporation': [['Austria', 'Aktiengesellschaft', 'ag'], ['Canada', 'Corporation', 'inc'], ['Canada', 'Company', 'co'], ['Ecuador', 'Compania Anonima', 'ca'], ['France', 'Societe Anonyme', 'SA'], ['Germany', 'Aktiengesellschaft', 'ag'], ['Switzerland', 'Aktiengesellschaft', 'ag']], 
-    'General Partnership': [['Austria', 'offene Gesellschaft', 'og'], ['Belgium', 'vennootschap onder firma', 'vof'], ['France', 'Societe en nom collectif', 'snc'], ['Germany', 'Offene Handelsgesellschaft', 'ohg'], ['Netherlands', 'Vennootschap onder firma', 'vof']], 'Limited': [['Brazil', 'Sociedade limitada', 'ltda'], ['Chile', 'Sociedad de responsabilidad limitada', 'ltda'], ['Colombia', 'Sociedad de Responsabilidad Limitada', 'ltda'], ['Germany', 'Gesellschaft mit beschrankter Haftung', 'gmbh'], ['India', 'Public Limited Company', 'ltd'], ['New Zealand', 'limited liability company', 'limited'], ['Nigeria', 'Private Limited Company', 'ltd'], ['Portugal', 'Limitada', 'lda.'], ['Switzerland', 'Gesellschaft mit beschrankter Haftung', 'gmbh']],
+    'Limited Liability Company': [['Argentina', 'Sociedad Anonima', 'SA'], ['Argentina', 'Sociedad de Responsabilidad Limitada', 'SRL'], ['Australia', 'Public Limited Company', 'PLC'], ['Belgium', 'Societe Anonyme', 'SA'], ['Brazil', 'Sociedade Anonima', 'SA'], ['Chile', 'Sociedad Anonima', 'SA'], ['Colombia', 'Sociedad Anonima', 'SA'], ['Dominican Republic', 'Sociedad Anonima', 'SA'], ['Dominican Republic', 'Sociedad de Resposabilidad Limitada', 'SRL'], ['Ecuador', 'Sociedad Anonima', 'SA'], ['Guatemala', 'Sociedad Anonima', 'SA'], ['Haiti', 'Sociedad Anonima', 'SA'], ['Luxembourg', 'Societe Anonyme', 'SA'], ['Luxembourg', 'Societe a responsabilite limitee', 'Sarl'], ['Mexico', 'Sociedad Anonima', 'SA'], ['Netherlands', 'Commanditaire vennootschap', 'CV'], ['Netherlands', 'Naamloze Vennootschap', 'NV'], ['Nigeria', 'Public Limited Company', 'PLC'], ['Portugal', 'Sociedade Anonima', 'SA'], ['Spain', 'Sociedad Anonima', 'SA'], ['Switzerland', 'Societe Anonyme', 'SA'], ['Switzerland', 'Societe a responsabilite limitee', 'Sarl'], ['United Kingdom', 'Public Limited Company', 'PLC']], 
+    'Limited Partnership': [['Argentina', 'Sociedad en Comandita por Acciones', 'scpa'], ['Austria', 'Kommanditgesellschaft', 'kg'], ['Belgium', 'gewone commanditaire vennootschap', 'comm.v'], ['Canada', 'Limited Partnership', 'LP'], ['France', 'Societe en commandite simple', 'SCS'], ['Germany', 'Kommanditgesellschaft', 'KG'], ['Mexico', 'Sociedad en Comandita Simple', 'S. en C.'], ['Spain', 'Sociedad Comanditaria', 'S.Cra'], ['United Kingdom', 'Limited Partnership', 'LP'], ['United States', 'limited partnership', 'LP']], 'Limited Liability Partnership': [['Australia', 'Limited Liability Partnership', 'LLP'], ['United Kingdom', 'Limited Liability Partnership', 'LLP']], 
+    'Corporation': [['Austria', 'Aktiengesellschaft', 'AG'], ['Canada', 'Corporation', 'Inc'], ['Canada', 'Company', 'Co'], ['Ecuador', 'Compania Anonima', 'CA'], ['France', 'Societe Anonyme', 'SA'], ['Germany', 'Aktiengesellschaft', 'AG'], ['Switzerland', 'Aktiengesellschaft', 'AG']], 
+    'General Partnership': [['Austria', 'offene Gesellschaft', 'oG'], ['Belgium', 'vennootschap onder firma', 'vof'], ['France', 'Societe en nom collectif', 'SNC'], ['Germany', 'Offene Handelsgesellschaft', 'OHg'], ['Netherlands', 'Vennootschap onder firma', 'Vof']], 'Limited': [['Brazil', 'Sociedade limitada', 'Ltda'], ['Chile', 'Sociedad de responsabilidad limitada', 'Ltda'], ['Colombia', 'Sociedad de Responsabilidad Limitada', 'Ltda'], ['Germany', 'Gesellschaft mit beschrankter Haftung', 'GmbH'], ['India', 'Public Limited Company', 'Ltd'], ['New Zealand', 'limited liability company', 'Limited'], ['Nigeria', 'Private Limited Company', 'Ltd'], ['Portugal', 'Limitada', 'Lda.'], ['Switzerland', 'Gesellschaft mit beschrankter Haftung', 'GmbH']],
     'Private Company':[['United Kingdom','Private Company','']]}
 
-suffix_US = {'Limited Liability Company':'llc','Limited Partnership':'lp','General Partnership':'gp','Limited Liability Partnership':'llp'}
+suffix_US = {'Limited Liability Company':'LLC','Limited Partnership':'LP','General Partnership':'GP','Limited Liability Partnership':'LLP'}
 
 triple_entity_type_dict= {
 '[1, 1, 0]':['General Partnership'],
