@@ -178,17 +178,6 @@ def pick_other_entity():
     
     return other_entity
 
-def pick_triple():
-
-    type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
-  
-    while type_triple == [0,0,0]:
-        type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
-
-    return type_triple
-
-
-
   
 # problem = f"{entity_name} {entity_suffix} is organized in {country} as {fm.pick_a_an(entity_type)} {entity_type}. Is {entity_name} eligible to check the box?" 
 # print(problem)
