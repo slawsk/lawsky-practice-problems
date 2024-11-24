@@ -129,14 +129,12 @@ def pick_per_se_entity():
     return(per_se_entity)
 
 def pick_other_entity():
-    type_triple = []
-    
-    while True:
-        for n in range(0,3):
-            type_triple.append(random.choice([1,0]))
-        if not(type_triple[1] == type_triple[2] == 0):
-            break
 
+    type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
+  
+    while type_triple == [0,0,0]:
+        type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
+        
     if type_triple[0]==0:
         foreign_US = 'U.S.'
     elif type_triple[0]==1:
@@ -178,8 +176,20 @@ def pick_other_entity():
 
     other_entity = BusinessEntity(country,entity_type,entity_suffix,entity_name,default_choice,elect_choice,member_language,liability_language,type_triple,foreign_US)
     
-    return(other_entity)
-    
+    return other_entity
+
+def pick_triple():
+
+    type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
+  
+    while type_triple == [0,0,0]:
+        type_triple = [random.choice([1,0]),random.choice([1,0]),random.choice([1,0])]
+
+    return type_triple
+
+
+
+  
 # problem = f"{entity_name} {entity_suffix} is organized in {country} as {fm.pick_a_an(entity_type)} {entity_type}. Is {entity_name} eligible to check the box?" 
 # print(problem)
 # def create_entity():
