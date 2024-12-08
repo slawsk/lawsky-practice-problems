@@ -1136,7 +1136,7 @@ def create_answer_key(fullstring, date):
     website_string = "## https://www.lawskypracticeproblems.org/ \n"
     exam_title_string = f"## Practice Quiz {current_date_for_text} \n"
 
-    answer_key_title_base = f"saved_files/federalincometaxquiz.{date}"
+    answer_key_title_base = f"saved_files/taxquiz.{date}"
 
     answer_key_title = f"{answer_key_title_base}.md"
 
