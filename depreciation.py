@@ -315,9 +315,6 @@ def create_cap_gain_year(year=fm.current_year):
         list_of_prices.append(item.purchase_price)
         list_of_prices.append(item.sale_price)
 
-    print(answer_lang)
-    print(asset_purchase_lang)
-
     net_STCL = max(0, STCL - STCG)
     net_LTCG = max(0, LTCG - LTCL)
 
