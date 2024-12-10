@@ -145,6 +145,8 @@ waiting_list = [
     "Distributing partnership assets tax-free...",
 ]
 
+MAX_QUIZ_QUESTIONS = 20
+
 # At the beginning of each calendar year:
 # (1) Use createRatesDF.py to create the inflation brackets
 # (2) Use the relevant revenue procedure to fill in adjustments_YEAR_dict below
@@ -933,6 +935,14 @@ def random_answer_pot(possibleanswers, judgements, pot, start=80, end=120):
             comparenum = random.choice(mean_list)
         else:
             comparenum = statistics.mean(mean_list)
+
+        start_nearest = nearest_pot(comparenum * start / 100, pot)
+        end_nearest = nearest_pot(comparenum * end / 100, pot)
+        if (
+            end_nearest - start_nearest <= 10**pot
+        ) and start_nearest in possibleanswers:
+            comparenum += end_nearest + 10**pot
+
         rand_answer = generate_random_pot(comparenum, pot, start, end)
         if rand_answer not in possibleanswers:
             possibleanswers.append(rand_answer)
