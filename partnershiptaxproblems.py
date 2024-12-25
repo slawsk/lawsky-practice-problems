@@ -17,6 +17,7 @@ import businessentities as be
 import animalsbycountry as abc
 import currency as curr
 import depreciation as dp
+from operator import add, sub
 
 
 def excess_of(x, y):
@@ -29,6 +30,72 @@ class Section_731_asset:
         self.assettype = assettype
         self.fmv = fmv
         self.basis = basis
+        self._first_adjustment = None
+        self._interim_basis = None
+        self._second_adjustment = None
+        self._adjusted_basis = None
+        self._adjustment_language = None
+        self._wrong_basis = None
+
+    @property
+    def built_in_gain(self):
+        return excess_of(self.fmv, self.basis)
+
+    @property
+    def built_in_loss(self):
+        return excess_of(self.basis, self.fmv)
+
+    @property
+    def interim_adjustment(self):
+        return self._interim_adjustment
+
+    @property
+    def interim_basis(self):
+        return self._interim_basis
+
+    @property
+    def first_adjustment(self):
+        return self._first_adjustment
+
+    @property
+    def second_adjustment(self):
+        return self._second_adjustment
+
+    @property
+    def adjustment_language(self):
+        return self._adjustment_language
+
+    @property
+    def wrong_basis(self):
+        return self._wrong_basis
+
+    @property
+    def adjusted_basis(self):
+        return self._adjusted_basis
+
+    @interim_basis.setter
+    def interim_basis(self, value):
+        self._interim_basis = value
+
+    @adjusted_basis.setter
+    def adjusted_basis(self, value):
+        self._adjusted_basis = value
+
+    @first_adjustment.setter
+    def first_adjustment(self, value):
+        self._first_adjustment = value
+
+    @second_adjustment.setter
+    def second_adjustment(self, value):
+        self._second_adjustment = value
+
+    @adjustment_language.setter
+    def adjustment_language(self, value):
+        self._adjustment_language = value
+
+    @wrong_basis.setter
+    def wrong_basis(self, value):
+        self._wrong_basis = value
 
 
 # Implementation
@@ -46,7 +113,7 @@ functions_list = [
     "7.2 Section 724",
     "8 Section 704(c) sale",
     "8 Section 704(c) depreciation",
-    "9.1 Partnership distribution gain or loss",
+    "9.1 Partnership distributions (Sections 731, 732, 733)",
 ]
 
 true_functions_list = functions_list[1:]
@@ -2353,28 +2420,21 @@ def Section_724():
     return [problem, cleananswers, judgements_json, correct]
 
 
-def Section_731():
+def partnership_distributions():
     partner = fm.create_person()
     partnership = fm.pick_entity_name(type="partnership")
 
     number_list = []
 
     def create_number(basenumber):
-        number_to_use = fm.generate_random_pot(basenumber, 2)
+        number_to_use = fm.generate_random_pot(basenumber, 2, start=60, end=150)
         while number_to_use in number_list:
-            number_to_use = fm.generate_random_pot(basenumber, 2)
+            number_to_use = fm.generate_random_pot(basenumber, 2, start=60, end=150)
         number_list.append(number_to_use)
         return number_to_use
 
-    accounts_receivable_fmv = 1000 * random.randint(3, 15)
-    accounts_receivable_basis = random.choice([accounts_receivable_fmv, 0])
-    accounts_receivable_type = "hot" if accounts_receivable_basis == 0 else "other"
-
     accounts_receivable = Section_731_asset(
-        "accounts receivable",
-        accounts_receivable_type,
-        accounts_receivable_fmv,
-        accounts_receivable_basis,
+        "accounts receivable", "hot", 1000 * random.randint(3, 15), 0
     )
     inventory = Section_731_asset(
         "inventory",
@@ -2397,48 +2457,63 @@ def Section_731():
 
     type_distribution = random.choice(["current operating", "liquidating"])
 
-    outside_basis = 1000 * random.randint(3, 20)
+    # question_type = "asset_basis_q"
 
-    number_assets = random.randint(1, 2)
-    cash_amount = fm.generate_random_pot(outside_basis, 3)
-    cash_distributed = f"{fm.ac(cash_amount)} cash"
+    question_type = random.choices(
+        ["partner_gain_loss", "asset_basis_q", "partnership_gain_loss"],
+        [0.45, 0.45, 0.1],
+        k=1,
+    )[0]
 
-    all_assets_distributed = random.sample(
-        [accounts_receivable, inventory, piece_of_land, building],
-        k=number_assets,
-    )
+    print(question_type)
 
-    hot_assets_distributed = random.sample(
-        [accounts_receivable, inventory],
-        k=number_assets,
-    )
+    if question_type != "asset_basis_q":
+        number_assets = random.randint(1, 2)
 
-    assets_distributed = random.choice([all_assets_distributed, hot_assets_distributed])
+        all_assets_distributed = random.sample(
+            [accounts_receivable, inventory, piece_of_land, building],
+            k=number_assets,
+        )
+
+        hot_assets_distributed = random.sample(
+            [accounts_receivable, inventory],
+            k=number_assets,
+        )
+        assets_distributed = random.choice(
+            [all_assets_distributed, hot_assets_distributed]
+        )
+        outside_basis = 1000 * random.randint(3, 20)
+        cash_amount = random.choice([fm.generate_random_pot(outside_basis, 3), 0])
+
+    else:
+        assets_distributed = [accounts_receivable, inventory, piece_of_land, building]
+        cash_amount = fm.generate_random_pot(
+            accounts_receivable.fmv, 3, start=20, end=60
+        )
+
+        outside_basis = fm.generate_random_pot(
+            (sum(asset.basis for asset in assets_distributed) + cash_amount),
+            3,
+            start=70,
+            end=130,
+        )
+
+    asset_basis_target = random.choice(assets_distributed)
+
+    question_lang_dict = {
+        "partner_gain_loss": f"How much gain or loss does {partner.name} recognize due to the distribution?",
+        "partnership_gain_loss": f"How much gain or loss does {partnership}, recognize due to the distribution?",
+        "asset_basis_q": f"What is the basis to {partner.name} of the {asset_basis_target.asset}?",
+    }
 
     assets_distributed_string = ""
 
     for n in assets_distributed:
-        assets_distributed_string += f"{n.asset} with a basis of {fm.ac(n.basis)} and a fair market value of {fm.ac(n.fmv)}; "
+        assets_distributed_string += f"\n- {n.asset.capitalize()} with a basis of {fm.ac(n.basis)} and a fair market value of {fm.ac(n.fmv)}"
 
-    if random.randint(0, 1) == 1:
-        cash_amount = fm.generate_random_pot(outside_basis, 3)
-    else:
-        cash_amount = 0
+    assets_distributed_string += f"\n- {fm.ac(cash_amount)} cash"
 
-    assets_distributed_string += f"{fm.ac(cash_amount)} cash"
-
-    partner_gain_loss = (
-        f"How much gain or loss does {partner.name} recognize due to the distribution?"
-    )
-    partnership_gain_loss = (
-        f"How much gain or loss does {partnership}, recognize due to the distribution?"
-    )
-
-    question_type = random.choices(
-        [partner_gain_loss, partnership_gain_loss], [0.8, 0.2], k=1
-    )[0]
-
-    problem = f"{partnership}, which is taxed as a partnership, makes a {type_distribution} distribution to {partner.name}, who immediately before the distribution has a basis in {partnership}, of {fm.ac(outside_basis)}, of the following: {assets_distributed_string}. The distribution is a pro rata distribution with respect to Section 751 assets--that is, it does not shift any member's relative interest in Section 751 'hot' assets. {question_type}"
+    problem = f"{partnership}, which is taxed as a partnership, makes a {type_distribution} distribution to {partner.name}, who immediately before the distribution has a basis in {partnership}, of {fm.ac(outside_basis)}, of the following:\n {assets_distributed_string}\n\nThe distribution is a pro rata distribution with respect to Section 751 assets--that is, it does not shift any member's relative interest in Section 751 'hot' assets.\n\n{question_lang_dict[question_type]}"
 
     total_fmv_distribution = (
         sum(asset.fmv for asset in assets_distributed) + cash_amount
@@ -2451,6 +2526,14 @@ def Section_731():
     total_hot_assets_basis = sum(
         asset.basis for asset in assets_distributed if asset.assettype == "hot"
     )
+    total_other_basis = sum(
+        asset.basis for asset in assets_distributed if asset.assettype == "other"
+    )
+
+    max_basis_left_for_assets = excess_of(outside_basis, cash_amount)
+
+    if type_distribution == "liquidating":
+        min_basis_for_assets = max_basis_left_for_assets
 
     gain_realized = excess_of(total_fmv_distribution, outside_basis)
     asset_gain = excess_of(total_fmv_distribution, total_basis_distribution)
@@ -2458,15 +2541,18 @@ def Section_731():
     loss_realized = excess_of(outside_basis, total_fmv_distribution)
     cash_over_basis = excess_of(cash_amount, outside_basis)
     basis_over_hot = excess_of(outside_basis, cash_amount + total_hot_assets_basis)
+    hot_over_basis = excess_of((cash_amount + total_hot_assets_basis), outside_basis)
 
-    possible_answers_initial = [
-        gain_realized,
-        loss_realized,
-        cash_over_basis,
-        basis_over_hot,
-        asset_gain,
-        asset_loss,
-    ]
+    if question_type != "asset_basis_q":
+        possible_answers_initial = [
+            gain_realized,
+            loss_realized,
+            cash_over_basis,
+            basis_over_hot,
+            asset_gain,
+            asset_loss,
+            cash_amount,
+        ]
 
     def create_possible_answers(initial_list):
         initial_list = sorted(list(set(initial_list)))
@@ -2484,14 +2570,18 @@ def Section_731():
 
     judgements = {}
 
-    if question_type == partnership_gain_loss:
+    if question_type == "partnership_gain_loss":
         correct = f"{fm.ac(0)} loss or gain"
         correct_explanation = "<p>Correct! A entity taxed as a partnership never recognizes gain or loss on a distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(b).</p>"
 
-    else:
+    elif question_type == "partner_gain_loss":
+        cash_answer = f"{fm.ac(cash_amount)} gain"
+        judgements[cash_answer] = (
+            f"Does {partner.name} recognize gain equal to the full amount of the cash distributed? What is {partner.name}'s outside basis?"
+        )
         if cash_over_basis > 0:
             correct = f"{fm.ac(cash_over_basis)} gain"
-            correct_explanation = "<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a partner does recognize gain to the extent that any money distributed exceeds the adjusted basis of such partner's interest immediately before the distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(a)(1).</p>"
+            correct_explanation = "<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a member does recognize gain to the extent that any money distributed exceeds the adjusted basis of such member's interest immediately before the distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(a)(1).</p>"
 
         elif (basis_over_hot > 0) and (
             all(asset.assettype != "other" for asset in assets_distributed)
@@ -2509,12 +2599,220 @@ def Section_731():
             correct = f"{fm.ac(0)} loss or gain"
             correct_explanation = f"<p>Correct! The general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership. Here, {partner.name} does not receive cash in excess of {partner.poss} outside basis immediately before distribution, and does not receives only cash and hot assets in a liquidating distribution where {partner.name}'s outside basis immediately before the distribution exceeds the sum of cash received and the basis to the entity of the hot assets. Therefore, {partner.name} recognizes neither gain nor loss. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>.</p>"
 
-    judgements[correct] = correct_explanation
-    possibleanswers = create_possible_answers(possible_answers_initial)
+    elif question_type == "asset_basis_q":
+        possibleanswers = [0, asset_basis_target.fmv, asset_basis_target.basis]
+        asset_adjustment_string = ""
+        hot_list = [asset for asset in assets_distributed if asset.assettype == "hot"]
+        other_list = [
+            asset for asset in assets_distributed if asset.assettype == "other"
+        ]
 
-    formattedjudgements = judgements
+        # basis_available is the basis available to be spread over the assets
+        # assets is the list of assets - this is a list of assets of 731 type
+
+        # this function will work in all situations, so you can call it when it's
+        # appropriate (type_answers="correct") to get right answers, or call it when it
+        # is not appropriate (type_answers="wrong") to get wrong answers
+        # for example, it will do an increase on hot assets - make sure to
+        # mark that wrong. Similarly for increase on nonliquidating distribution.
+
+        def adjust_basis(basis_available, list_assets, type_answers="correct"):
+            total_initial_basis = sum(asset.basis for asset in list_assets)
+            reduction_needed = excess_of(total_initial_basis, basis_available)
+            increase_needed = excess_of(basis_available, total_initial_basis)
+
+            if reduction_needed == increase_needed == 0:
+                for asset in list_assets:
+                    asset.adjusted_basis = asset.basis
+
+            else:
+
+                if reduction_needed > 0:
+                    first_step_attribute = "built_in_loss"
+                    second_step_attribute = "interim_basis"
+                    adjust_func = sub
+                elif increase_needed > 0:
+                    first_step_attribute = "built_in_gain"
+                    second_step_attribute = "fmv"
+                    adjust_func = add
+
+                maximum_adjustment = max(reduction_needed, increase_needed)
+
+                relevant_first_base = sum(
+                    getattr(asset, first_step_attribute) for asset in list_assets
+                )
+
+                for asset in list_assets:
+                    if relevant_first_base == 0:
+                        asset.first_adjustment = 0
+                        asset.interim_basis = asset.basis
+                    else:
+                        asset.first_adjustment = int(
+                            min(
+                                (
+                                    maximum_adjustment
+                                    * (
+                                        getattr(asset, first_step_attribute)
+                                        / relevant_first_base
+                                    )
+                                ),
+                                getattr(asset, first_step_attribute),
+                            )
+                        )
+                        asset.interim_basis = adjust_func(
+                            asset.basis, asset.first_adjustment
+                        )
+
+                total_first_adjustment = sum(
+                    asset.first_adjustment for asset in list_assets
+                )
+                remaining_adjustment = excess_of(
+                    maximum_adjustment, total_first_adjustment
+                )
+                # now allocate the rest proportionate to the relevant second step attribute
+                relevant_second_base = sum(
+                    getattr(asset, second_step_attribute) for asset in list_assets
+                )
+                for asset in list_assets:
+                    asset.second_adjustment = int(
+                        remaining_adjustment
+                        * (getattr(asset, second_step_attribute) / relevant_second_base)
+                    )
+                    if type_answers == "correct":
+                        asset.adjusted_basis = adjust_func(
+                            asset.interim_basis, asset.second_adjustment
+                        )
+                    else:
+                        asset.wrong_basis = adjust_func(
+                            asset.interim_basis, asset.second_adjustment
+                        )
+
+        # the steps are: assign full basis to the hot assets. If there is enough basis for them,
+        # allocate the rest to the other assets
+
+        # if there is not enough basis for the hot assets, adjust them down
+        # and allocate 0 basis to the other assets
+
+        # hot_over_basis == 0 means there is no excess of basis in the hot assets over
+        # the outside basis reduced by the money distributed. There is enough
+        # basis to give the hot assets to the partner the full basis they had to the
+        # partnership
+
+        if hot_over_basis == 0:
+            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is still {fm.ac(outside_basis-cash_amount)} remaining, enough to give each of the hot assets the full basis they had to the partnership."
+            for asset in hot_list:
+                asset.adjusted_basis = asset.basis
+
+            # take the remaining basis and spread it out over the other assets
+
+            # if there is exactly enough basis, then every asset just has its
+            # basis to the partnership and we are done
+
+            if basis_over_hot == total_other_basis:
+                third_step_lang = f"The {fm.ac(basis_over_hot)} remaining exactly equals the total basis that the other assets had within the partnership, so each asset gets the same basis that it had within the partnership."
+                for asset in other_list:
+                    asset.adjusted_basis = asset.basis
+                judgements[0] = "Is there basis remaining for the non-hot assets?"
+
+            # if there is extra basis and only if this is a liquidating distribution, allocate the increase
+            elif basis_over_hot > total_other_basis:
+                if type_distribution == "current operating":
+                    third_step_lang = "There is also sufficient outside basis remaining after allocating basis to the hot assets to give all of the other assets the same basis they had to the partnership. In fact, there is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. But because this is a current operating distribution, no further adjustments are made to the basis of the assets, and each asset has the same basis to the distributee partner as it did to the partnership. For current operating distributions, there is a cap on the total basis to the assets (they cannot exceed the outside basis reduced by the money distributed), but the basis of the assets to the distributee partner is not increased beyond what the basis of the assets was to the partnership. Section 732(a)."
+                    # adjusting the hot assets upwards! bad!
+                    if asset_basis_target.assettype == "hot":
+                        adjust_basis(basis_over_hot, hot_list, type_answers="wrong")
+                        judgements[asset_basis_target.wrong_basis] = (
+                            "Can the basis of a hot asset to the distributee partner ever exceed its basis to the partnership?"
+                        )
+
+                    # getting the answers if it were a liqudating distribution, which it is not
+                    elif asset_basis_target.assettype == "other":
+                        adjust_basis(basis_over_hot, other_list, type_answers="wrong")
+                        judgements[asset_basis_target.wrong_basis] = (
+                            "This would be the correct answer if this were a liquidating distribution. But this is a current operating distribution. Are upward adjustments made in a current operating distribution?"
+                        )
+                        judgements[0] = (
+                            "Is there basis remaining for the non-hot assets?"
+                        )
+                        possibleanswers.append(asset_basis_target.adjusted_basis)
+                    possibleanswers.append(asset_basis_target.wrong_basis)
+                    for asset in other_list:
+                        asset.adjusted_basis = asset.basis
+
+                else:
+                    increase_needed = excess_of(basis_over_hot, total_other_basis)
+                    adjust_basis(basis_over_hot, other_list)
+                    for asset in other_list:
+                        asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in gain of {fm.ac(asset.built_in_gain)}; an upward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in gain and asset's proportionate share of the total built-in gain; and then an additional increase of {fm.ac(asset.second_adjustment)}, proportionate to fair market value as compared to other assets of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}."
+                        asset_adjustment_string += f"- {asset.adjustment_language}\n"
+                    third_step_lang = f"There is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. Because this is a liquidating distribution, the basis of the non-hot assets is further adjusted until the basis of the distributed assets equals the distributee partner's outside basis reduced by money distributed. Section 732(b).\n\nThe total upward adjustment is {fm.ac(increase_needed)}. This adjustment goes only to the non-hot assets, and is done first in proportion to unrealized appreciation, only to the extent of unrealized appreciation, and then if there is any increase to be allocated remaining, to the assets in proportion to their respective fair market values. Section 732(c)(2). Therefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
+                    if asset_basis_target.assettype == "other":
+                        judgements[asset_basis_target.basis] = (
+                            "This would be the correct answer if this were a current operating distribution. But this is a liquidating distribution. Consider Section 732(b)."
+                        )
+                        judgements[0] = (
+                            "Is there basis remaining for the non-hot assets?"
+                        )
+
+            # finally, if there is not enough basis for the other assets
+            else:
+                adjust_basis(basis_over_hot, other_list)
+                downward_adjustment = excess_of(total_other_basis, basis_over_hot)
+
+                for asset in other_list:
+                    asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in loss of {fm.ac(asset.built_in_loss)}; a downward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in loss and asset's proportionate share of the total built-in loss; and then an additional downward adjustment of {fm.ac(asset.second_adjustment)}, proportionate to its already adjusted basis compared to other members of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}"
+                    asset_adjustment_string += f"- {asset.adjustment_language}\n"
+                third_step_lang = f"There is not sufficient outside basis remaining to allocate to the non-hot assets their full basis to the partnership. Therefore, the non-hot assets must receive downward adjustments totaling {fm.ac(downward_adjustment)}, which is the excess of the total basis of the non-hot assets to the partnership, over the total basis to the hot assets plus the cash distributed.\n\nThis reduction will be allocated among the non-hot assets first in proportion to unrealized depreciation, only to the extent of unrealized depreciation, and then if there is any decrease to be allocated remaining, to the assets in proportion to their respective basis, as adjusted. Section 732(c)(3).\n\nTherefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
+                if asset_basis_target.assettype == "other":
+                    judgements[asset_basis_target.basis] = (
+                        "How much basis is remaining after taking into account the cash distribution and the basis that must be given to the hot assets?"
+                    )
+
+        # if there is not sufficient basis for the hot assets to have full basis
+        else:
+            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is not sufficient basis to give each of the hot assets its full basis to the partnership. There will need to be a reduction of {fm.ac(hot_over_basis)}, which is the amount by which the basis to the partnership of the hot assets exceeds the outside basis, reduced by the cash distributed."
+            basis_available = excess_of(outside_basis, cash_amount)
+
+            for asset in other_list:
+                asset.adjusted_basis = 0
+            adjust_basis(basis_available, hot_list)
+
+            for asset in hot_list:
+                asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in loss of {fm.ac(asset.built_in_loss)}; a downward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in loss and asset's proportionate share of the total built-in loss; and then an additional downward adjustment of {fm.ac(asset.second_adjustment)}, proportionate to its already adjusted basis compared to other members of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}"
+                asset_adjustment_string += f"- {asset.adjustment_language}\n"
+            third_step_lang = f"The hot assets must receive downward adjustments, first in proportion to unrealized depreciation, only to the extent of unrealized depreciation, and then if there is any decrease to be allocated remaining, to the assets in proportion to their respective basis, as adjusted. Section 732(c)(3). Therefore, each of the non-hot assets ends up with a basis of {fm.ac(0)}, and each of the hot assets has a basis as follows:\n\n{asset_adjustment_string}"
+            if asset_basis_target.assettype == "other":
+                judgements[asset_basis_target.basis] = (
+                    "How much basis is remaining after taking into account the cash distribution and the basis that must be given to the hot assets?"
+                )
+            else:
+                judgements[asset_basis_target.basis] = (
+                    "Is there sufficient basis for the hot assets to receive their basis to the partnership, after taking into account the cash distribution?"
+                )
+        possibleanswers.append(asset_basis_target.adjusted_basis)
+        possibleanswers = [x for x in possibleanswers if x != None]
+        while len(possibleanswers) < 6:
+            [possibleanswers, judgements] = fm.random_answer_pot(
+                possibleanswers, judgements, 1
+            )
+        [possibleanswers, judgements] = fm.random_answer_pot(
+            possibleanswers, judgements, 3
+        )
+        possibleanswers = list(set(possibleanswers))
+        correct = asset_basis_target.adjusted_basis
+        correct_explanation = f"Correct! {second_step_lang}\n\n{third_step_lang}"
+
+    judgements[correct] = correct_explanation
+    if question_type != "asset_basis_q":
+        possibleanswers = create_possible_answers(possible_answers_initial)
+        cleananswers = possibleanswers
+        formattedjudgements = judgements
+
+    else:
+        cleananswers = fm.create_clean_answers(possibleanswers)
+        formattedjudgements = fm.format_dict(judgements)
+
     judgements_json = json.dumps(formattedjudgements)
-    cleananswers = possibleanswers
 
     return [problem, cleananswers, judgements_json, correct]
 
@@ -2548,5 +2846,5 @@ def function_picker(fn_pick):
         return Section_704_c_sale()
     elif fn == "8 Section 704(c) depreciation":
         return Section_704_c_depreciation()
-    elif fn == "9.1 Partnership distribution gain or loss":
-        return Section_731()
+    elif fn == "9.1 Partnership distributions (Sections 731, 732, 733)":
+        return partnership_distributions()
