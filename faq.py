@@ -7,6 +7,8 @@ Created on Tue Dec 17 15:17:14 2019
 
 import functionmodules as fm
 
+MAX_QUIZ_QUESTIONS = fm.MAX_QUIZ_QUESTIONS
+
 general_faq = """  
 This website is created and maintained by [Sarah Lawsky](https://www.sarahlawsky.org/), a professor at [Northwestern Pritzker School of Law](http://www.law.northwestern.edu/faculty/profiles/SarahLawsky/). The [Open Source page](https://www.lawskypracticeproblems.org/otherprojects) provides information about the underlying code.
 
@@ -46,16 +48,16 @@ A: The Statutes page allows people to practice reading and understanding languag
 A: Yes! The Statutes page may help develop the skill of translating a small amount of technical language into a formula, and it may give students more confidence when it comes to tackling the statute. The Statutes page does not help develop the skill of, for example, following cross-references, or understanding how different portions of the Code interact with each other, or applying canons of construction, or any of the many, many other skills that go into reading, understanding, and interpreting the Code."""
 
 quizzes_faq = """ 
-**Q: I downloaded a quiz answer sheet, and the file is called "federalincometaxquiz" (normal) but then there is a really long string of numbers after that (less normal). What is that string of numbers?**<br>
-A: That is the [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) of the moment you generated that answer sheet. You can translate that into a more comprehensible date by entering that number into a [converter](https://www.epochconverter.com/). For example, there's a file in my downloads called federalincometaxquiz.1685532778.362058.docx. When I put 1685532778.362058 into the converter, it tells me I generated that quiz on Wednesday, May 31, 2023, at 11:32:58.362 AM Greenwich Mean Time. This approach means, among other things, that every quiz answer sheet you download will have a unique filename.
+**Q: I downloaded a quiz answer sheet, and the file is called "taxquiz" (normal) but then there is a really long string of numbers after that (less normal). What is that string of numbers?**<br>
+A: That is the [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) of the moment you generated that answer sheet. You can translate that into a more comprehensible date by entering that number into a [converter](https://www.epochconverter.com/). For example, there's a file in my downloads called taxquiz.1733662191.974549.docx. When I put 1733662191.974549 into the converter, it tells me I generated that quiz on Sunday, December 8, 2024 12:49:51.974 PM Greenwich Mean Time. This approach means, among other things, that every quiz answer sheet you download will have a unique filename.
 
 """
 
 attribution = "This website is created and maintained by [Sarah Lawsky](https://www.sarahlawsky.org/), a tax law professor at [Northwestern Pritzker School of Law](http://www.law.northwestern.edu/faculty/profiles/SarahLawsky/). The website uses [Dash](https://plot.ly/dash/) and [Python](https://www.python.org/) and is freely available under the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/)."
 
-quiz_explanation = """This page generates quizzes for the type of problem you have selected (either Federal Income Tax or Partnership Tax). These quizzes likely do not replicate the complexity of actual quizzes or tests you may take, but they may help you drill the basics. 
+quiz_explanation = f"""This page generates quizzes for the subject you have selected (either Federal Income Tax or Partnership Tax). These quizzes likely do not replicate the complexity of actual quizzes or tests you may take, but they may help you drill the basics. 
 
-To take the quiz, enter the number of questions the quiz should have, up to 10; select topics; and click "Generate Quiz." You will receive that many questions, on those topics, generated from the same program that generates the problems on the [Practice Problems page](https://www.lawskypracticeproblems.org/). 
+To take the quiz, enter the number of questions the quiz should have, up to {MAX_QUIZ_QUESTIONS}; select topics; and click "Generate Quiz." You will receive that many questions, on those topics, generated from the same program that generates the problems on the [Practice Problems page](https://www.lawskypracticeproblems.org/). 
 
 Select your answers for all the questions and then click "Submit Answers." 
 
@@ -82,12 +84,12 @@ A: The default items included in this book are:
 * excerpts from Rev. Proc. 87-57, the depreciation tables.
 
 **Q: Where is the content coming from?**<br>
-A: The Code sections contained in this book are from the [Office of Law Revision Counsel](http://uscode.house.gov/download/download.shtml) and are current through {fm.code_updated}. The regulation sections are from the [eCFR](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1) and are current through {fm.regs_updated}.
+A: The Code sections contained in this book are from the [Office of Law Revision Counsel](http://uscode.house.gov/download/download.shtml) and are current through {fm.code_updated}. The regulation sections are from the [eCFR](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1) and are current through {fm.regs_updated}. Specifically, this website includes, from the US Code, [all of Title 26](https://uscode.house.gov/download/download.shtml); and from the 26 CFR Chapter I regulations, [Subchapter A, Part 1](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1); [Subchapter A, Part 15a](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-15a) (good installment sale regs in here!); [Subchapter B, Part 25](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-25); [Subchapter B, Part 20](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-20); [Subchapter B, Part 26](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-26); and [Subchapter F, Part 301](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR5ffaf3310af6b61).
 
 **Q: Why did you do this?**<br>
-A: Internal Revenue Code and regulation sections are the most important reading for any federal income taxation course. There are four problems with commercial selected Code and regs books. First, commercial selected sections books are expensive: $100 or more for information that is freely available. Second, they are too long: they contain far more sections than any one class needs, because they are trying to meet the needs of a whole range of classes. Third, they are too short: it's very likely that any given professor will want to assign some sections that aren't in a commercially edited book. Fourth, they may go out of date quickly, as the law might change in any given year, and inflation adjustments do change year-to-year. 
+A: Internal Revenue Code and regulation sections are the most important reading for any federal tax course. There are four problems with commercial selected Code and regs books. First, commercial selected sections books are expensive: $100 or more for information that is freely available. Second, they are too long: they contain far more sections than any one class needs, because they are trying to meet the needs of many different classes. Third, they are too short: a professor might want to assign some sections that aren't in a particular commercially edited book. Fourth, they may go out of date quickly, as the law might change, and inflation adjustments do change. 
 
-In contrast, this Selected Sections is available for free; you can use this website to have the book include exactly the sections and subsections relevant for your class; and it is easy to update as the law and year change.
+In contrast, this Selected Sections is available for free; the book you create will include exactly the sections and subsections you want; and it is easy to update as the law and year change.
 
 **Q: I don't have a list of all the sections I need. Do you have spreadsheets that people use for various actual tax classes, so I can generate a book for myself anyway?** <br>
 A: Yes. Keeping in mind that of course not everyone assigns the same sections for every class, so these may not include all of what you need and may also have extra sections you don't need (indeed, that's part of what motivated this project), here are spreadsheets from law professors for Selected Sections books for, respectively, [Federal Income Tax](/assets/FITCodeAndRegSections.xlsx); [Corporate Tax](/assets/CorporateCodeAndRegSections.xlsx); [Partnership Tax](/assets/PartnershipCodeAndRegSections.xlsx); and [Estate and Gift Tax](/assets/EstateGiftCodeAndRegSections.xlsx).
