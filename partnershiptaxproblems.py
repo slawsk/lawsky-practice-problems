@@ -1579,15 +1579,11 @@ def Section_704_c_sale():
     [contributor, noncontributor] = fm.create_group()
     partnership = fm.pick_entity_name(type="partnership")
     num_partners = 2
-
-    type_problem = "asset sale"
     type_method = random.choice(
         ["traditional", "traditional with curative", "remedial"]
     )
 
     type_question = random.choice([contributor, noncontributor])
-
-    question = f"How much gain or loss does {type_question.name} recognize for tax purposes due to the sale of the Asset?"
 
     type_income = random.choice(["breaks even", "capital gain", "ordinary income"])
 
@@ -1647,9 +1643,7 @@ def Section_704_c_sale():
                 ]
         return possible_answers
 
-    years_held = random.choice(["two", "three", "four", "five", "six", "seven"])
-
-    type_lang = f"The Asset is a capital asset in the hands of {partnership}. After {partnership}, has held the Asset for {years_held} years, it sells the Asset for {fm.ac(asset_fmv_sale)}, the Asset's fair market value at that time. The basis at the sale is the same as the basis at contribution."
+    type_lang = f"After some time has passed, {partnership}, sells the Asset, which is a capital asset in the hands of {partnership}, for {fm.ac(asset_fmv_sale)}, the Asset's fair market value at that time. The basis at the sale is the same as the basis at contribution."
     question_lang = f"How much gain or loss does {type_question.name} recognize for tax purposes due to the sale of the Asset?"
 
     if built_in_gain > 0:
@@ -1759,7 +1753,7 @@ def Section_704_c_sale():
                 if type_method == "traditional":
                     type_language = "The traditional method is used."
                 else:
-                    type_language = "While the traditional method with curative allocations is used, there is no income of the type needed to 'cure' (the additional income for the year is ordinary income, and this sale creates capital gain)."
+                    type_language = "While the traditional method with curative allocations is used, there is no income of the type needed to 'cure.'"
 
                 # no tax loss; tax gain
                 if tax_loss_sale == 0:
@@ -1963,12 +1957,19 @@ def Section_704_c_sale():
                         f"It is true there is not sufficient loss from the actual sale for {type_question.name} to receive {type_question.poss} full amount of book loss? However, consider the 704(c) method in use."
                     )
 
+    # built in tax loss. but notice there could still be book gain!
     else:
 
         tax_loss_noncontributor = book_loss_partner
         tax_gain_noncontributor = book_gain_partner
-        tax_loss_contributor = excess_of(tax_loss_sale, tax_loss_noncontributor)
-        tax_gain_contributor = excess_of(tax_gain_sale, tax_gain_noncontributor)
+        # the contributor gets the built-in loss allocated to him, plus whatever his book loss or gain is
+
+        tax_loss_contributor = excess_of(
+            built_in_loss + book_loss_partner, book_gain_partner
+        )
+        tax_gain_contributor = excess_of(
+            book_gain_partner, built_in_loss + book_loss_partner
+        )
 
         possible_answers_initial.append(tax_loss_contributor)
         possible_answers_initial.append(tax_loss_noncontributor)
@@ -2000,7 +2001,7 @@ def Section_704_c_sale():
             type_word = type_noncontributor
             other_type_word = type_contributor
 
-        correct_explanation = f"Correct! When {contributor.name} contributed the Asset to {partnership}, the Asset had a built-in loss of {fm.ac(built_in_loss)}, representing the excess of the basis on contribution over the fair market value on contribution. Under Section 704(c)(1)(C), this excess basis belongs to the contributor only. Effectively, Section 704(c)(1)(C) forces the remedial method for all assets contributed to a partnership with a built-in loss. Therefore, {noncontributor.name} has tax {type_noncontributor} equal to {noncontributor.poss} book {type_noncontributor}, {fm.ac(amount_noncontributor)}. {contributor.name} gets the benefit of {contributor.poss} 704(c)(1)(C) special basis adjustment, resulting in {fm.ac(amount_contributor)} of tax {type_contributor}."
+        correct_explanation = f"Correct! When {contributor.name} contributed the Asset to {partnership}, the Asset had a built-in loss of {fm.ac(built_in_loss)}, representing the excess of the basis on contribution over the fair market value on contribution. Under Section 704(c)(1)(C), this excess basis belongs to the contributor only. Effectively, Section 704(c)(1)(C) forces the remedial method for all assets contributed to a partnership with a built-in loss. Therefore, {noncontributor.name} has tax {type_noncontributor} equal to {noncontributor.poss} book {type_noncontributor}, {fm.ac(amount_noncontributor)}. {contributor.name} gets the benefit of {contributor.poss} 704(c)(1)(C) special basis adjustment, resulting in {fm.ac(amount_contributor)} of tax {type_contributor}, matching {contributor.poss} allocation of book {type_noncontributor}, plus a tax loss equal to the built-in loss on contribution."
 
         correct = f"{fm.ac(correct_number)} {type_word}"
         judgements[correct] = correct_explanation
@@ -2020,7 +2021,6 @@ def Section_704_c_sale():
         possible_answers_initial.append(additional_income)
     possibleanswers = create_possible_answers(possible_answers_initial)
 
-    interim_string = f"tax gain contributor: {tax_gain_contributor}, tax loss contributor: {tax_loss_contributor}, tax gain noncontributor: {tax_gain_noncontributor}, tax loss noncontributor: {tax_loss_noncontributor}"
     formattedjudgements = judgements
     judgements_json = json.dumps(formattedjudgements)
     cleananswers = possibleanswers
@@ -2057,22 +2057,24 @@ def Section_704_c_depreciation():
         ["breaks even", "capital gain", "ordinary income"], [0.2, 0.2, 0.6], k=1
     )[0]
 
-    asset_fmv_multiplier = random.randint(7, 15)
+    depreciation_life = random.randint(7, 15)
 
-    asset_fmv = 5000 * asset_fmv_multiplier
+    original_basis = depreciation_life * random.randint(1, 20) * 1000
 
-    asset_basis = fm.generate_random_pot(asset_fmv, 3, start=10, end=60)
-    while asset_fmv == asset_basis:
-        asset_basis = fm.generate_random_pot(asset_fmv, 3, start=40, end=90)
+    years_held = depreciation_life - random.randint(2, 5)
+
+    annual_tax_depreciation = int(original_basis / depreciation_life)
+    asset_basis = original_basis - annual_tax_depreciation * years_held
+
+    asset_fmv = fm.generate_random_pot(asset_basis, 3, start=140, end=240)
 
     type_question = random.choice([contributor, noncontributor])
 
-    depreciation_life = asset_fmv_multiplier
-    years_held = depreciation_life - random.randint(2, 5)
     in_bound_year = random.randint(1, depreciation_life - years_held)
     out_of_bound_year = random.randint(
         depreciation_life - years_held + 1, depreciation_life
     )
+    years_remaining = depreciation_life - years_held
 
     if type_method == "remedial":
         question_year = random.choice([in_bound_year, out_of_bound_year])
@@ -2081,8 +2083,7 @@ def Section_704_c_depreciation():
             [in_bound_year, out_of_bound_year], [0.9, 0.1], k=1
         )[0]
 
-    annual_book_depreciation = int(asset_fmv / depreciation_life)
-    annual_tax_depreciation = int(asset_basis / depreciation_life)
+    annual_book_depreciation = int(asset_fmv / years_remaining)
     annual_book_depreciation_per_partner = int(annual_book_depreciation / num_partners)
     annual_tax_depreciation_per_partner = int(annual_tax_depreciation / num_partners)
     tax_depreciation_noncontributor_no_cure = min(
@@ -2100,8 +2101,8 @@ def Section_704_c_depreciation():
     else:
         additional_income = 100 * random.randint(2, 20)
 
-    depreciation_lang = f"The Asset is depreciable straight-line over {depreciation_life} years and is depreciable both in the hands of {contributor.name} and in the hands of {partnership}. At the time of contribution {contributor.name} had held and depreciated the asset for {years_held} years. (Disregard depreciation conventions and additional first-year depreciation for purposes of this question.)"
-    question_lang = f"How much depreciation, loss, gain, or income does {type_question.name} include for tax purposes due to the depreciation of the Asset in the {fm.ordinals_dictionary[question_year]} year that {partnership}, holds the Asset? When answering this question, include any additional amounts allocated to either {contributor.name} or {noncontributor.name} due to the 704(c) method selected."
+    depreciation_lang = f"The Asset is depreciable straight-line over {depreciation_life} years and is depreciable both in the hands of {contributor.name} and in the hands of {partnership}. At the time of contribution {contributor.name} has held and depreciated the asset for exactly {years_held} years. That is, the Asset's initial basis was {fm.ac(original_basis)}, and then for each of the {years_held} years that {contributor.nom} held the Asset, {contributor.name} deducted {fm.ac(annual_tax_depreciation)} due to depreciation of the Asset, resulting in the Asset's current basis of {fm.ac(asset_basis)}. (Disregard depreciation conventions and additional first-year depreciation for purposes of this question.)"
+    question_lang = f"How much depreciation, loss, gain, or income does {type_question.name} include for tax purposes due to the depreciation of the Asset for the {fm.ordinals_dictionary[question_year]} year following the contribution of Asset to {partnership}? When answering this question, include any additional amounts allocated to either {contributor.name} or {noncontributor.name} due to the 704(c) method selected."
 
     judgements = {}
 
@@ -2124,7 +2125,7 @@ def Section_704_c_depreciation():
 
     problem = f"{contributor.name} and {noncontributor.name} form an entity taxed as a partnership, {partnership}. {contributor.name} contributes an asset, Asset, which at the time of contribution is worth {fm.ac(asset_fmv)} and has a basis of {fm.ac(asset_basis)}. {noncontributor.name} contributes {fm.ac(asset_fmv)} cash. {depreciation_lang}\n\nThe entity agreement meets the alternate test for economic effect. The entity agreement provides that all items are to be allocated evenly between the two members except as necessary to have economic effect consistent with the regulations. {partnership}, elects to use the {type_method} method for purposes of Section 704(c) with respect to the Asset. In previous years, {partnership}, broke even. In the year of this question, {additional_income_lang}\n\n{question_lang}"
 
-    base_explanation = f'<p>Correct! The entity steps into the shoes of the contributor with respect to depreciation in the traditional method (including traditional with curative). <a href="https://www.law.cornell.edu/uscode/text/26/168" target="_new">Section 168(i)(7)</a>. Book depreciation bears the same ratio to the book basis of the property as tax depreciation bears to tax basis.  <a href="https://www.law.cornell.edu/cfr/text/26/1.704-1" target="_new">Section 1.704-1(b)(2)(iv)(g)(3)</a>. The annual book depreciation is therefore {fm.ac(annual_book_depreciation)}, because in these facts, the property is depreciated straight line over {depreciation_life} years, and under the terms of the entity agreement, this amount is allocated evenly between the partners, {fm.ac(annual_book_depreciation_per_partner)} each. The annual tax depreciation is {fm.ac(annual_tax_depreciation)}. The noncontributor, {noncontributor.name}, is given tax depreciation to match book depreciation, to the extent possible.</p>'
+    base_explanation = f'<p>Correct! The entity steps into the shoes of the contributor with respect to depreciation in the traditional method (including traditional with curative). <a href="https://www.law.cornell.edu/uscode/text/26/168" target="_new">Section 168(i)(7)</a>. Book depreciation bears the same ratio to the book basis of the property as tax depreciation bears to tax basis.  <a href="https://www.law.cornell.edu/cfr/text/26/1.704-1" target="_new">Section 1.704-1(b)(2)(iv)(g)(3)</a>. The annual book depreciation is therefore {fm.ac(annual_book_depreciation)}, because in these facts, the property is depreciated straight line and there were {years_remaining} years of depreciation deductions remaining at the time of the contribution. Under the terms of the entity agreement, this amount is allocated evenly between the partners, {fm.ac(annual_book_depreciation_per_partner)} each. The annual tax depreciation is {fm.ac(annual_tax_depreciation)}. The noncontributor, {noncontributor.name}, is given tax depreciation to match book depreciation, to the extent possible.</p>'
 
     # this question asks about a year when there is no more depreciation
     # this will apply whenever the method isn't remedial
@@ -2185,16 +2186,16 @@ def Section_704_c_depreciation():
         if curative_allocation == amount_missing_noncontributor:
             shortfall_language = ""
         else:
-            shortfall_language = f"There is not enough income for a complete cure, however, so {noncontributor.name} still does not receive sufficient tax depreciation to match {noncontributor.name} book depreciation."
+            shortfall_language = f"There is not enough income for a complete cure, however, so {noncontributor.name} still does not receive sufficient tax depreciation to match {noncontributor.poss} book depreciation."
 
-        cure_explanation = f"Here, there is not sufficient tax depreciation to match {noncontributor.name}'s book depreciation. However, {partnership}, has elected the traditional method with curative allocations, and there is ordinary income, which is the appropriate type of income for a cure. {noncontributor.name} would be allocated {fm.ac(int(additional_income/2))} of the ordinary income for tax purposes, under the terms of the entity agreement. Allocating less than that amount for tax purposes will have the effect of giving {noncontributor.name} {noncontributor.name} missing tax depreciation. Thus, in addition to the {fm.ac(tax_depreciation_noncontributor_no_cure)} of tax depreciation, {noncontributor.name} is allocated {fm.ac(curative_allocation)} less of the ordinary income, with the effect of being allocated {fm.ac(tax_depreciation_noncontributor)} of depreciation for tax purposes. {shortfall_language} Correspondingly, {contributor.name} is allocated an additional {fm.ac(curative_allocation)} of ordinary income."
+        cure_explanation = f"Here, there is not sufficient tax depreciation to match {noncontributor.name}'s book depreciation. However, {partnership}, has elected the traditional method with curative allocations, and there is ordinary income, which is the appropriate type of income for a cure. {noncontributor.name} would be allocated {fm.ac(int(additional_income/2))} of the ordinary income for tax purposes, under the terms of the entity agreement. Allocating less than that amount for tax purposes will have the effect of giving {noncontributor.name} missing tax depreciation. Thus, in addition to the {fm.ac(tax_depreciation_noncontributor_no_cure)} of tax depreciation, {noncontributor.name} is allocated {fm.ac(curative_allocation)} less of the ordinary income, with the effect of being allocated {fm.ac(tax_depreciation_noncontributor)} of depreciation for tax purposes. {shortfall_language} Correspondingly, {contributor.name} is allocated an additional {fm.ac(curative_allocation)} of ordinary income."
         # fmt: off
         correct_explanation = base_explanation + cure_explanation
         # fmt: on
 
         contributor_answer = make_answer(tax_depreciation_contributor)
         noncontributor_answer = make_answer(
-            tax_depreciation_noncontributor, type_answer="income"
+            tax_depreciation_noncontributor, type_answer="deduction"
         )
 
     # this is remedial allocation
@@ -2491,11 +2492,27 @@ def partnership_distributions():
             accounts_receivable.fmv, 3, start=20, end=60
         )
 
-        outside_basis = fm.generate_random_pot(
+        outside_basis_enough_for_all = fm.generate_random_pot(
             (sum(asset.basis for asset in assets_distributed) + cash_amount),
             3,
             start=70,
             end=130,
+        )
+        outside_basis_enough_for_hot = fm.generate_random_pot(
+            (
+                sum(
+                    asset.basis
+                    for asset in assets_distributed
+                    if asset.assettype == "hot"
+                )
+                + cash_amount
+            ),
+            3,
+            start=70,
+            end=130,
+        )
+        outside_basis = random.choice(
+            [outside_basis_enough_for_all, outside_basis_enough_for_hot]
         )
 
     asset_basis_target = random.choice(assets_distributed)
@@ -2513,7 +2530,7 @@ def partnership_distributions():
 
     assets_distributed_string += f"\n- {fm.ac(cash_amount)} cash"
 
-    problem = f"{partnership}, which is taxed as a partnership, makes a {type_distribution} distribution to {partner.name}, who immediately before the distribution has a basis in {partnership}, of {fm.ac(outside_basis)}, of the following:\n {assets_distributed_string}\n\nThe distribution is a pro rata distribution with respect to Section 751 assets--that is, it does not shift any member's relative interest in Section 751 'hot' assets.\n\n{question_lang_dict[question_type]}"
+    problem = f"{partnership}, which is taxed as a partnership, makes a {type_distribution} distribution to {partner.name}, who immediately before the distribution has a basis in {partnership}, of {fm.ac(outside_basis)}, of the following:\n {assets_distributed_string}\n\nThe facts are such that Section 751(b) does not apply to this distribution.\n\n{question_lang_dict[question_type]}"
 
     total_fmv_distribution = (
         sum(asset.fmv for asset in assets_distributed) + cash_amount
@@ -2699,7 +2716,7 @@ def partnership_distributions():
         # partnership
 
         if hot_over_basis == 0:
-            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is still {fm.ac(outside_basis-cash_amount)} remaining, enough to give each of the hot assets the full basis they had to the partnership."
+            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is still {fm.ac(outside_basis-cash_amount)} remaining, enough to give each of the hot assets the full basis they had to the partnership. Section 732(c)(1)(A)(i)."
             for asset in hot_list:
                 asset.adjusted_basis = asset.basis
 
@@ -2709,7 +2726,7 @@ def partnership_distributions():
             # basis to the partnership and we are done
 
             if basis_over_hot == total_other_basis:
-                third_step_lang = f"The {fm.ac(basis_over_hot)} remaining exactly equals the total basis that the other assets had within the partnership, so each asset gets the same basis that it had within the partnership."
+                third_step_lang = f"The {fm.ac(basis_over_hot)} remaining exactly equals the total basis that the other assets had within the partnership, so each asset gets the same basis that it had within the partnership. Section 732(c)(1)(B)(i)."
                 for asset in other_list:
                     asset.adjusted_basis = asset.basis
                 judgements[0] = "Is there basis remaining for the non-hot assets?"
@@ -2717,7 +2734,7 @@ def partnership_distributions():
             # if there is extra basis and only if this is a liquidating distribution, allocate the increase
             elif basis_over_hot > total_other_basis:
                 if type_distribution == "current operating":
-                    third_step_lang = "There is also sufficient outside basis remaining after allocating basis to the hot assets to give all of the other assets the same basis they had to the partnership. In fact, there is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. But because this is a current operating distribution, no further adjustments are made to the basis of the assets, and each asset has the same basis to the distributee partner as it did to the partnership. For current operating distributions, there is a cap on the total basis to the assets (they cannot exceed the outside basis reduced by the money distributed), but the basis of the assets to the distributee partner is not increased beyond what the basis of the assets was to the partnership. Section 732(a)."
+                    third_step_lang = "There is also sufficient outside basis remaining after allocating basis to the hot assets to give all of the other assets the same basis they had to the partnership. Section 732(c)(1)(B)(i). In fact, there is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. But because this is a current operating distribution, no further adjustments are made to the basis of the assets, and each asset has the same basis to the distributee partner as it did to the partnership. For current operating distributions, there is a cap on the total basis to the assets (the total basis to the assets cannot exceed the outside basis reduced by the money distributed), but the basis of the assets to the distributee partner is not increased beyond what the basis of the assets was to the partnership. Section 732(a)."
                     # adjusting the hot assets upwards! bad!
                     if asset_basis_target.assettype == "hot":
                         adjust_basis(basis_over_hot, hot_list, type_answers="wrong")
@@ -2745,7 +2762,7 @@ def partnership_distributions():
                     for asset in other_list:
                         asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in gain of {fm.ac(asset.built_in_gain)}; an upward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in gain and asset's proportionate share of the total built-in gain; and then an additional increase of {fm.ac(asset.second_adjustment)}, proportionate to fair market value as compared to other assets of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}."
                         asset_adjustment_string += f"- {asset.adjustment_language}\n"
-                    third_step_lang = f"There is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. Because this is a liquidating distribution, the basis of the non-hot assets is further adjusted until the basis of the distributed assets equals the distributee partner's outside basis reduced by money distributed. Section 732(b).\n\nThe total upward adjustment is {fm.ac(increase_needed)}. This adjustment goes only to the non-hot assets, and is done first in proportion to unrealized appreciation, only to the extent of unrealized appreciation, and then if there is any increase to be allocated remaining, to the assets in proportion to their respective fair market values. Section 732(c)(2). Therefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
+                    third_step_lang = f"There is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. Because this is a liquidating distribution, the basis of the non-hot assets is further adjusted until the basis of the distributed assets equals the distributee partner's outside basis reduced by money distributed. Section 732(b).\n\nThe total upward adjustment is {fm.ac(increase_needed)}. This adjustment goes only to the non-hot assets. Section 732(c)(1)(B). The increase is first allocated in proportion to unrealized appreciation, only to the extent of unrealized appreciation. Section 732(c)(2)(A). Any remaining increase is allocated to the assets in proportion to their respective fair market values. Section 732(c)(2)(B). Therefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
                     if asset_basis_target.assettype == "other":
                         judgements[asset_basis_target.basis] = (
                             "This would be the correct answer if this were a current operating distribution. But this is a liquidating distribution. Consider Section 732(b)."
@@ -2762,7 +2779,7 @@ def partnership_distributions():
                 for asset in other_list:
                     asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in loss of {fm.ac(asset.built_in_loss)}; a downward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in loss and asset's proportionate share of the total built-in loss; and then an additional downward adjustment of {fm.ac(asset.second_adjustment)}, proportionate to its already adjusted basis compared to other members of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}"
                     asset_adjustment_string += f"- {asset.adjustment_language}\n"
-                third_step_lang = f"There is not sufficient outside basis remaining to allocate to the non-hot assets their full basis to the partnership. Therefore, the non-hot assets must receive downward adjustments totaling {fm.ac(downward_adjustment)}, which is the excess of the total basis of the non-hot assets to the partnership, over the total basis to the hot assets plus the cash distributed.\n\nThis reduction will be allocated among the non-hot assets first in proportion to unrealized depreciation, only to the extent of unrealized depreciation, and then if there is any decrease to be allocated remaining, to the assets in proportion to their respective basis, as adjusted. Section 732(c)(3).\n\nTherefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
+                third_step_lang = f"There is not sufficient outside basis remaining to allocate to the non-hot assets their full basis to the partnership. Therefore, the non-hot assets must receive downward adjustments totaling {fm.ac(downward_adjustment)}, the excess of the basis of the non-hot assets to the partnership, over the amount remaining after reducing the outside basis by the cash distributed, and reducing it further by the basis of the hot assets. Section 732(c)(1)(B)(ii).\n\nThis reduction will be allocated among the non-hot assets first in proportion to unrealized depreciation, only to the extent of unrealized depreciation. Section 732(c)(3)(A). Any remaining decrease to the basis of the non-hot assets is allocated in proportion to their respective basis, as already adjusted under 732(c)(3)(A). Section 732(c)(3)(B).\n\nTherefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
                 if asset_basis_target.assettype == "other":
                     judgements[asset_basis_target.basis] = (
                         "How much basis is remaining after taking into account the cash distribution and the basis that must be given to the hot assets?"
@@ -2770,7 +2787,7 @@ def partnership_distributions():
 
         # if there is not sufficient basis for the hot assets to have full basis
         else:
-            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is not sufficient basis to give each of the hot assets its full basis to the partnership. There will need to be a reduction of {fm.ac(hot_over_basis)}, which is the amount by which the basis to the partnership of the hot assets exceeds the outside basis, reduced by the cash distributed."
+            second_step_lang = f"After reducing the outside basis, {fm.ac(outside_basis)}, by the cash distributed, {fm.ac(cash_amount)}, there is not sufficient basis to give each of the hot assets its full basis to the partnership. There will need to be a reduction of {fm.ac(hot_over_basis)}, the excess of the basis of the hot assets to the partnership, over the amount remaining after reducing the outside basis by the cash distributed. Section 732(c)(1)(A)(ii).\n\nThis reduction will be allocated among the hot assets first in proportion to unrealized depreciation, only to the extent of unrealized depreciation. Section 732(c)(3)(A). Any remaining decrease to the basis of the hot assets is allocated in proportion to their respective basis, as already adjusted under 732(c)(3)(A). Section 732(c)(3)(B)."
             basis_available = excess_of(outside_basis, cash_amount)
 
             for asset in other_list:
@@ -2780,7 +2797,8 @@ def partnership_distributions():
             for asset in hot_list:
                 asset.adjustment_language = f"{asset.asset.capitalize()}: original basis of {fm.ac(asset.basis)}; built-in loss of {fm.ac(asset.built_in_loss)}; a downward adjustment of {fm.ac(asset.first_adjustment)}, the lesser of the asset's actual built-in loss and asset's proportionate share of the total built-in loss; and then an additional downward adjustment of {fm.ac(asset.second_adjustment)}, proportionate to its already adjusted basis compared to other members of its class, for a total final basis of {fm.ac(asset.adjusted_basis)}"
                 asset_adjustment_string += f"- {asset.adjustment_language}\n"
-            third_step_lang = f"The hot assets must receive downward adjustments, first in proportion to unrealized depreciation, only to the extent of unrealized depreciation, and then if there is any decrease to be allocated remaining, to the assets in proportion to their respective basis, as adjusted. Section 732(c)(3). Therefore, each of the non-hot assets ends up with a basis of {fm.ac(0)}, and each of the hot assets has a basis as follows:\n\n{asset_adjustment_string}"
+            downward_adjustment = hot_over_basis
+            third_step_lang = f"Therefore, each of the non-hot assets ends up with a basis of {fm.ac(0)}, because there is no basis left to be allocated after allocating basis to the hot assets, and each of the hot assets has a basis as follows:\n\n{asset_adjustment_string}"
             if asset_basis_target.assettype == "other":
                 judgements[asset_basis_target.basis] = (
                     "How much basis is remaining after taking into account the cash distribution and the basis that must be given to the hot assets?"
