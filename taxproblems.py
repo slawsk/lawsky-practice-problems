@@ -28,7 +28,7 @@ import statutoryproblems as st
 import problemtopics as top
 import createCodeAndRegsImages as cc
 
-MAX_QUIZ_QUESTIONS = 20
+MAX_QUIZ_QUESTIONS = fm.MAX_QUIZ_QUESTIONS
 
 
 def generate_quiz_components():
@@ -666,22 +666,48 @@ def rates_function(n_clickssubmit, filing_status, taxable_income):
 def update_graph(filing_status):
 
     status = fm.rates_dict.get(filing_status)
+    if filing_status == "Married Filing Jointly":
+        top_number = 1000000
+    else:
+        top_number = 700000
 
-    x_data = np.arange(1, 700000, 1000)
+    x_data = np.concatenate(
+        [
+            np.arange(10, 500, 10),  # Fine grain at start
+            np.arange(500, top_number, 1000),  # Larger steps after
+        ]
+    )
     y_data1 = [fm.rates_facts_average(status, income) for income in x_data]
     y_data2 = [fm.rates_facts_marginal(status, income) for income in x_data]
+    # Create arrays for the stepped line
+    x_stepped = []
+    y_stepped = []
+
+    x_stepped.append(0)
+    y_stepped.append(y_data2[0])
+    # Add first point
+    x_stepped.append(x_data[0])
+    y_stepped.append(y_data2[0])
+    for i in range(len(x_data) - 1):
+        if y_data2[i] != y_data2[i + 1]:
+            # Add the end of current step
+            x_stepped.append(x_data[i + 1])
+            y_stepped.append(y_data2[i])
+            # Add None to create discontinuity
+            x_stepped.append(x_data[i + 1])
+            y_stepped.append(None)
+            # Add start of next step
+            x_stepped.append(x_data[i + 1])
+            y_stepped.append(y_data2[i + 1])
+
+    # Add last point
+    x_stepped.append(x_data[-1])
+    y_stepped.append(y_data2[-1])
+    x_data = np.concatenate(([1], x_data))  # Use 1 instead of 0
+    y_data1 = [y_data1[0]] + y_data1
 
     return {
         "data": [
-            (
-                go.Scatter(
-                    x=x_data,
-                    y=y_data2,
-                    mode="lines",
-                    name="Marginal Rate",
-                    line=dict(color="firebrick", dash="dash"),
-                )
-            ),
             (
                 go.Scatter(
                     x=x_data,
@@ -689,13 +715,35 @@ def update_graph(filing_status):
                     mode="lines",
                     name="Average Rate",
                     line=dict(color="royalblue"),
+                    connectgaps=False,  # Important: don't connect the None values
+                )
+            ),
+            (
+                go.Scatter(
+                    x=x_stepped,
+                    y=y_stepped,
+                    mode="lines",
+                    name="Marginal Rate",
+                    line=dict(color="firebrick", dash="dot"),
+                    connectgaps=False,  # Important: don't connect the None values
                 )
             ),
         ],
         "layout": go.Layout(
-            {"title": f"Tax Rates - {filing_status} - {fm.current_year}"},
-            xaxis={"title": "Taxable Income", "tickformat": "$,"},
-            yaxis={"title": "Rate", "tickformat": ".0%"},
+            {
+                "title": f"Tax Rates - {filing_status} - {fm.current_year}",
+                "legend": {"traceorder": "reversed"},
+            },
+            xaxis={
+                "title": "Taxable Income",
+                "tickformat": "$,",
+                "range": [0, top_number],
+            },
+            yaxis={
+                "title": "Rate",
+                "tickformat": ".0%",
+                "range": [0, max(max(y_data1), max(y_data2)) * 1.1],
+            },
         ),
     }
 
@@ -934,6 +982,7 @@ def score_quiz(n_clicks, *args):
             explanation_string += f"""
 
 {problem}
+
 Your answer: {answer}
 
 Correct answer: {correct_answer}

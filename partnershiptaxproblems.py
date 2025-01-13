@@ -404,7 +404,7 @@ def investment_partnership():
     else:
         hint_language = f"For example: {person_1_hint} {person_2_hint} {person_3_hint}"
 
-    problem = f"{person1.name}, {person2.name}, and {person3.name} form a partnership. {person_1_lang} {person_2_lang} {person_3_lang} How much gain or loss does {question_person.name} recognize due to {question_person.poss} contribution to the partnership?"
+    problem = f"{person1.name}, {person2.name}, and {person3.name} form a partnership and make contributions as follows.\n\n- {person_1_lang}\n- {person_2_lang}\n- {person_3_lang}\n\nHow much gain or loss does {question_person.name} recognize due to {question_person.poss} contribution to the partnership?"
 
     if (bad_fmv / total_fmv) > 0.8:
         investment_partnership = "yes"
@@ -603,27 +603,12 @@ def transfers_to_partnership():
             )
 
             asset_list.append(fullasset)
-
-            asset_language_1 = f"{fm.pick_a_an(fullasset.name)} {fullasset.name} with a fair market value of {fm.as_curr(fullasset.fmv)} and a basis of {fm.as_curr(fullasset.basis)}"
-
-            if n < number_assets - 1:
-                asset_language_0 = ""
-                asset_language_3 = "; "
-            else:
-                asset_language_0 = "and "
-                asset_language_3 = "."
-
             if asset in section_1231_assets:
                 asset_language_2 = f" that {person1.name} uses in {person1.poss} trade or business (all of the gain is due to depreciation)"
             else:
                 asset_language_2 = ""
 
-            assets_acquired_language += (
-                asset_language_0
-                + asset_language_1
-                + asset_language_2
-                + asset_language_3
-            )
+            assets_acquired_language += f"- {fm.pick_a_an(fullasset.name)} {fullasset.name} with a fair market value of {fm.as_curr(fullasset.fmv)} and a basis of {fm.as_curr(fullasset.basis)}{asset_language_2}\n"
 
         asset_choice = random.choice(asset_list)
 
@@ -638,7 +623,7 @@ def transfers_to_partnership():
         possiblequestions = [type_partner_question, partnership_question]
         question = random.choice(possiblequestions)
 
-        problem = f"{person1.name} contributes the following to {partnership_name}, LLC, which is taxed as a partnership, in exchange for an interest in {partnership_name}: {assets_acquired_language} Which of the following is accurate with respect to {question}?"
+        problem = f"{person1.name} contributes the following to {partnership_name}, LLC, which is taxed as a partnership, in exchange for an interest in {partnership_name}:\n\n{assets_acquired_language} \nWhich of the following is accurate with respect to {question}?"
 
         for n in asset_list:
             tack_correct += n.amount_tacked
@@ -1244,6 +1229,7 @@ def taxable_year():
 
     alltypes = [majority, principal_partner, least_aggregate_deferral]
     type_prob = random.choice(alltypes)
+    # type_prob = least_aggregate_deferral
 
     number_good_partners = random.randint(2, 3)
 
@@ -1255,7 +1241,7 @@ def taxable_year():
         for n in range(number_good_partners):
             entity_name = random.choice(abc.animals_by_country_dict["English"])
             name_list.append(entity_name)
-            type_entity = random.choice(["Inc.,", "LLC,"])
+            type_entity = random.choice(["Inc.", "LLC"])
             entity = f"{entity_name}, {type_entity}"
             if type_prob.name != "least aggregate deferral":
                 partner_dict[entity] = good_taxable_year
@@ -1330,7 +1316,7 @@ def taxable_year():
                     entity_name = random.choice(abc.animals_by_country_dict["English"])
                     if entity_name not in name_list:
                         break
-                type_entity = random.choice(["Inc.", "LLC,"])
+                type_entity = random.choice(["Inc.", "LLC"])
                 partner = f"{entity_name}, {type_entity}"
                 while True:
                     taxable_year = random.choice(year_ends[:-1])
@@ -1379,7 +1365,7 @@ def taxable_year():
             entity_name = random.choice(abc.animals_by_country_dict["English"])
             if entity_name not in name_list:
                 break
-        type_entity = random.choice(["Inc.", "LLC,"])
+        type_entity = random.choice(["Inc.", "LLC"])
         partner = f"{entity_name}, {type_entity}"
         while True:
             taxable_year = random.choice(year_ends[:-1])
@@ -1391,11 +1377,19 @@ def taxable_year():
     total_partners = number_good_partners + number_other_partners
 
     ### PROBLEM ###
+    partners_shuffled = list(partner_dict_new.keys())
 
-    for n in partner_dict_new.keys():
-        taxable_year_end = partner_dict_new[n][0]
-        percent_interest = partner_dict_new[n][1]
-        holdings_lang_partner = f"{n} holds a {percent_interest} percent interest in {partnership_name} and has a taxable year ending {taxable_year_end}. "
+    random.shuffle(partners_shuffled)
+
+    shuffled_dict = {}
+
+    for n in partners_shuffled:
+        shuffled_dict[n] = partner_dict_new[n]
+
+    for n in shuffled_dict.keys():
+        taxable_year_end = shuffled_dict[n][0]
+        percent_interest = shuffled_dict[n][1]
+        holdings_lang_partner = f"\n- {n}, holds a {percent_interest}% interest in {partnership_name} and has a taxable year ending {taxable_year_end}. "
         holdings_language_list.append(holdings_lang_partner)
 
     if type_prob == principal_partner:
@@ -1403,15 +1397,15 @@ def taxable_year():
             number_shareholders = n
             percent_per_shareholder = other_dict[n][0]
             group_taxable_year = other_dict[n][1]
-            holdings_language_group = f"A group of {number_shareholders} members holds interests in {partnership_name}; each member holds a {percent_per_shareholder} percent interest in {partnership_name}, and each has a taxable year ending {group_taxable_year}. "
+            holdings_language_group = f"\n- A group of {number_shareholders} members holds interests in {partnership_name}; each member holds a {percent_per_shareholder}% interest in {partnership_name}, and each has a taxable year ending {group_taxable_year}. "
             holdings_language_list.append(holdings_language_group)
 
-    random.shuffle(holdings_language_list)
+    # random.shuffle(holdings_language_list)
 
     for n in holdings_language_list:
         holdings_language = holdings_language + n
 
-    problem = f"{partnership_name}, LLC, has {total_partners} members. {holdings_language}{partnership_name}'s revenue is spread evenly across the calendar year. Which of the following is the most accurate statement about {partnership_name}'s taxable year?"
+    problem = f"{partnership_name}, LLC, has {total_partners} members. {holdings_language}\n\n{partnership_name}'s revenue is spread evenly across the calendar year.\n\nWhich of the following is the most accurate statement about {partnership_name}'s taxable year?"
 
     ### ANSWERS ###
     # create the answer text language
@@ -1434,26 +1428,33 @@ def taxable_year():
     else:
         deferral_dict = {}
         aggregate_deferral_lang = ""
+
         for n in taxable_year_list:
+            partner_deferral_lang = ""
             year_end = n
             total_deferral = 0
             partnership_month_end = int(year_end.split("/")[0])
-            for partner in partner_dict_new.keys():
-                partner_month_end = int(partner_dict_new[partner][0].split("/")[0])
+            for partner in shuffled_dict.keys():
+                partner_month_end = int(shuffled_dict[partner][0].split("/")[0])
                 partner_month_deferral = (
                     partner_month_end - partnership_month_end
                 ) % 12
                 partner_weighted_deferral = (
-                    partner_dict_new[partner][1] / 100
+                    shuffled_dict[partner][1] / 100
                 ) * partner_month_deferral
-                print(n, partner_weighted_deferral)
+
                 total_deferral += partner_weighted_deferral
-            aggregate_deferral_lang += (
-                f"The aggregate deferral for {n} is {total_deferral} months. "
-            )
-            deferral_dict[total_deferral] = n
+                if partner_month_deferral == 1:
+                    month_s = ""
+                else:
+                    month_s = "s"
+                partner_deferral_lang += f"\n- {partner}, has a deferral of {partner_month_deferral} month{month_s} and has an interest of {partner_dict_new[partner][1]}%, for a weighted deferral of {round(partner_weighted_deferral,2)}"
+
+            aggregate_deferral_lang += f"The aggregate deferral for {n}, is {total_deferral} months. {partner_deferral_lang}."
+            deferral_dict[total_deferral] = [n, partner_deferral_lang]
         least_deferral = min(deferral_dict.keys())
-        least_deferral_year = deferral_dict[least_deferral]
+        least_deferral_year = deferral_dict[least_deferral][0]
+        least_deferral_year_lang = deferral_dict[least_deferral][1]
         least_deferral_rounded = round(least_deferral, 2)
         correct = create_ans_text(least_deferral_year)
 
@@ -1473,20 +1474,20 @@ def taxable_year():
 
     if type_prob == majority:
 
-        judgements[create_ans_text(good_taxable_year)] = (
+        judgements[correct] = (
             f"<p>Correct. The members with the taxable year ending {good_taxable_year} hold more than 50 percent of the interests in the LLC. Under <a href='https://www.law.cornell.edu/uscode/text/26/706' target='_new' rel='noreferrer'>Section 706</a>(b)(1)(B), the LLC therefore has a majority interest taxable year, which will be the required taxable year.</p>"
         )
 
     elif type_prob == principal_partner:
 
-        judgements[create_ans_text(good_taxable_year)] = (
+        judgements[correct] = (
             f"<p>Correct. There is no majority taxable year, but all of the members who own at least 5 percent of the LLC have the same taxable year. Under <a href='https://www.law.cornell.edu/uscode/text/26/706' target='_new' rel='noreferrer'>Section 706</a>(b)(1)(B), because there is no majority interest taxable year, but there is a principal partner taxable year, the principal partner taxable year is the required taxable year.</p>"
         )
 
     elif type_prob == least_aggregate_deferral:
 
-        judgements[create_ans_text(correct)] = (
-            f"<p>Correct. There is no majority taxable year, because there is no single taxable year that is the taxable year of a group of members who in aggregate hold a majority interest. There is no principal partner taxable year, because not all of the members who own at least 5 percent of the LLC have the same taxable year. Therefore, under <a href='https://www.law.cornell.edu/uscode/text/26/706' target='_new' rel='noreferrer'>Section 706</a>(b)(1)(B), the taxable year is the taxable year ending {correct}, because that is the taxable year that results in the least aggregate deferral, {least_deferral_rounded}, weighting months deferred for each member by the interest that member holds.</p>"
+        judgements[correct] = (
+            f"Correct. There is no majority taxable year, because there is no single taxable year that is the taxable year of a group of members who in aggregate hold a majority interest. There is no principal partner taxable year, because not all of the members who own at least 5 percent of the LLC have the same taxable year. Therefore, under Section 706(b)(1)(B), the taxable year is the taxable year ending {least_deferral_year}, because that is the taxable year that results in the least aggregate deferral, {least_deferral_rounded}, weighting months deferred for each member by the interest that member holds. Specifically, in a taxable year that ends {least_deferral_year}:{least_deferral_year_lang}"
         )
 
     formattedjudgements = fm.format_dict(judgements, "words")
@@ -2589,7 +2590,7 @@ def partnership_distributions():
 
     if question_type == "partnership_gain_loss":
         correct = f"{fm.ac(0)} loss or gain"
-        correct_explanation = "<p>Correct! A entity taxed as a partnership never recognizes gain or loss on a distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(b).</p>"
+        correct_explanation = "<p>Correct! A entity taxed as a partnership never recognizes gain or loss on a distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(b)</a>.</p>"
 
     elif question_type == "partner_gain_loss":
         cash_answer = f"{fm.ac(cash_amount)} gain"
@@ -2597,24 +2598,30 @@ def partnership_distributions():
             f"Does {partner.name} recognize gain equal to the full amount of the cash distributed? What is {partner.name}'s outside basis?"
         )
         if cash_over_basis > 0:
+            judgements[f"{fm.ac(0)} loss or gain"] = (
+                f"<p>How much cash does {partner.name} receive? Consider <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(a)(1)</a>.</p>"
+            )
             correct = f"{fm.ac(cash_over_basis)} gain"
-            correct_explanation = "<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a member does recognize gain to the extent that any money distributed exceeds the adjusted basis of such member's interest immediately before the distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(a)(1).</p>"
+            correct_explanation = "<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a member does recognize gain to the extent that any money distributed exceeds the adjusted basis of such member's interest immediately before the distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(a)(1)</a>.</p>"
 
         elif (basis_over_hot > 0) and (
             all(asset.assettype != "other" for asset in assets_distributed)
         ):
             if type_distribution == "liquidating":
+                judgements[f"{fm.ac(0)} loss or gain"] = (
+                    f"<p>What does {partner.name} receive in this distribution, and what is {partner.name}'s outside basis? Consider <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(a)(2)</a>.</p>"
+                )
                 correct = f"{fm.ac(basis_over_hot)} loss"
-                correct_explanation = f"<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a member does recognize loss on a liqudating distribution when the member receives only cash and hot assets and the member's outside basis immediately before the distribution exceeds the sum of cash received and the basis to the entity of the hot assets. Here, {partner.name}'s outside basis immediately before the distribution is {fm.ac(outside_basis)}, which exceeds the basis to {partnership}, of the hot assets, {fm.ac(total_hot_assets_basis)}, together with the cash distributed, {fm.ac(cash_amount)}. Therefore, {partner.name} recognizes loss of {fm.ac(basis_over_hot)}. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(a)(2).</p>"
+                correct_explanation = f"<p>Correct! While the general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership, a member does recognize loss on a liqudating distribution when the member receives only cash and/or hot assets and the member's outside basis immediately before the distribution exceeds the sum of cash received and the basis to the entity of the hot assets. Here, {partner.name}'s outside basis immediately before the distribution is {fm.ac(outside_basis)}, which exceeds the basis to {partnership}, of the hot assets, {fm.ac(total_hot_assets_basis)}, together with the cash distributed, {fm.ac(cash_amount)}. Therefore, {partner.name} recognizes loss of {fm.ac(basis_over_hot)}. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(a)(2)</a>.</p>"
             else:
                 correct = f"{fm.ac(0)} loss or gain"
-                correct_explanation = f"<p>Correct! The general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership. Here, while it is true that {partner.name} receives only cash and hot assets and that {partner.poss} outside basis immediately before the distribution exceeds the sum of cash received and the basis to the {partnership} of the distributed hot assets, {partner.name} still does not recognize loss, because such loss is available only on a liquidating distribution, and this is a current operating distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>(a)(2).</p>"
+                correct_explanation = f"<p>Correct! The general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership. There are exceptions to that rule, but neither applies here. In particular, while it is true that {partner.name} receives only cash and hot assets and that {partner.poss} outside basis immediately before the distribution exceeds the sum of cash received and the basis to {partnership}, of the distributed hot assets, {partner.name} still does not recognize loss, because such loss is available only on a liquidating distribution, and this is a current operating distribution. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731(a)(2)</a>.</p>"
                 judgements[f"{fm.ac(basis_over_hot)} loss"] = (
                     "What type of distribution is this?"
                 )
         else:
             correct = f"{fm.ac(0)} loss or gain"
-            correct_explanation = f"<p>Correct! The general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership. Here, {partner.name} does not receive cash in excess of {partner.poss} outside basis immediately before distribution, and does not receives only cash and hot assets in a liquidating distribution where {partner.name}'s outside basis immediately before the distribution exceeds the sum of cash received and the basis to the entity of the hot assets. Therefore, {partner.name} recognizes neither gain nor loss. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>.</p>"
+            correct_explanation = f"<p>Correct! The general rule is that a member does not recognize gain or loss on a distribution from an entity taxed as a partnership. There are exceptions to that rule, but neither applies here. {partner.name} does not receive cash in excess of {partner.poss} outside basis immediately before distribution, which would cause {partner.acc} to recognize gain. {partner.name} does not receive only cash and/or hot assets in a liquidating distribution where {partner.poss} outside basis immediately before the distribution exceeds the sum of cash received and the basis to the entity of the hot assets, which would cause {partner.acc} to recognize loss. Therefore, {partner.name} recognizes neither gain nor loss. <a href='https://www.law.cornell.edu/uscode/text/26/731' target='_new' rel='noreferrer'>Section 731</a>.</p>"
 
     elif question_type == "asset_basis_q":
         possibleanswers = [0, asset_basis_target.fmv, asset_basis_target.basis]
@@ -2734,7 +2741,7 @@ def partnership_distributions():
             # if there is extra basis and only if this is a liquidating distribution, allocate the increase
             elif basis_over_hot > total_other_basis:
                 if type_distribution == "current operating":
-                    third_step_lang = "There is also sufficient outside basis remaining after allocating basis to the hot assets to give all of the other assets the same basis they had to the partnership. Section 732(c)(1)(B)(i). In fact, there is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. But because this is a current operating distribution, no further adjustments are made to the basis of the assets, and each asset has the same basis to the distributee partner as it did to the partnership. For current operating distributions, there is a cap on the total basis to the assets (the total basis to the assets cannot exceed the outside basis reduced by the money distributed), but the basis of the assets to the distributee partner is not increased beyond what the basis of the assets was to the partnership. Section 732(a)."
+                    third_step_lang = "There is also sufficient outside basis remaining after allocating basis to the hot assets to give all of the other assets the same basis they had to the partnership. Section 732(c)(1)(B)(i). In fact, there is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. But because this is a current operating distribution, no further adjustments are made to the basis of the assets, and each asset has the same basis to the distributee partner as it did to the partnership. In a current operating distribution, the total basis of the distributed assets to the distributee partner cannot exceed the distributee partner’s outside basis immediately before the distribution, reduced by any money distributed. Section 732(a)(2). But here, the distributee partner’s outside basis (so reduced) actually exceeds the basis of the assets distributed. The basis of the assets to the distributee partner is not increased beyond what the basis of the assets was to the partnership."
                     # adjusting the hot assets upwards! bad!
                     if asset_basis_target.assettype == "hot":
                         adjust_basis(basis_over_hot, hot_list, type_answers="wrong")
@@ -2765,7 +2772,7 @@ def partnership_distributions():
                     third_step_lang = f"There is outside basis remaining after allocating the same basis to all the assets that they had in the partnership. Because this is a liquidating distribution, the basis of the non-hot assets is further adjusted until the basis of the distributed assets equals the distributee partner's outside basis reduced by money distributed. Section 732(b).\n\nThe total upward adjustment is {fm.ac(increase_needed)}. This adjustment goes only to the non-hot assets. Section 732(c)(1)(B). The increase is first allocated in proportion to unrealized appreciation, only to the extent of unrealized appreciation. Section 732(c)(2)(A). Any remaining increase is allocated to the assets in proportion to their respective fair market values. Section 732(c)(2)(B). Therefore, each of the hot assets ends up with the same basis as they had initially to the partnership, and each of the other assets has a basis as follows:\n\n{asset_adjustment_string}"
                     if asset_basis_target.assettype == "other":
                         judgements[asset_basis_target.basis] = (
-                            "This would be the correct answer if this were a current operating distribution. But this is a liquidating distribution. Consider Section 732(b)."
+                            "<p>This would be the correct answer if this were a current operating distribution. But this is a liquidating distribution. Consider  <a href='https://www.law.cornell.edu/uscode/text/26/732' target='_new' rel='noreferrer'>Section 732(b)</a>.</p>"
                         )
                         judgements[0] = (
                             "Is there basis remaining for the non-hot assets?"

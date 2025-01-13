@@ -5081,10 +5081,17 @@ def function_picker(fn):
 
 def rates_facts(type_of_taxpayer, taxable_income):
     type_of_taxpayer = fm.rates_dict[type_of_taxpayer]
-    average_rate_answer = fm.rates_facts_average(type_of_taxpayer, taxable_income)
-    tax_owed_answer = int(average_rate_answer * taxable_income)
-    marginal_rate_answer = fm.rates_facts_marginal(type_of_taxpayer, taxable_income)
+    max_key = max(list(type_of_taxpayer.brackets["TopOfBracket"].keys()))
+    max_value = type_of_taxpayer.brackets["TopOfBracket"][max_key]
+    if taxable_income > max_value:
+        response = (
+            f"Please enter taxable income less than {max_value} for this taxpayer."
+        )
+    else:
+        average_rate_answer = fm.rates_facts_average(type_of_taxpayer, taxable_income)
+        tax_owed_answer = int(average_rate_answer * taxable_income)
+        marginal_rate_answer = fm.rates_facts_marginal(type_of_taxpayer, taxable_income)
 
-    rate_answer = f"The tax owed is {fm.ac(tax_owed_answer)}.\nThe average tax rate is {fm.as_percent(average_rate_answer)}.\nThe marginal tax rate is {fm.as_percent(marginal_rate_answer)}."
+        response = f"The tax owed is {fm.ac(tax_owed_answer)}.\nThe average tax rate is {fm.as_percent(average_rate_answer)}.\nThe marginal tax rate is {fm.as_percent(marginal_rate_answer)}."
 
-    return rate_answer
+    return response

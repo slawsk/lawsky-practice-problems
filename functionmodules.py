@@ -1082,11 +1082,20 @@ def rates_facts_average(type_of_taxpayer, taxable_income):
 
 
 def rates_facts(type_of_taxpayer, taxable_income):
-    average_rate_answer = rates_facts_average(type_of_taxpayer, taxable_income)
-    tax_owed = int(tax_owed_answer(type_of_taxpayer, taxable_income))
-    marginal_rate_answer = rates_facts_marginal(type_of_taxpayer, taxable_income)
+    max_key = max(list(type_of_taxpayer.brackets["TopOfBracket"].keys()))
+    max_value = type_of_taxpayer.brackets["TopOfBracket"][max_key]
+    if taxable_income > max_value:
+        response = (
+            f"Please enter taxable income less than {max_value} for this taxpayer."
+        )
+    else:
+        average_rate_answer = rates_facts_average(type_of_taxpayer, taxable_income)
+        tax_owed = int(tax_owed_answer(type_of_taxpayer, taxable_income))
+        marginal_rate_answer = rates_facts_marginal(type_of_taxpayer, taxable_income)
 
-    return f"The tax owed is {as_curr(tax_owed)}.\nThe average tax rate is {as_percent(average_rate_answer)}.\nThe marginal tax rate is {as_percent(marginal_rate_answer)}."
+        response = f"The tax owed is {as_curr(tax_owed)}.\nThe average tax rate is {as_percent(average_rate_answer)}.\nThe marginal tax rate is {as_percent(marginal_rate_answer)}."
+
+    return response
 
 
 def clean_string(x):
