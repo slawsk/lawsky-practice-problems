@@ -24,9 +24,9 @@ dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-table==5.0.0
 DateTime==5.1
-distlib==0.3.5
+distlib==0.3.9
 et-xmlfile==1.1.0
-filelock==3.4.1
+filelock==3.16.1
 flash==1.0.3
 Flask==3.0.0
 fonttools==4.47.2
@@ -48,7 +48,7 @@ pandas==2.0.1
 pbr==5.9.0
 pdfkit==1.0.0
 pillow==10.3.0
-platformdirs==2.4.0
+platformdirs==4.3.6
 plotly==5.13.1
 prompt_toolkit==3.0.47
 pycparser==2.21
@@ -84,7 +84,7 @@ tzlocal==5.0.1
 uritools==4.0.1
 urllib3==2.1.0
 vine==5.1.0
-virtualenv==20.15.1
+virtualenv==20.28.1
 virtualenv-clone==0.5.7
 virtualenvwrapper==4.8.4
 wcwidth==0.2.13
