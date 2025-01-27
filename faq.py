@@ -70,7 +70,7 @@ Select the problem topic and click "Submit Topic." If no topic is selected, the 
       
 """
 
-partnership_addl_info = """The number to the left of each topic is the relevant chapter or section of [Wootton & Lawsky, Partnership Taxation](https://www.amazon.com/Exam-Pro-Partnership-Taxation-Objective-ebook/dp/B082B9FBBP/)."""
+partnership_addl_info = """The number to the left of each topic is the relevant chapter or section of [Wootton & Lawsky, Partnership Taxation](https://www.westacademic.com/Wootton-and-Lawskys-Exam-Pro-on-Partnership-Taxation-2d-Objective-9781684671144)."""
 
 codeandregsdownload = f"""
 Create a PDF of selected tax Code and regulation sections for {fm.current_year_for_book} for almost any U.S. federal tax class."""
@@ -94,11 +94,14 @@ In contrast, this Selected Sections is available for free; the book you create w
 **Q: I don't have a list of all the sections I need. Do you have spreadsheets that people use for various actual tax classes, so I can generate a book for myself anyway?** <br>
 A: Yes. Keeping in mind that of course not everyone assigns the same sections for every class, so these may not include all of what you need and may also have extra sections you don't need (indeed, that's part of what motivated this project), here are spreadsheets from law professors for Selected Sections books for, respectively, [Federal Income Tax](/assets/FITCodeAndRegSections.xlsx); [Corporate Tax](/assets/CorporateCodeAndRegSections.xlsx); [Partnership Tax](/assets/PartnershipCodeAndRegSections.xlsx); and [Estate and Gift Tax](/assets/EstateGiftCodeAndRegSections.xlsx).
 
-**Q:I like a hard copy better.**<br>
+**Q: I like a hard copy better.**<br>
 A: Me too. Luckily, in addition to the "printing out the PDF" option, there are a number of options for nicely-bound hard copies of PDFs print-on-demand for cost, maybe even including your school's bookstore or copy center. For example, you can [buy a bound hard copy of the Selected Sections PDF I created for my Basic Tax class](https://bit.ly/FedIncomeTaxSelectedSections) for cost at Lulu.com, just because I uploaded it there (it doesn't cost anything to upload it, and I don't get any money if you buy it).
 
-**Q:What are those long strings of numbers in the file name of the Selected Sections book I downloaded?**<br>
-A: That is the [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) of the moment you generated that Selected Sections book. You can translate that into a more comprehensible date by entering that number into a [converter](https://www.epochconverter.com/). For example, there's a file in my downloads called SelectedSections.1687277065.726598.pdf. When I put 1687277065.726598 into the converter, it tells me I generated that particular Selected Sections book on Tuesday, June 20, 2023 4:04:25.726 PM Greenwich Mean Time."""
+**Q: What are those long strings of numbers in the file name of the Selected Sections book I downloaded?**<br>
+A: That is the [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time) of the moment you generated that Selected Sections book. You can translate that into a more comprehensible date by entering that number into a [converter](https://www.epochconverter.com/). For example, there's a file in my downloads called SelectedSections.1687277065.726598.pdf. When I put 1687277065.726598 into the converter, it tells me I generated that particular Selected Sections book on Tuesday, June 20, 2023 4:04:25.726 PM Greenwich Mean Time.
+
+**Q: Selected sections are ok, but I really need the complete code and regulations. Plus I need some other resources, like revenue procedures, revenue rulings, guidance, Treasury decisions....**<br>
+A: Tax Analysts is an amazing resource! Their [federal research page](https://www.taxnotes.com/research/federal) provides access to a huge amount of primary source tax material, all completely free. (And who could pass up a trove of [presidential tax returns](https://www.taxnotes.com/presidential-tax-returns)?)"""
 
 code_template_explanation = """Create an Excel spreadsheet listing the Code and regulation sections and subsections you want in your Selected Sections book, and format it so that the program can process it. The simplest way to do this is to [download this sample spreadsheet](/assets/FITCodeAndRegSections.xlsx) and modify it--essentially, use it as a template. Here are some tips:
 * The first worksheet of the spreadsheet includes your Code sections, and the second worksheet includes your Regs section.
