@@ -1695,16 +1695,17 @@ def charitable_donation(type_problem="random"):
 
     if itemizes:
         itemizes_word = "itemizes"
+        value_property = 100 * random.randint(50, 300)
     else:
         itemizes_word = "does not itemize"
-
-    value_property = 500 * random.randint(10, 60)
+        stded = fm.single.standard_deduction
+        value_property = fm.generate_random_item_hund(stded, 30, 80)
 
     numbers_list = [value_property]
 
     def add_unique():
         while True:
-            x = fm.generate_random_item(value_property, 30, 80)
+            x = fm.generate_random_item_hund(value_property, 30, 80)
             if x not in numbers_list:
                 numbers_list.append(x)
                 return x

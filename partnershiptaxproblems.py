@@ -1677,7 +1677,6 @@ def Section_704_c_sale():
 
             correct = f"{fm.ac(correct_number)} gain"
 
-            judgements[correct] = correct_explanation
             judgements[f"{fm.ac(other_number)} gain"] = (
                 "Whose gain or loss does the question ask about?"
             )
@@ -1687,6 +1686,7 @@ def Section_704_c_sale():
             judgements[f"{fm.ac(other_number)} loss"] = (
                 "Does the sale of the Asset produce gain or loss? Also, whose gain or loss does the question ask about?"
             )
+            judgements[correct] = correct_explanation
 
         else:
 
@@ -1725,7 +1725,6 @@ def Section_704_c_sale():
                     correct = f"{fm.ac(correct_number)} loss or gain"
                 else:
                     correct = f"{fm.ac(correct_number)} loss"
-                judgements[correct] = correct_explanation
 
                 judgements[f"{fm.ac(other_number)} loss"] = (
                     "Whose gain or loss does the question ask about?"
@@ -1736,6 +1735,7 @@ def Section_704_c_sale():
                 judgements[f"{fm.ac(other_number)} gain"] = (
                     "Does the sale of the Asset produce gain or loss? Also, whose gain or loss does the question ask about?"
                 )
+                judgements[correct] = correct_explanation
 
             # If there is not enough tax loss to match book loss, then
             # different approaches for the three methods.
@@ -1787,7 +1787,6 @@ def Section_704_c_sale():
                     correct = f"{fm.ac(correct_number)} loss or gain"
                 else:
                     correct = f"{fm.ac(correct_number)} {type_word}"
-                judgements[correct] = correct_explanation
 
                 if other_number == 0:
                     judgements[f"{fm.ac(other_number)} loss or gain"] = (
@@ -1812,6 +1811,7 @@ def Section_704_c_sale():
                     judgements[f"{fm.ac(book_loss_partner)} loss"] = (
                         f"Is there sufficient loss for {type_question.name} to receive {type_question.poss} full amount of book loss? Is there a way to cure any insufficiency? {type_hint}"
                     )
+                judgements[correct] = correct_explanation
 
             elif type_method == "traditional with curative":
 
@@ -1889,7 +1889,6 @@ def Section_704_c_sale():
                     correct = f"{fm.ac(correct_number)} loss or gain"
                 else:
                     correct = f"{fm.ac(correct_number)} {type_word}"
-                judgements[correct] = correct_explanation
 
                 if other_number == 0:
                     judgements[f"{fm.ac(other_number)} loss or gain"] = (
@@ -1910,6 +1909,7 @@ def Section_704_c_sale():
                     judgements[f"{fm.ac(book_loss_partner)} loss"] = (
                         f"Is there sufficient loss for {type_question.name} to receive {type_question.poss} full amount of book loss? Is there sufficient additional income of the appropriate type to cure any insufficiency?"
                     )
+                judgements[correct] = correct_explanation
 
             else:
                 tax_loss_noncontributor = book_loss_partner
@@ -1947,7 +1947,6 @@ def Section_704_c_sale():
                     correct = f"{fm.ac(correct_number)} loss or gain"
                 else:
                     correct = f"{fm.ac(correct_number)} {type_word}"
-                judgements[correct] = correct_explanation
 
                 judgements[f"{fm.ac(other_number)} {other_type_word}"] = (
                     "Whose gain or loss does the question ask about?"
@@ -1957,6 +1956,7 @@ def Section_704_c_sale():
                     judgements[f"{fm.ac(tax_loss_sale)} loss"] = (
                         f"It is true there is not sufficient loss from the actual sale for {type_question.name} to receive {type_question.poss} full amount of book loss? However, consider the 704(c) method in use."
                     )
+                judgements[correct] = correct_explanation
 
     # built in tax loss. but notice there could still be book gain!
     else:
@@ -2005,11 +2005,11 @@ def Section_704_c_sale():
         correct_explanation = f"Correct! When {contributor.name} contributed the Asset to {partnership}, the Asset had a built-in loss of {fm.ac(built_in_loss)}, representing the excess of the basis on contribution over the fair market value on contribution. Under Section 704(c)(1)(C), this excess basis belongs to the contributor only. Effectively, Section 704(c)(1)(C) forces the remedial method for all assets contributed to a partnership with a built-in loss. Therefore, {noncontributor.name} has tax {type_noncontributor} equal to {noncontributor.poss} book {type_noncontributor}, {fm.ac(amount_noncontributor)}. {contributor.name} gets the benefit of {contributor.poss} 704(c)(1)(C) special basis adjustment, resulting in {fm.ac(amount_contributor)} of tax {type_contributor}, matching {contributor.poss} allocation of book {type_noncontributor}, plus a tax loss equal to the built-in loss on contribution."
 
         correct = f"{fm.ac(correct_number)} {type_word}"
-        judgements[correct] = correct_explanation
 
         judgements[f"{fm.ac(other_number)} {other_type_word}"] = (
             "Whose gain or loss does the question ask about?"
         )
+        judgements[correct] = correct_explanation
 
     if type_income == "breaks even":
         additional_income_lang = f"{partnership}, has no gain, loss, income or deductions except what is generated by the sale."
