@@ -248,7 +248,7 @@ def check_the_box():
 
 def investment_partnership():
 
-    [person1, person2, person3] = fm.create_group(3)
+    person_list = fm.create_group(3)
     entity_list = fm.entity_list_generate(4)
 
     currency_type = random.choice(curr.currency_list)
@@ -258,170 +258,191 @@ def investment_partnership():
         ["held for investment", "used in the active conduct of a trade or business"]
     )
 
-    bad_assets = [
-        [
-            "cash that the partnership has no plan to immediately reinvest",
-            "cash",
-            "What is the significance of the fact that the partnership does not have a plan to reinvest the cash?",
-        ],  # 0
-        [
-            f"stock in {entity_list[0]}, Inc., which {stock_traded} readily marketable",
-            "stock",
-            "Does it matter whether the stock is readily marketable?",
-        ],  # 1
-        [
-            f"an option to purchase stock in {entity_list[1]}, Inc.. The stock {stock_traded} readily marketable",
-            "option",
-            "Does it matter whether the underlying stock is readily marketable?",
-        ],  # 2
-        [
-            f"an interest in {entity_list[2]}, a real estate investment trust",
-            "REIT interest",
-            "",
-        ],  # 3
-        [
-            f"an interest in {entity_list[3]}, a publicly traded partnership",
-            "interest in the publicly traded partnership",
-            "",
-        ],  # 4
-        [f"{currency_type}, a type of non-US currency", f"{currency_type}", ""],  # 5
-        [
-            f"an amount of {precious_metal_type} that was {precious_metal_contributor_use} and that the partnership will hold for investment",
-            f"{precious_metal_type}",
-            f"What is the significance, if any, of how the {precious_metal_type} was used and will be used?",
-        ],
-    ]  # 6
+    class ContributedAsset:
+        def __init__(
+            self,
+            first_use,
+            second_use,
+            hint_language,
+            good_or_bad,
+            fmv=None,
+            basis=None,
+            person=None,
+            problem_language=None,
+            gain_loss=None,
+        ):
+            self.first_use = first_use
+            self.fmv = fmv
+            self.good_or_bad = good_or_bad
+            self.basis = basis
+            self.second_use = second_use
+            self.hint_language = hint_language
+            self.person = person
+            self.problem_language = problem_language
+            self.gain_loss = gain_loss
 
-    good_assets = [
-        [
-            "land that the partnership will hold for investment",
-            "land",
-            "Does it matter that the land will be held for investment?",
-        ],  # 0
-        [
-            "land that the partnership will use in the active conduct of a trade or business",
-            "land",
-            "",
-        ],  # 1
-        [
-            f"an amount of {precious_metal_type} that was {precious_metal_contributor_use} and that the partnership will use in the active conduct of its trade or business",
-            f"{precious_metal_type}",
-            f"What is the significance, if any, of how the {precious_metal_type} was used and will be used?",
-        ],  # 2
-        [
-            "a collection of assets that the partnership will use in the active conduct of its trade or business",
-            "collection",
-            "",
-        ],  # 3
-        [
-            "cash that the partnership plans to use to purchase assets that the partnership will use in the active conduct of its trade or business",
-            "cash",
-            "What is the significance of the plan to use the cash to purchase assets for use in the active conduct of trade or business of the partnership?",
-        ],
-    ]  # 4
+    hold_cash = ContributedAsset(
+        first_use="cash that the partnership has no plan to immediately reinvest",
+        second_use="cash",
+        hint_language="What is the significance of the fact that the partnership does not have a plan to reinvest the cash?",
+        good_or_bad="bad",
+    )
+    stock = ContributedAsset(
+        first_use=f"stock in {entity_list[0]}, Inc., which {stock_traded} readily marketable",
+        second_use="stock",
+        hint_language="Does it matter whether the stock is readily marketable?",
+        good_or_bad="bad",
+    )
+    option = ContributedAsset(
+        first_use=f"an option to purchase stock in {entity_list[1]}, Inc.. The stock {stock_traded} readily marketable",
+        second_use="option",
+        hint_language="Does it matter whether the underlying stock is readily marketable?",
+        good_or_bad="bad",
+    )
+    reit = ContributedAsset(
+        first_use=f"an interest in {entity_list[2]}, a real estate investment trust",
+        second_use="REIT interest",
+        hint_language="",
+        good_or_bad="bad",
+    )
+    ptp_interest = ContributedAsset(
+        first_use=f"an interest in {entity_list[3]}, a publicly traded partnership",
+        second_use="interest in the publicly traded partnership",
+        hint_language="",
+        good_or_bad="bad",
+    )
+    currency = ContributedAsset(
+        first_use=f"{currency_type}, a type of non-US currency",
+        second_use=f"{currency_type}",
+        hint_language="",
+        good_or_bad="bad",
+    )
+    investment_precious_metal = ContributedAsset(
+        first_use=f"an amount of {precious_metal_type} that was {precious_metal_contributor_use} and that the partnership will hold for investment",
+        second_use=f"{precious_metal_type}",
+        hint_language=f"What is the significance, if any, of how the {precious_metal_type} was used and will be used?",
+        good_or_bad="bad",
+    )
+    investment_land = ContributedAsset(
+        first_use="land that the partnership will hold for investment",
+        second_use="land",
+        hint_language="Does it matter that the land will be held for investment?",
+        good_or_bad="good",
+    )
+    active_conduct_land = ContributedAsset(
+        first_use="land that the partnership will use in the active conduct of a trade or business",
+        second_use="land",
+        hint_language="",
+        good_or_bad="good",
+    )
+    active_conduct_precious_metal = ContributedAsset(
+        first_use=f"an amount of {precious_metal_type} that was {precious_metal_contributor_use} and that the partnership will use in the active conduct of its trade or business",
+        second_use=f"{precious_metal_type}",
+        hint_language=f"What is the significance, if any, of how the {precious_metal_type} was used and will be used?",
+        good_or_bad="good",
+    )
+    tb_assets = ContributedAsset(
+        first_use="a collection of assets that the partnership will use in the active conduct of its trade or business",
+        second_use="collection",
+        hint_language="",
+        good_or_bad="good",
+    )
+    tb_cash = ContributedAsset(
+        first_use="cash that the partnership plans to use to purchase assets that the partnership will use in the active conduct of its trade or business",
+        second_use="cash",
+        hint_language="What is the significance of the plan to use the cash to purchase assets for use in the active conduct of trade or business of the partnership?",
+        good_or_bad="good",
+    )
 
-    all_assets = bad_assets + good_assets
+    all_assets = [
+        hold_cash,
+        stock,
+        option,
+        reit,
+        ptp_interest,
+        currency,
+        investment_precious_metal,
+        investment_land,
+        active_conduct_land,
+        active_conduct_precious_metal,
+        tb_assets,
+        tb_cash,
+    ]
 
-    asset_list = []
     price_list = []
     difference_list = []
     total_fmv = 0
     bad_fmv = 0
     good_fmv = 0
+    asset_list_lang = ""
+    hint_lang_all = ""
 
-    person_dict = {person1.name: [], person2.name: [], person3.name: []}
+    asset_list = random.sample(all_assets, k=3)
 
-    person_list = list(person_dict)
+    for asset, person in zip(asset_list, person_list):
+        asset.person = person
 
-    for n in range(0, 3):
-        while True:
-            asset = random.choice(all_assets)
-            if asset in bad_assets:
-                type_asset = "bad"
-            elif asset in good_assets:
-                type_asset = "good"
-
-            if asset not in asset_list:
-                asset_list.append(asset)
-                break
+    for asset in asset_list:
 
         while True:
-            if type_asset == "bad":
-                fmv = 1000 * random.randint(40, 100)
-                bad_fmv += fmv
-            elif type_asset == "good":
-                fmv = 1000 * random.randint(5, 60)
-                good_fmv += fmv
-            basis = fm.generate_random_item(fmv, 70, 110)
-            difference = abs(fmv - basis)
+            if asset.good_or_bad == "bad":
+                asset.fmv = 1000 * random.randint(40, 100)
+                bad_fmv += asset.fmv
+            else:
+                asset.fmv = 1000 * random.randint(5, 60)
+                good_fmv += asset.fmv
+            asset.basis = fm.generate_random_item(asset.fmv, 70, 110)
+            difference = abs(asset.fmv - asset.basis)
             if (
-                fmv not in price_list
-                and basis not in price_list
-                and fmv != basis
+                asset.fmv not in price_list
+                and asset.basis not in price_list
+                and asset.fmv != asset.basis
                 and difference not in difference_list
             ):
-                total_fmv += fmv
-                price_list.append(fmv)
-                price_list.append(basis)
+                total_fmv += asset.fmv
+                price_list.append(asset.fmv)
+                price_list.append(asset.basis)
                 difference_list.append(difference)
                 break
 
-        if asset[1] != "cash":
-            person_problem_language_2 = f". The {asset[1]} has a fair market value of {fm.as_curr(fmv)} and a basis of {fm.as_curr(basis)}."
-            gain_loss = fmv - basis
+        if asset.second_use != "cash":
+            person_problem_language_2 = f". The {asset.second_use} has a fair market value of {fm.as_curr(asset.fmv)} and a basis of {fm.as_curr(asset.basis)}."
+            asset.gain_loss = asset.fmv - asset.basis
 
         else:
-            person_problem_language_2 = f". The amount of cash is {fm.as_curr(fmv)}."
-            gain_loss = 0
+            person_problem_language_2 = (
+                f". The amount of cash is {fm.as_curr(asset.fmv)}."
+            )
+            asset.gain_loss = 0
 
-        person_problem_language = (
-            f"{person_list[n]} contributes {asset[0]}" + person_problem_language_2
+        asset.problem_language = (
+            f"{asset.person.name} contributes {asset.first_use}"
+            + person_problem_language_2
         )
+        asset_list_lang += f"\n- {asset.problem_language}"
+        hint_lang_all += asset.hint_language
 
-        person_dict[person_list[n]].append(person_problem_language)  # 0
-        person_dict[person_list[n]].append(gain_loss)  # 1
-        person_dict[person_list[n]].append(fmv)  # 2
-        person_dict[person_list[n]].append(basis)  # 3
-        person_dict[person_list[n]].append(asset[1])  # 4
-        person_dict[person_list[n]].append(asset[2])  # 5
-
-    while True:
-        question_person = random.choice([person1, person2, person3])
-        if person_dict[question_person.name][4] != "cash":
-            break
-
-    person_1_lang = person_dict[person1.name][0]
-    person_2_lang = person_dict[person2.name][0]
-    person_3_lang = person_dict[person3.name][0]
-
-    person_1_hint = person_dict[person1.name][5]
-    person_2_hint = person_dict[person2.name][5]
-    person_3_hint = person_dict[person3.name][5]
-
-    if person_1_hint == "" and person_2_hint == "" and person_3_hint == "":
-        hint_language = ""
+    if len(hint_lang_all) < 4:
+        hint_language = hint_lang_all
 
     else:
-        hint_language = f"For example: {person_1_hint} {person_2_hint} {person_3_hint}"
+        hint_language = f"For example: {hint_lang_all}"
 
-    problem = f"{person1.name}, {person2.name}, and {person3.name} form a partnership and make contributions as follows.\n\n- {person_1_lang}\n- {person_2_lang}\n- {person_3_lang}\n\nHow much gain or loss does {question_person.name} recognize due to {question_person.poss} contribution to the partnership?"
+    selected_asset = random.choice(asset_list)
+    question_person = selected_asset.person
+
+    problem = f"{asset_list[0].person.name}, {asset_list[1].person.name}, and {asset_list[2].person.name} form a partnership and make contributions as follows.\n{asset_list_lang}\n\nHow much gain or loss does {question_person.name} recognize due to {question_person.poss} contribution to the partnership?"
 
     if (bad_fmv / total_fmv) > 0.8:
         investment_partnership = "yes"
     else:
         investment_partnership = "no"
 
-    gain_loss_realized = person_dict[question_person.name][1]
-
-    fmv_contributed_asset = person_dict[question_person.name][2]
-
-    basis_contributed_asset = person_dict[question_person.name][3]
-
     possibleanswers = [
         0,
-        gain_loss_realized,
-        fmv_contributed_asset,
-        basis_contributed_asset,
+        selected_asset.gain_loss,
+        selected_asset.fmv,
+        selected_asset.basis,
     ]
 
     judgements = {}
@@ -429,53 +450,53 @@ def investment_partnership():
     if investment_partnership == "no":
         correct = 0
         judgements[correct] = (
-            f'<p>Correct. This is not an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. Therefore, no gain or loss is recognized on the contribution of assets, under the general rule of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>.</p>'
+            f'<p>Correct. This is not an investment partnership, because only {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. Therefore, no gain or loss is recognized on the contribution of assets, under the general rule of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>.</p>'
         )
 
-        if gain_loss_realized < 0:
-            judgements[gain_loss_realized] = (
-                f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. <br><br>Additionally, given that a loss is realized, does it matter whether this is an investment partnership?</p>'
+        if selected_asset.gain_loss < 0:
+            judgements[selected_asset.gain_loss] = (
+                f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. Additionally, given that a loss is realized, does it matter whether this is an investment partnership?</p>'
             )
 
         else:
-            judgements[gain_loss_realized] = (
-                f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. <br><br>Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} </p>'
+            judgements[selected_asset.gain_loss] = (
+                f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} </p>'
             )
 
-        judgements[fmv_contributed_asset] = (
-            f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. <br><br>Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} <br><br>Finally, even if it were an investment partnership, would the entire fair market value of the asset be recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
+        judgements[selected_asset.fmv] = (
+            f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} Finally, even if it were an investment partnership, would the entire fair market value of the asset be recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
-        judgements[basis_contributed_asset] = (
-            f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. <br><br>Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} <br><br>Finally, even if it were an investment partnership, what amount would be recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
+        judgements[selected_asset.basis] = (
+            f'<p>What is the general rule for whether gain or loss is recognized on the contribution to a partnership? Consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a>. Additionally, is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language} Finally, even if it were an investment partnership, what amount would be recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
 
-    elif gain_loss_realized < 0:
+    elif selected_asset.gain_loss < 0:
         correct = 0
         judgements[correct] = (
-            f'<p>Correct. This is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. However, <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a> does not permit the recognition of loss on a contribution to an investment partnership; rather, it requires the recognition of gain. Because {question_person.name} realized {fm.as_curr(abs(gain_loss_realized))} of loss, no gain or loss is recognized.</p>'
+            f'<p>Correct. This is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. However, <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a> does not permit the recognition of loss on a contribution to an investment partnership; rather, it requires the recognition of gain. Because {question_person.name} realized {fm.as_curr(abs(selected_asset.gain_loss))} of loss, no gain or loss is recognized.</p>'
         )
-        judgements[gain_loss_realized] = (
+        judgements[selected_asset.gain_loss] = (
             f'<p>You are correct that this is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. However, does <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721</a> permit the recognition of loss on a contribution to an investment partnership?</p>'
         )
-        judgements[fmv_contributed_asset] = (
+        judgements[selected_asset.fmv] = (
             f'<p>You are correct that this is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. But what amount is recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
-        judgements[basis_contributed_asset] = (
+        judgements[selected_asset.basis] = (
             f'<p>You are correct that this is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. But what amount is recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
 
     else:
-        correct = gain_loss_realized
+        correct = selected_asset.gain_loss
         judgements[correct] = (
-            f'<p>Correct. This is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. Therefore, <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(b)</a> requires the recognition of gain. {question_person.name} realized and must recognize {fm.as_curr(gain_loss_realized)} of gain.</p>'
+            f'<p>Correct. This is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. Therefore, <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(b)</a> requires the recognition of gain. {question_person.name} realized and must recognize {fm.as_curr(selected_asset.gain_loss)} of gain.</p>'
         )
         judgements[0] = (
-            f'<p>It is true that the general rule under <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a)</a> is that no gain or loss is recognized on the contribution of assets to a partnership. <br><br> But consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(b)</a>. Is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language}</p>'
+            f'<p>It is true that the general rule under <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a)</a> is that no gain or loss is recognized on the contribution of assets to a partnership. But consider <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(b)</a>. Is this an investment partnership? Consider especially <a href="https://www.law.cornell.edu/cfr/text/26/1.351-1" target="_new">Section 1.351-1(c)(1)(ii)(a)</a> and the list of assets in <a href="https://www.law.cornell.edu/uscode/text/26/351" target="_new">Section 351(e)(1)(B)</a>. {hint_language}</p>'
         )
-        judgements[fmv_contributed_asset] = (
+        judgements[selected_asset.fmv] = (
             f'<p>You are correct that this is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. But what amount is recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
-        judgements[basis_contributed_asset] = (
+        judgements[selected_asset.basis] = (
             f'<p>You are correct that this is an investment partnership, because {fm.as_percent(bad_fmv/total_fmv)} of the assets are so-called bad assets, and in order to be an investment partnership, more than 80% of the assets must be so-called bad assets. But what amount is recognized on the contribution? Consider the language of <a href="https://www.law.cornell.edu/uscode/text/26/721" target="_new">Section 721(a) and (b)</a>.</p>'
         )
 
@@ -975,26 +996,25 @@ def qbi():
         correct = 0
 
         if taxable_income < qbi_threshold:
-
-            judgements[0] = (
-                f"<p>Correct. The trade or business of being an employee is never a qualified trade or business. There is no exception available even though {person1.name}'s taxable income is less than the threshold amount plus {fm.as_curr(phaseout_size)}: the exception for small business in <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(3) applies only to the 'specified service trade or business' prong.</p>"
-            )
             judgements[qbi_deduction_final] = judgements[deduction_with_w2_limit] = (
                 judgements[deduction_with_ti_limit]
             ) = judgements[
                 deduction_with_both_limits
             ] = "<p>Consider the language in <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(3)(A)(i). There is an exception related to the definition of 'qualified trade or business' for taxpayers with lower incomes, but is such an exception available here?</p>"
+            judgements[correct] = (
+                f"<p>Correct. The trade or business of being an employee is never a qualified trade or business. There is no exception available even though {person1.name}'s taxable income is less than the threshold amount plus {fm.as_curr(phaseout_size)}: the exception for small business in <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(3) applies only to the 'specified service trade or business' prong.</p>"
+            )
 
         else:
 
-            judgements[0] = (
-                "<p>Correct. Under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1), the trade or business of being an employee is never a qualified trade or business.</p>"
-            )
             judgements[qbi_deduction_final] = judgements[deduction_with_w2_limit] = (
                 judgements[deduction_with_ti_limit]
             ) = judgements[
                 deduction_with_both_limits
             ] = "<p>Consider <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1)(B).</p>"
+            judgements[correct] = (
+                "<p>Correct. Under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1), the trade or business of being an employee is never a qualified trade or business.</p>"
+            )
 
     elif business in sstb:
 
@@ -1016,7 +1036,7 @@ def qbi():
 
             ti_language = f"20% of the qualified business income equals 20% of {fm.as_curr(qbi_type_final)}, which equals {fm.as_curr(qbi_deduction_final)}. 20% of taxable income less capital gain equals 20% of {fm.as_curr(taxable_income-cap_gain)}, for a total of {fm.as_curr(taxable_income_limit)}. {ti_compare_lang}"
 
-            judgements[deduction_with_ti_limit] = (
+            judgements[correct] = (
                 f"<p>Correct. {person1.name}'s taxable income is {fm.as_curr(taxable_income)}, which is less than the threshold amount of {fm.as_curr(qbi_threshold)}. Therefore <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(3) permits {person1.name} to take the 199A deduction even though {fm.pick_a_an(business)} {business} is a specified service trade or business under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1)(A). The taxable income limitation could apply. {ti_language}</p>"
             )
 
@@ -1045,15 +1065,14 @@ def qbi():
 
             correct = 0
 
-            judgements[0] = (
-                f"<p>Correct. {fm.pick_a_an(business).capitalize()} {business} is a specified service trade or business under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1)(A). {person1.name}'s taxable income is {fm.as_curr(taxable_income)}, which is greater than the amount at which the <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(2) exception is fully phased out. Therefore {person1.name} may not take any deduction under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>.</p>"
-            )
-
             judgements[qbi_deduction_final] = judgements[deduction_with_w2_limit] = (
                 judgements[deduction_with_ti_limit]
             ) = judgements[
                 deduction_with_both_limits
             ] = f"<p>Consider <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1)(A).</p>"
+            judgements[correct] = (
+                f"<p>Correct. {fm.pick_a_an(business).capitalize()} {business} is a specified service trade or business under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(1)(A). {person1.name}'s taxable income is {fm.as_curr(taxable_income)}, which is greater than the amount at which the <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(d)(2) exception is fully phased out. Therefore {person1.name} may not take any deduction under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>.</p>"
+            )
 
     elif business in qtob:
 
@@ -1086,7 +1105,7 @@ def qbi():
             ti_language = f"20% of the qualified business income equals 20% of {fm.as_curr(qbi_type_final)}, which equals {fm.as_curr(qbi_deduction_final)}. 20% of taxable income less capital gain equals 20% of {fm.as_curr(taxable_income-cap_gain)}, for a total of {fm.as_curr(taxable_income_limit)}. {ti_compare_lang}"
 
             judgements[correct] = (
-                f"<p>Correct. The {business_short} is a qualified trade or business. {w2_lang} {w2_compare_lang} {person1.name}'s taxable income is less than the threshold amount of {fm.as_curr(qbi_threshold)}. Thus {person1.name} is not subject to the W-2 limitation under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(b)(3). <br><br>{ti_language}</p>"
+                f"<p>Correct. The {business_short} is a qualified trade or business. {w2_lang} {w2_compare_lang} {person1.name}'s taxable income is less than the threshold amount of {fm.as_curr(qbi_threshold)}. Thus {person1.name} is not subject to the W-2 limitation under <a href='https://www.law.cornell.edu/uscode/text/26/199A' target='_new' rel='noreferrer'>Section 199A</a>(b)(3). {ti_language}</p>"
             )
 
             if deduction_with_ti_limit != qbi_deduction_final:
@@ -1126,7 +1145,7 @@ def qbi():
             ti_language = f"After applying the W-2 limitation, apply the taxable income less cap gain limitation. The lesser of 20% of qualified business income and {w2text}% of W-2 wages is {fm.as_curr(deduction_with_w2_limit)}. 20% of taxable income less capital gain equals 20% of {fm.as_curr(taxable_income-cap_gain)}, which equals {fm.as_curr(taxable_income_limit)}. {ti_compare_lang}"
 
             judgements[deduction_with_both_limits] = (
-                f"<p>Correct. The {business_short} is a qualified trade or business. {person1.name}'s taxable income is {fm.as_curr(taxable_income)}, which is greater than the threshold amount plus the phaseout range. <br><br>{w2_lang} {w_2_compare_lang} <br><br>{ti_language} Therefore, the final deduction amount is {fm.as_curr(deduction_with_both_limits)}.</p>"
+                f"Correct. The {business_short} is a qualified trade or business. {person1.name}'s taxable income is {fm.as_curr(taxable_income)}, which is greater than the threshold amount plus the phaseout range. {w2_lang} {w_2_compare_lang} <br><br>{ti_language} Therefore, the final deduction amount is {fm.as_curr(deduction_with_both_limits)}."
             )
 
             if qbi_deduction_final != correct:
@@ -2466,8 +2485,6 @@ def partnership_distributions():
         [0.45, 0.45, 0.1],
         k=1,
     )[0]
-
-    print(question_type)
 
     if question_type != "asset_basis_q":
         number_assets = random.randint(1, 2)
