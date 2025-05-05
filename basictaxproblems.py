@@ -2738,16 +2738,17 @@ def like_kind():
                 )
 
                 if building_debt - land_debt - machine_fmv <= building_gain_realized:
+                    total_net_debt = building_debt - land_debt - machine_fmv
 
                     judgements[building_gain_recognized_like_kind_netting_no_mach] = (
                         "Don't forget to reduce the net debt relief by the other boot provided."
                     )
                     judgements[building_person_gain] = (
-                        f"Correct! The disposition of the machine is a recognition transaction, and {person1.name} recognizes {fm.ac(machine_gain_realized)} due to providing the machine as partial compensation for the land. With respect to the building, {person1.name} realizes {fm.ac(building_gain_realized)}, which will be recognized to the extent of boot received. Here, {person1.name} receives boot equal to the net debt relief (that is, the excess of {fm.ac(building_debt)} over {fm.ac(land_debt)}), reduced by the fair market value of non-like-kind property provided by {person1.name} (in this case, the fair market value of the machine, {fm.ac(machine_fmv)}) The total gain recognized is thus {fm.ac(machine_gain_realized)} plus {fm.ac(building_debt - land_debt - machine_fmv)}."
+                        f"Correct! The disposition of the machine is a recognition transaction, and {person1.name} recognizes {fm.ac(machine_gain_realized)} due to providing the machine as partial compensation for the land. With respect to the building, {person1.name} realizes {fm.ac(building_gain_realized)}, which will be recognized to the extent of boot received. Here, {person1.name} receives boot equal to the net debt relief (that is, the excess of {fm.ac(building_debt)} over {fm.ac(land_debt)}), reduced by the fair market value of non-like-kind property provided by {person1.name} (in this case, the fair market value of the machine, {fm.ac(machine_fmv)}). {fm.ac(building_debt)} - {fm.ac(land_debt)} - {fm.ac(machine_fmv)} = {fm.ac(total_net_debt)}. The total gain recognized is thus {fm.ac(machine_gain_realized)} plus {fm.ac(total_net_debt)}."
                     )
 
                 else:
-
+                    total_net_debt = building_debt - land_debt - machine_fmv
                     possibleanswers.append(building_boot_debt_swap)
                     judgements[building_boot_debt_swap] = (
                         "Can the amount recognized be greater than the amount realized?"
@@ -2756,7 +2757,7 @@ def like_kind():
                         "Don't forget to reduce the net debt relief by the other boot provided."
                     )
                     judgements[building_person_gain] = (
-                        f'<p>Correct! The disposition of the machine is a recognition transaction, and {person1.name} recognizes {fm.ac(machine_gain_realized)} due to providing the machine as partial compensation for the land.<br><br>With respect to the building, {person1.name} realizes {fm.ac(building_gain_realized)}, which will be recognized to the extent of boot received. Here, {person1.name} receives boot equal to the net debt relief (that is, the excess of {fm.ac(building_debt)} over {fm.ac(land_debt)}), reduced by the fair market value of non-like-kind property provided by {person1.name} (in this case, the fair market value of the machine, {fm.ac(machine_fmv)}). The net debt relief reduced by the value of the machine ({fm.ac(building_debt - land_debt)} reduced by {fm.ac(machine_fmv)}), is greater than the amount realized. But <a href="https://www.law.cornell.edu/uscode/text/26/1031" target="_new" rel="noreferrer">Section 1031(b)</a> is not a punitive provision--theamount recognized will not be greater than the amount raelized. Thus the amount recognized with respect to the building is the same as the amount realized with respect to the building: {fm.ac(building_gain_realized)}.<br><br>The total gain recognized is therefore the amount recognized due to the machine, {fm.ac(machine_gain_realized)}, plus the amount recognized due to the building, {fm.ac(building_gain_realized)}, which totals {fm.ac(building_person_gain)}.</p>'
+                        f'<p>Correct! The disposition of the machine is a recognition transaction, and {person1.name} recognizes {fm.ac(machine_gain_realized)} due to providing the machine as partial compensation for the land. With respect to the building, {person1.name} realizes gain of {fm.ac(building_gain_realized)}, which will be recognized to the extent of boot received. Here, {person1.name} receives boot equal to the net debt relief (that is, the excess of {fm.ac(building_debt)} over {fm.ac(land_debt)}), reduced by the fair market value of non-like-kind property provided by {person1.name} (in this case, the fair market value of the machine, {fm.ac(machine_fmv)}). The net debt relief reduced by the value of the machine, that is, ({fm.ac(building_debt - land_debt)} reduced by {fm.ac(machine_fmv)}), equals {fm.ac(total_net_debt)}, which is greater than the gain realized. But <a href="https://www.law.cornell.edu/uscode/text/26/1031" target="_new" rel="noreferrer">Section 1031(b)</a> is not a punitive provision--the gain recognized will not be greater than the gain realized. Thus the gain recognized with respect to the building is the same as the gain realized with respect to the building: {fm.ac(building_gain_realized)}. The total gain recognized is therefore the gain recognized due to the machine, {fm.ac(machine_gain_realized)}, plus the gain recognized due to the building, {fm.ac(building_gain_realized)}, which totals {fm.ac(building_person_gain)}.</p>'
                     )
 
             else:
@@ -2775,6 +2776,10 @@ def like_kind():
             judgements[building_person_gain] = (
                 f"Correct! The disposition of the machine is a recognition transaction, and {person1.name} recognizes {fm.ac(machine_gain_realized)} due to providing the machine as partial compensation for the land. With respect to the building, {person1.name} realizes {fm.ac(building_gain_realized)}, which will be recognized to the extent of boot received. Here, {person1.name} receives no boot and thus recognizes no gain with respect to the like-kind portion of the transaction."
             )
+
+        if 0 not in possibleanswers:
+            possibleanswers.append(0)
+            judgements[0] = "Is any boot received?"
 
     if question_lang == land_person_gain_q:
 
@@ -3906,17 +3911,14 @@ def cap_gain_netting():
         stock_dict_list.append(stock_dict)
         selected_assets.append(stock_dict["corp_name"])
 
-    asset_purchase_lang = "<br>"
-    answer_lang = ""
+    asset_purchase_lang = answer_lang = ""
     STCL = STCG = LTCL = LTCG = net_all_gains_losses = net_all_gains = 0
     list_of_prices = []
-    print(stock_dict_list)
 
     for stock_dict in stock_dict_list:
 
-        asset_purchase_lang = (
-            asset_purchase_lang + f"<br>{stock_dict['problem_facts']}<br>"
-        )
+        asset_purchase_lang += f"\n- {stock_dict['problem_facts']}"
+
         answer_lang += f" {stock_dict['answer_facts']}"
 
         net_all_gains_losses += stock_dict["gain_loss_amount"]
@@ -3963,9 +3965,9 @@ def cap_gain_netting():
 
     if type_question == "capital_gains":
 
-        problem_lang = f"In {fm.current_year}, {person1.name} engages in the following transactions. {person1.name} sells no other capital or quasi-capital assets in {fm.current_year} and holds all stock for investment.{asset_purchase_lang}"
+        problem_lang = f"In {fm.current_year}, {person1.name} engages in the following transactions. {person1.name} sells no other capital or quasi-capital assets in {fm.current_year} and holds all stock for investment.\n{asset_purchase_lang}"
 
-        question_lang = f"How much is taxed at the preferential capital gains rate for {person1.name} in {fm.current_year}?"
+        question_lang = f"\n\nHow much is taxed at the preferential capital gains rate for {person1.name} in {fm.current_year}?"
 
         number_list = [net_CG, net_all_gains_losses, net_all_gains]
 
@@ -4011,7 +4013,7 @@ def cap_gain_netting():
 
     else:
         question_lang = f"Assume there are no capital loss carryforwards from previous years. How much capital loss, if any, does {person1.name} carry to {fm.current_year+1}?"
-        problem_lang = f"In {fm.current_year}, {person1.name} engages in the following transactions. {person1.name} sells no other capital or quasi-capital assets in {fm.current_year} and holds all stock for investment.{asset_purchase_lang} <br>{person1.name} also has {fm.ac(ordinary_income)} of ordinary income in {fm.current_year}.<br>"
+        problem_lang = f"In {fm.current_year}, {person1.name} engages in the following transactions. {person1.name} sells no other capital or quasi-capital assets in {fm.current_year} and holds all stock for investment.{asset_purchase_lang}\n\n{person1.name} also has {fm.ac(ordinary_income)} of ordinary income in {fm.current_year}."
         usable_loss = min(total_gains + 3000, total_losses)
         loss_carryforward = total_losses - usable_loss
         soak_up_all_OI_usable = min(total_gains + ordinary_income, total_losses)
@@ -4053,7 +4055,7 @@ def cap_gain_netting():
         if correct == 0:
 
             judgements = {
-                correct: f'<p>That is correct! {person1.name} is an individual, so the losses that may be used in {fm.current_year} equal the total amount of capital gains plus up to $3,000 of ordinary income. Put another way, once the losses soak up all the capital gains, up to $3,000 of the losses may be used to absorb up to $3,000 of ordinary income. Here, because the total losses,  {fm.ac(total_losses)}, do not exceed the total gains, {fm.ac(total_gains)}, plus $3,000, there were no losses left to carry forward. More specifically: {answer_lang} Consider <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)</a>.</p>',
+                correct: f'<p>That is correct! {person1.name} is an individual, so the losses that may be used in {fm.current_year} equal the total amount of capital gains plus up to $3,000 of ordinary income. <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)</a>. Put another way, once the losses soak up all the capital gains, up to $3,000 of the losses may be used to absorb up to $3,000 of ordinary income. Here, because the total losses, {fm.ac(total_losses)}, do not exceed the total gains, {fm.ac(total_gains)}, plus $3,000, there were no losses left to carry forward. More specifically: {answer_lang}</p>',
                 usable_loss: f"That is the correct amount of loss that can be used in {fm.current_year}. But the question asks how much loss can be carried forward.",
                 random_answer: "This answer was randomly generated.",
             }
@@ -4061,17 +4063,16 @@ def cap_gain_netting():
         if correct > 0:
 
             judgements = {
-                correct: f'<p>That is correct! {person1.name} is an individual, so the losses that may be used in {fm.current_year} equal the total amount of capital gains, {fm.ac(total_gains)}, plus up to $3,000 of ordinary income. Here, because the total losses, {fm.ac(total_losses)}, exceed the total gains, {fm.ac(total_gains)}, plus $3,000 by {fm.ac(loss_carryforward)}, that amount can be carried forward. More specifically: {answer_lang} Consider also <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)</a>.</p>',
+                correct: f'<p>That is correct! {person1.name} is an individual, so the losses that may be used in {fm.current_year} equal the total amount of capital gains, {fm.ac(total_gains)}, plus up to $3,000 of ordinary income. <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)</a>. Here, because the total losses, {fm.ac(total_losses)}, exceed the total gains, {fm.ac(total_gains)}, plus $3,000 by {fm.ac(loss_carryforward)}, that amount can be carried forward. More specifically: {answer_lang} </p>',
                 loss_carryforward_soak_up_all_OI: f'<p>What about the limitations in <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)(1)</a>?</p>',
                 loss_carryforward_no_3000: f'<p>What about the $3000 referred to in <a href="https://www.law.cornell.edu/uscode/text/26/1211" target="_new" rel="noreferrer">Section 1211(b)(1)</a>?</p>',
                 0: f"{person1.name} is an individual, so the losses that may be used in {fm.current_year} equal the total amount of capital gains, {fm.ac(total_gains)}, plus up to $3,000. But the total losses are greater than {fm.ac(total_gains+3000)}. What happens to the rest of the losses?",
                 random_answer: "This answer was randomly generated.",
             }
 
-    problem = f"{problem_lang}<br>{question_lang}"
+    problem = f"{problem_lang}\n\n{question_lang}"
 
     possibleanswers = list(set(possibleanswers))
-    print(possibleanswers)
     while len(possibleanswers) < 5:
         (possibleanswers, judgements) = fm.random_answer_pot(
             possibleanswers, judgements, 3, start=60, end=110
@@ -4111,8 +4112,8 @@ def section_1231_netting():
     ) = 0
 
     for item in assets_for_problem:
-        asset_purchase_lang = asset_purchase_lang + f"<br>{item.problem_facts}<br>"
-        answer_lang = answer_lang + " " + item.answer_facts_1231
+        asset_purchase_lang += f"\n- {item.problem_facts}"
+        answer_lang += " " + item.answer_facts_1231
 
         gainloss = item.sale_price - item.purchase_price
         net_all_gains_losses = net_all_gains_losses + gainloss
@@ -4152,9 +4153,9 @@ def section_1231_netting():
     else:
         total_OI = net_OI
 
-    problem_lang = f"In {fm.current_year}, {person1.name} sells the following assets, each of which {person1.nom} {usepronoun} in {person1.poss} business. {person1.name} sells no other assets in {fm.current_year} that {person1.nom} used in {person1.poss} business. All assets were put into use on the day purchased. Assume that all the assets are depreciable, but that the basis at sale equals purchase price--that is, there has been no depreciation. This is a wildly unrealistic, indeed, incoherent assumption, but it will help you focus on the specific issue of netting 1231 gains and losses for now.<br>{asset_purchase_lang}"
+    problem_lang = f"In {fm.current_year}, {person1.name} sells the following assets, each of which {person1.nom} {usepronoun} in {person1.poss} business. {person1.name} sells no other assets in {fm.current_year} that {person1.nom} used in {person1.poss} business. All assets were put into use on the day purchased. Assume that all the assets are depreciable, but that the basis at sale equals purchase price--that is, there has been no depreciation. This is a wildly unrealistic, indeed, incoherent assumption, but it will help you focus on the specific issue of netting 1231 gains and losses for now.\n\n{asset_purchase_lang}"
 
-    question_lang = f"<br><br>How much net ordinary gain or loss does {person1.name} have in {fm.current_year} due to these transactions?"
+    question_lang = f"\n\nHow much net ordinary gain or loss does {person1.name} have in {fm.current_year} due to these transactions?"
 
     problem = problem_lang + question_lang
 
@@ -4486,10 +4487,9 @@ def asset_sale_all():
                 break
 
     for item in assets_for_problem:
-        asset_purchase_lang = (
-            asset_purchase_lang + f"<br>{item.problem_facts} {item.period_lang}<br>"
-        )
-        answer_lang = answer_lang + f"<br>{item.answer_facts_all_netting}<br>"
+        asset_purchase_lang += f"\n- {item.problem_facts} {item.period_lang}"
+
+        answer_lang += f" {item.answer_facts_all_netting}"
         total_1231 = total_1231 + item.amount_1231
 
         ordinary = ordinary + item.ordinary
@@ -4567,13 +4567,13 @@ def asset_sale_all():
 
     summary_answer_lang = f"{answer_lang_1231} {answer_lang_capital}"
 
-    problem_lang = f"In {fm.current_year}, {person1.name} sells the following assets. {person1.name} holds all stock for investment, uses each of the other assets in their business, and put each asset used for business into use the same day it was purchased. {person1.name} sells no other assets in {fm.current_year}.<br> {asset_purchase_lang}"
+    problem_lang = f"In {fm.current_year}, {person1.name} sells the following assets. {person1.name} holds all stock for investment, uses each of the other assets in their business, and put each asset used for business into use the same day it was purchased. {person1.name} sells no other assets in {fm.current_year}.\n\n{asset_purchase_lang}"
 
     # question=random.choice(['capgain','ordinary','losscarry'])
     question = random.choice(["capgain", "losscarry"])
 
     if question == "capgain":
-        question_lang = f"<br><br>How much net capital gain, taxed at a favorable rate, does {person1.name} have in {fm.current_year} due to these transactions?"
+        question_lang = f"\n\nHow much net capital gain, taxed at a favorable rate, does {person1.name} have in {fm.current_year} due to these transactions?"
         summary_answer_lang_addl = ""
         correct = net_CG
 
@@ -4583,7 +4583,7 @@ def asset_sale_all():
     #     correct = ordinary_total
 
     elif question == "losscarry":
-        question_lang = f"<br><br>How much capital loss does {person1.name} carry into {fm.current_year+1}?"
+        question_lang = f"\n\nHow much capital loss does {person1.name} carry into {fm.current_year+1}?"
 
         if net_CL == 0:
             summary_answer_lang_addl = "There is no excess of capital losses over capital gains, so no losses are carried into the next year."
@@ -4593,7 +4593,9 @@ def asset_sale_all():
 
     problem = problem_lang + question_lang
 
-    answer_lang = f"Correct! <br>{answer_lang} {summary_answer_lang} <br><br>{summary_answer_lang_addl}"
+    answer_lang = (
+        f"Correct!\n\n{answer_lang} {summary_answer_lang}\n\n{summary_answer_lang_addl}"
+    )
 
     judgements = {correct: answer_lang}
 
