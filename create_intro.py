@@ -16,7 +16,7 @@ intro_info = f"""
 {introtext}
     <body>
     <h2>Introduction</h2>
-    <p>This book was generated from the website <a href="https://www.lawskypracticeproblems.org/codeandregs">https://www.lawskypracticeproblems.org/codeandregs</a>, which was coded by Sarah Lawsky, a professor at Northwestern Pritzker School of Law. To the extent anything in this book could be subject to copyright, it is freely available under the <a href = "https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International license</a>--roughly speaking, you can share this or use it for any purpose, just so long as you give appropriate credit, distribute the material so other people can use it under the same terms, and don't create any additional restrictions.</p>
+    <p>This book was generated from the website <a href="https://www.lawskypracticeproblems.org/codeandregs">https://www.lawskypracticeproblems.org/codeandregs</a>, which was coded by Sarah Lawsky, a professor at the University of Illinois College of Law. To the extent anything in this book could be subject to copyright, it is freely available under the <a href = "https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International license</a>--roughly speaking, you can share this or use it for any purpose, just so long as you give appropriate credit, distribute the material so other people can use it under the same terms, and don't create any additional restrictions.</p>
             <p>This book contains the following materials. It is designed for tax courses taught in {current_year}.</p>"""
 
 
