@@ -26,6 +26,8 @@ Created on Thu Oct  6 05:59:26 2022
 
 # Don't forget to change type_run in convertfile.py after you upload it Python Anywhere--this is about the path for the files
 
+# FOR 2026: FIX 274 SUBSTITUTION
+
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 import os
@@ -46,15 +48,13 @@ rev_proc = fm.rev_proc_for_book
 
 # DO NOT FORGET TO CHANGE THIS WHEN YOU UPLOAD IT!!!
 
-location = 'home'
-# location = 'PA'
+# location = 'home'
+location = 'PA'
 
 location_dictionary = {'home': 'CodeRegs/RegDictionaryWithJPG.txt',
                        'PA': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
 
 correct_reg_dict = location_dictionary[location]
-
-path_to_files = "/mnt/c/Users/sbl083/Dropbox/Python/taxwebsite/CodeRegs"
 
 max_length = 450
 code_file_name = '04BCode'
@@ -126,6 +126,9 @@ def replace_in_value(text, old, new):
 # Fix the problem in 1.704-2(m), 1.751-1(g), 1.1001-2(c), 1.119, that the /div is in the wrong place and the regulations don't print:
 
 reg_replace_dict= {
+'1.461-4':{'Consequently, V incurs $20,00 for the 1993 taxable year.':'Consequently, V incurs [$20,000] for the 1993 taxable year.'},
+'1.707-1':{'Similarly, a partner who receives guaranteed payments is not regarded as an employee of the partnership for the purposes of withholding of tax at source, deferred compensation plans, etc. The provisions of this paragraph may be illustrated by the following examples:</p></div>':'Similarly, a partner who receives guaranteed payments is not regarded as an employee of the partnership for the purposes of withholding of tax at source, deferred compensation plans, etc. The provisions of this paragraph may be illustrated by the following examples:</p>',
+"702(a), the partnership has a $10,000 ordinary loss and $30,000 in capital gains. X's 30 percent distributive shares of these amounts are $3,000 ordinary loss and $9,000 capital gain. In addition, X has received a $10,000 guaranteed payment which is ordinary income to him.</p></div>":"702(a), the partnership has a $10,000 ordinary loss and $30,000 in capital gains. X's 30 percent distributive shares of these amounts are $3,000 ordinary loss and $9,000 capital gain. In addition, X has received a $10,000 guaranteed payment which is ordinary income to him.</p></div></div>"},
 '1.704-2':{'<div id="p-1.704-2(m)"><p class="indent-1" data-title="1.704-2(m)"><span class="paragraph-hierarchy"><span class="paren">(</span>m<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The principles of this section are illustrated by the following examples:</p></div>': '<div id="p-1.704-2(m)"><p class="indent-1" data-title="1.704-2(m)"><span class="paragraph-hierarchy"><span class="paren">(</span>m<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  The principles of this section are illustrated by the following examples:</p>',
 "that particular liability to the extent of the increase in minimum gain with respect to that liability.</p> </div>": "that particular liability to the extent of the increase in minimum gain with respect to that liability.</p> </div> </div>"},
 '1.751-1':{'<div id="p-1.751-1(g)"><p class="indent-1" data-title="1.751-1(g)"><span class="paragraph-hierarchy"><span class="paren">(</span>g<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  Application of the provisions of section 751 may be illustrated by the following examples:</p></div>': '<div id="p-1.751-1(g)"><p class="indent-1" data-title="1.751-1(g)"><span class="paragraph-hierarchy"><span class="paren">(</span>g<span class="paren">)</span></span> <em class="paragraph-heading">Examples.</em>  Application of the provisions of section 751 may be illustrated by the following examples:</p>',
@@ -144,11 +147,13 @@ reg_replace_dict= {
 }
 
 
-new_274 = '<subsection class=\"indent2 firstIndent-2\" id=\"idf03db6c2-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s274/o\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\">\u202f Regulatory authority</heading><content><p class=\"indent0\" style=\"-uslm-lc:I11\">The Secretary shall prescribe such regulations as he may deem necessary to carry out the purposes of this section, including regulations prescribing whether subsection (a) or subsection (b) applies in cases where both such subsections would otherwise apply.</p>\n</content>\n</subsection><subsection style="-uslm-lc:I84" topic="prospectiveAmendment" id="idf03db6c5-2a49-11ef-8437-855ef5b8fc19"><heading class="centered fontsize8 smallCaps">Amendment of Section</heading><p style="-uslm-lc:I88" class="indent1 fontsize8 italic"><ref href="/us/pl/115/97/tI/s13304/d">Pub. L. 115–97, title I, § 13304(d)</ref>, (e)(2), <date date="2017-12-22">Dec. 22, 2017</date>, <ref href="/us/stat/131/2126">131 Stat. 2126</ref>, provided that, applicable to amounts incurred or paid after <date date="2025-12-31">Dec. 31, 2025</date>, this section is amended by redesignating subsection (<i>o</i>) as (p) and adding the following new subsection (<i>o</i>):</subsection></p><subsection class=\"indent2 firstIndent-2\" id=\"idf2398656-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\"> Meals Provided at Convenience of Employer</heading><chapeau class=\"indent0\" style=\"-uslm-lc:I11\">No deduction shall be allowed under this chapter for—\u2014</chapeau><paragraph class=\"indent3 firstIndent-2\" id=\"idf2398657-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/1\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"1\">(1)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for the operation of a facility described in section 132(e)(2), and any expense for food or beverages, including under section 132(e)(1), associated with such facility, or</i></p>\n</content>\n</paragraph>\n<paragraph class=\"indent3 firstIndent-2\" id=\"idf2398658-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/2\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"2\">(2)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for meals described in section 119(a).</paragraph></content></subsection>'
+new_274 = '<subsection class=\"indent2 firstIndent-2\" id=\"idf03db6c2-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s274/o\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\">\u202f Regulatory authority</heading><content><p class=\"indent0\" style=\"-uslm-lc:I11\">The Secretary shall prescribe such regulations as he may deem necessary to carry out the purposes of this section, including regulations prescribing whether subsection (a) or subsection (b) applies in cases where both such subsections would otherwise apply.</p>\n</content>\n</subsection><subsection style="-uslm-lc:I84" topic="prospectiveAmendment" id="idf03db6c5-2a49-11ef-8437-855ef5b8fc19"><heading class="centered fontsize8 smallCaps">Amendment of Section</heading><p style="-uslm-lc:I88" class="indent1 fontsize8 italic"><ref href="/us/pl/115/97/tI/s13304/d">Pub. L. 115–97, title I, § 13304(d)</ref>, (e)(2), <date date="2017-12-22">Dec. 22, 2017</date>, <ref href="/us/stat/131/2126">131 Stat. 2126</ref>, provided that, applicable to amounts incurred or paid after <date date="2025-12-31">Dec. 31, 2025</date>, this section is amended by redesignating subsection (<i>o</i>) as (p) and adding the following new subsection (<i>o</i>):</subsection></p><subsection class=\"indent2 firstIndent-2\" id=\"idf2398656-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\"> Meals Provided at Convenience of Employer</heading><chapeau class=\"indent0\" style=\"-uslm-lc:I11\">Except in the case of an expense described in subsection (e)(8) or (n)(2)(C), no deduction shall be allowed under this chapter for—\u2014</chapeau><paragraph class=\"indent3 firstIndent-2\" id=\"idf2398657-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/1\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"1\">(1)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for the operation of a facility described in section 132(e)(2), and any expense for food or beverages, including under section 132(e)(1), associated with such facility, or</i></p>\n</content>\n</paragraph>\n<paragraph class=\"indent3 firstIndent-2\" id=\"idf2398658-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/2\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"2\">(2)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for meals described in section 119(a).</paragraph></content></subsection>'
 
 old_274 = "<subsection class=\"indent2 firstIndent-2\" id=\"idf03db6c2-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s274/o\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\">\u202f<ref class=\"footnoteRef\" idref=\"fn002092\">1</ref> Regulatory authority</heading><content><p class=\"indent0\" style=\"-uslm-lc:I11\">The Secretary shall prescribe such regulations as he may deem necessary to carry out the purposes of this section, including regulations prescribing whether subsection (a) or subsection (b) applies in cases where both such subsections would otherwise apply.</p>\n</content>\n</subsection>"
 
-code_replace_dict = {'paragraphs (3) and (4) of sections\u202f<ref class=\"footnoteRef\" idref=\"fn002161\">1</ref> 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain':'paragraphs (3) and (4) of sections [sic] 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain'
+code_replace_dict = {'paragraphs (3) and (4) of sections\u202f<ref class=\"footnoteRef\" idref=\"fn002161\">1</ref> 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain':'paragraphs (3) and (4) of sections [sic] 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain',
+                     "\u2153":" 1/3"
+                     
 }
 
 
@@ -215,7 +220,7 @@ def create26NoNotes():
     div_library['274']['o'] = new_274
 
 
-    with open('CodeDictionary.txt', 'w', encoding='utf-8') as txt_file:
+    with open('CodeRegs/CodeDictionary.txt', 'w', encoding='utf-8') as txt_file:
         txt_file.write(json.dumps(div_library))
 
 
@@ -273,7 +278,7 @@ def createRegsFile():
 
 
 
-    with open('RegDict.txt', 'w', encoding='utf-8') as txt_file:
+    with open('CodeRegs/RegDict.txt', 'w', encoding='utf-8') as txt_file:
         txt_file.write(json.dumps(div_library))
 
 
@@ -302,16 +307,18 @@ def createRegsFile():
         with open(file_path_out, 'w', encoding='utf-8') as file:
             file.write(content)
 
-    replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPGForPA.txt', "PA")
-    replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPG.txt', "home")
+    replace_text_in_file('CodeRegs/RegDict.txt', 'CodeRegs/RegDictionaryWithJPGForPA.txt', "PA")
+    # replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPG.txt', "home")
 
 def create_clean_files():
+    print("creating code dictionary")
     create26NoNotes()
+    print("creating reg dictionary")
     createRegsFile()
 
 # create_clean_files()
 
-create26NoNotes()
+# create26NoNotes()
 
 # createRegsFile()
 

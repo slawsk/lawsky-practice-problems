@@ -1,0 +1,11 @@
+[Subchapter A, Part 1](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1) 
+[Subchapter A, Part 1: Additions to the Tax, Additional Amounts, and Assessable Penalties](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFR1d0453abf9d86e0) 
+[Subchapter A, Part 1: Tax Returns or Statements](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFR69a3d5af789efa1)
+[Subchapter A, Part 15a](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-15a)
+[Subchapter B, Part 25](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-25)
+[Subchapter B, Part 20](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-20)
+[Subchapter B, Part 26](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-26)
+[Subchapter F, Part 301, Additions to the Tax, Additional Amounts, and Assessable Penalties: Additions to the Tax and Additional Amounts](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFRe7a848e7ecebb4b/subject-group-ECFR90240e9b8fcd266)
+[Subchapter F, Part 301, Information and Returns, Records, Statements, and Special Returns](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR1b5d05d4bfe19f9/subject-group-ECFR2bb42ef5f1a3a92)
+[Subchapter F, Part 301](https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR5ffaf3310af6b61) - get more of this section
+[Subchapter H, Part 601, Subpart A](hhttps://www.ecfr.gov/current/title-26/chapter-I/subchapter-H/part-601/subpart-A)

@@ -108,9 +108,11 @@ current_year = date.today().year
 current_year_for_book = 2025
 rev_proc_for_book = "Rev. Proc. 2024-40"
 
-code_updated = "December 5, 2024"
+code_updated = "July 30, 2025"
 
-regs_updated = "December 5, 2024"
+regs_updated = "July 11, 2025"
+
+# code_updated_bk = "July 11, 2025"
 
 code_updated_bk = "December 5, 2024"
 
@@ -377,7 +379,7 @@ adjustments_2024_dict = {
     "hoh_df": hoh_df_2024,
 }
 
-adjustments_2025_dict = {
+adjustments_2025_dict_before_bill = {
     "eitc_earned_income_amount": 17880,  # section 32, for unmarried, two children, EITC
     "eitc_threshold_phaseout_amount": 23350,  # section 32, for unmarried, two children, EITC
     "eitc_completed_phaseout": 57310,  # section 32, for unmarried, two children, EITC
@@ -386,6 +388,27 @@ adjustments_2025_dict = {
     "married_st_ded": 30000,  # section 63
     "single_st_ded": 15000,  # section 63
     "hoh_st_ded": 22500,  # section 63
+    "exemption_152": 5200,  # section 152(d)(1)(B) exemption amount
+    "qbi_married_thresh": 394600,  # section 199A
+    "qbi_single_thresh": 197300,  # section 199A
+    "qbi_hoh_thresh": 197300,  # section 199A
+    "rev_proc": "Rev. Proc. 2024-40",
+    "social security cutoff": 176100,
+    "married_df": married_df_2025,
+    "single_df": single_df_2025,
+    "hoh_df": hoh_df_2025,
+}
+
+adjustments_2025_dict = {
+    "child_tax_credit_amount": 2200,  # section 24
+    "eitc_earned_income_amount": 17880,  # section 32, for unmarried, two children, EITC
+    "eitc_threshold_phaseout_amount": 23350,  # section 32, for unmarried, two children, EITC
+    "eitc_completed_phaseout": 57310,  # section 32, for unmarried, two children, EITC
+    "eitc_max_credit": 7152,  # section 32, for unmarried, two children, EITC
+    "eitc_investment_limit": 11950,  # section 32
+    "married_st_ded": 31500,  # section 63
+    "single_st_ded": 15750,  # section 63
+    "hoh_st_ded": 23625,  # section 63
     "exemption_152": 5200,  # section 152(d)(1)(B) exemption amount
     "qbi_married_thresh": 394600,  # section 199A
     "qbi_single_thresh": 197300,  # section 199A
@@ -425,9 +448,9 @@ hoh = FilingStatus(
 
 # [threshold amount, amount of phaseout] Only threshold amount changes
 qbi_dict = {
-    "Married Filing Jointly": [infl_dict["qbi_married_thresh"], 100000],
-    "Single": [infl_dict["qbi_single_thresh"], 50000],
-    "Head of Household": [infl_dict["qbi_hoh_thresh"], 50000],
+    "Married Filing Jointly": [infl_dict["qbi_married_thresh"], 150000],
+    "Single": [infl_dict["qbi_single_thresh"], 75000],
+    "Head of Household": [infl_dict["qbi_hoh_thresh"], 75000],
 }  ##
 
 # this is the exemption amount for 152(d)(1)(B)
@@ -449,7 +472,7 @@ rates_dict = {
 }
 section_24_threshold = SingleMarriedLimit(200000, 200000, 400000)
 section_24_credit_old = 1000
-section_24_credit_2020 = 2000
+section_24_credit = infl_dict["child_tax_credit_amount"]
 
 # years over which depreciated:[depreciation schedule from rev proc]
 dep_dict = {

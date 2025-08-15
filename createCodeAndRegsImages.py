@@ -6,7 +6,7 @@ Created on Thu Oct  6 05:59:26 2022
 """
 
 
-
+# Don't forget to change type_run in convertfile.py after you upload it Python Anywhere--this is about the path for the files
 
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
@@ -26,11 +26,15 @@ from itertools import chain
 current_year = fm.current_year_for_book
 rev_proc = fm.rev_proc_for_book
 
+# DO NOT FORGET TO CHANGE THIS WHEN YOU UPLOAD IT!!!
 
+# location = 'home'
+location = 'PA'
 
-correct_reg_dict = 'CodeRegs/RegDictionaryWithJPG.txt'
+location_dictionary = {'home': 'CodeRegs/RegDictionaryWithJPG.txt',
+                       'PA': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
 
-
+correct_reg_dict = location_dictionary[location]
 
 max_length = 450
 code_file_name = '04BCode'
@@ -39,14 +43,27 @@ path_short = 'CodeRegs/FilesForBook'
 code_dictionary_entry = 'Code sections you listed on your spreadsheet'
 reg_dictionary_entry = 'Reg sections you listed on your spreadsheet'
 
-possible_include_dict = {'Edited IRC Table of Contents (All Classes)': f'{path_short}/01TOCEdited.pdf', 'Edited IRC Table of Contents (Fed Tax)': 'CodeRegs/TOCBasic.pdf', 'Edited IRC Table of Contents (Corporate Tax)': 'CodeRegs/TOCCorporate.pdf',
-                         'Edited IRC Table of Contents (Partnership Tax)': 'CodeRegs/TOCPartnership.pdf', 'Inflation Rev. Proc.': f'{path_short}/02InflationRevProc.pdf', 'Depreciation Rev. Proc.': f'{path_short}/03DepreciationRevProc.pdf', code_dictionary_entry: code_file_name, reg_dictionary_entry: reg_file_name}
+possible_include_dict = {'Edited IRC Table of Contents (All Classes)': f'{path_short}/01TOCEdited.pdf',
+                         # 'Edited IRC Table of Contents (Fed Tax)': 'CodeRegs/TOCBasic.pdf',
+                         # 'Edited IRC Table of Contents (Corporate Tax)': 'CodeRegs/TOCCorporate.pdf',
+                         # 'Edited IRC Table of Contents (Partnership Tax)': 'CodeRegs/TOCPartnership.pdf',
+                         'Inflation Rev. Proc.': f'{path_short}/02InflationRevProc.pdf',
+                         'Depreciation Rev. Proc.': f'{path_short}/03DepreciationRevProc.pdf', code_dictionary_entry: code_file_name, reg_dictionary_entry: reg_file_name}
 
-intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_contents_info, 'Edited IRC Table of Contents (Fed Tax)': ci.table_contents_info, 'Edited IRC Table of Contents (Corporate Tax)': ci.table_contents_info,
-                  'Edited IRC Table of Contents (Partnership Tax)': ci.table_contents_info, 'Inflation Rev. Proc.': ci.inflation_info, 'Depreciation Rev. Proc.': ci.depreciation_info, code_dictionary_entry: ci.selected_sections_code_info, reg_dictionary_entry: ci.selected_sections_regs_info}
+intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_contents_info,
+                  'Edited IRC Table of Contents (Fed Tax)': ci.table_contents_info,
+                  'Edited IRC Table of Contents (Corporate Tax)': ci.table_contents_info,
+                  'Edited IRC Table of Contents (Partnership Tax)': ci.table_contents_info,
+                  'Inflation Rev. Proc.': ci.inflation_info,
+                  'Depreciation Rev. Proc.': ci.depreciation_info,
+                  code_dictionary_entry: ci.selected_sections_code_info,
+                  reg_dictionary_entry: ci.selected_sections_regs_info}
 
 possible_files_list = list(possible_include_dict.keys())
 
+# all_code_title_xml = f'CodeNoNotes_{current_year}.xml'
+# all_code_title_html = f'CodeNoNotes_{current_year}.html'
+# all_regs_title = f'RegsNoNotes_{current_year}.html'
 
 
 type_run = convertfile.type_run
@@ -108,8 +125,15 @@ def fix_subsection(x):
 def process_code_excel(sectionsToUse):
     code_df = pd.read_excel(sectionsToUse, sheet_name=0)
 
+    if code_df.empty or code_df['Code'].isna().all():
+        # Return empty DataFrame with expected columns
+        return pd.DataFrame(columns=['Code', 'SubsectionList', 'NumberToSort'])
+
     # get rid of empty rows
     code_df = code_df[code_df['Code'].notna()]
+
+    if code_df.empty:
+        return pd.DataFrame(columns=['Code', 'SubsectionList', 'NumberToSort'])
 
     # remove spaces from the subsections list
     code_df['SubsectionClean'] = code_df['Subsection'].apply(
@@ -128,12 +152,42 @@ def process_code_excel(sectionsToUse):
     return code_df
 
 
+def extract_section_and_specific(regulation):
+    # Split at the period first
+    after_period = regulation.split('.', 1)[1]
+    
+    # Check if there's a hyphen
+    if '-' in after_period:
+        # Original logic for regulations with hyphens
+        section = after_period.split('-', 1)[0]
+        specific = find_the_number(after_period.split('-', 1)[1])
+    else:
+        # For regulations without hyphens
+        section = after_period
+        specific = 0
+    
+    return section, specific
+
+# Apply the function
+
+
 def process_regs_excel(sectionsToUse):
 
     regs_df = pd.read_excel(sectionsToUse, sheet_name=1)
+    
+    if regs_df.empty or regs_df['Regulation'].isna().all():
+        # Return empty DataFrame with expected columns
+        return pd.DataFrame(columns=['Regulation', 'SubsectionList', 'Section', 'Specific', 'NumberToSort'])
+    
     # get rid of empty rows
 
     regs_df = regs_df[regs_df['Regulation'].notna()]
+
+ 
+    if regs_df.empty:
+        return pd.DataFrame(columns=['Regulation', 'SubsectionList', 'Section', 'Specific', 'NumberToSort'])
+
+    regs_df['Regulation'] = regs_df['Regulation'].astype(str)
 
     # get the sections and specific reg from the overall regulation
     regs_df['Intro'] = regs_df['Regulation'].apply(
@@ -148,16 +202,19 @@ def process_regs_excel(sectionsToUse):
 
     regs_df = regs_df.groupby('Regulation')['SubsectionList'].apply(
         lambda x: merge_lists(x)).reset_index()
-    regs_df['Section'] = regs_df['Regulation'].apply(
-        lambda x: x.split('.', 1)[1].split('-', 1)[0])
-    regs_df['Specific'] = regs_df['Regulation'].apply(
-        lambda x: find_the_number(x.split('.', 1)[1].split('-', 1)[1]))
+    regs_df[['Section', 'Specific']] = regs_df['Regulation'].apply(
+    lambda x: pd.Series(extract_section_and_specific(x))
+)
+    
+ #   regs_df['Section'] = regs_df['Regulation'].apply(
+ #       lambda x: x.split('.', 1)[1].split('-', 1)[0])
+ #   regs_df['Specific'] = regs_df['Regulation'].apply(
+ #       lambda x: find_the_number(x.split('.', 1)[1].split('-', 1)[1]))
     regs_df['NumberToSort'] = regs_df['Section'].apply(
         lambda x: find_the_number(x))
     regs_df = regs_df.sort_values(by=['NumberToSort', 'Specific'])
 
     return regs_df
-
 
 def parse26(sectionsToUse, outputTitle):
 
@@ -165,6 +222,12 @@ def parse26(sectionsToUse, outputTitle):
     endingtext = '</root>'
 
     df = process_code_excel(sectionsToUse)
+
+    if df.empty:
+        file = open(outputTitle, 'w', encoding='utf-8')
+        file.write(introtext + endingtext)
+        file.close()
+        return "", []
 
     code_sections_list = df['Code'].tolist()
 
@@ -265,6 +328,12 @@ def parseRegs(sectionsToUse, outputTitle):
 
     # create the file
     df = process_regs_excel(sectionsToUse)
+
+    if df.empty:
+        file = open(outputTitle, 'w', encoding='utf-8')
+        file.write(introtext + endtext)
+        file.close()
+        return "", []  
 
     reg_sections_list = df['Regulation'].tolist()
     subsections_list = df['SubsectionList'].tolist()
@@ -516,8 +585,17 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
     # create the HTML files with just the code and regulation sections that you want
     introduction_string = ci.intro_info
     path_short = 'CodeRegs/FilesForBook'
+    
+    # Check if sheets are empty before processing
+    code_df = process_code_excel(sectionsToUse)
+    regs_df = process_regs_excel(sectionsToUse)
+    
+    code_is_empty = code_df.empty
+    regs_is_empty = regs_df.empty
+    
     all_errors, reg_section_list, code_sections_list = createSelectedCodeRegsHTML(
         sectionsToUse, timenum)
+    
     code_name = f'{code_file_name}.{timenum}.pdf'
     reg_name = f'{reg_file_name}.{timenum}.pdf'
     filler_title_pdf = f'saved_code/allfillertitle.{timenum}.pdf'
@@ -525,36 +603,47 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
     numbered_name = f'saved_code/numbered_{bookname}.pdf'
     all_section_list = code_sections_list + reg_section_list
 
-    # convert the code html to PDF
-    convert_to_pdf(
-        f'saved_code/codefillertitle.{timenum}.html', f"saved_code/{code_name}")
-    # convert the reg html to PDF
+    # Only convert code html to PDF if not empty
+    if not code_is_empty:
+        convert_to_pdf(
+            f'saved_code/codefillertitle.{timenum}.html', f"saved_code/{code_name}")
+        possible_include_dict[code_dictionary_entry] = f"saved_code/{code_name}"
 
-    convert_to_pdf(
-        f'saved_code/regfillertitle.{timenum}.html', f"saved_code/{reg_name}")
-
-    # add cover pages
-
-    possible_include_dict[code_dictionary_entry] = f"saved_code/{code_name}"
-    possible_include_dict[reg_dictionary_entry] = f"saved_code/{reg_name}"
+    # Only convert reg html to PDF if not empty
+    if not regs_is_empty:
+        convert_to_pdf(
+            f'saved_code/regfillertitle.{timenum}.html', f"saved_code/{reg_name}")
+        possible_include_dict[reg_dictionary_entry] = f"saved_code/{reg_name}"
 
     if orderlist:
+        # Filter orderlist to exclude empty sections
+        filtered_orderlist = []
+        for item in orderlist:
+            if item == code_dictionary_entry and code_is_empty:
+                continue
+            elif item == reg_dictionary_entry and regs_is_empty:
+                continue
+            else:
+                filtered_orderlist.append(item)
 
-        dir_list_2 = [f"{possible_include_dict[x]}" for x in orderlist]
+        dir_list_2 = [f"{possible_include_dict[x]}" for x in filtered_orderlist]
 
-        if code_dictionary_entry in orderlist:
+        # Only add code cover page if code sections exist
+        if code_dictionary_entry in filtered_orderlist:
             code_sections_index = dir_list_2.index(
                 possible_include_dict[code_dictionary_entry])
             dir_list_2.insert(code_sections_index,
                               f'{path_short}/04ACodeCoverSheet.pdf')
 
-        if reg_dictionary_entry in orderlist:
+        # Only add reg cover page if reg sections exist
+        if reg_dictionary_entry in filtered_orderlist:
             reg_sections_index = dir_list_2.index(
                 possible_include_dict[reg_dictionary_entry])
             dir_list_2.insert(reg_sections_index,
                               f'{path_short}/05ARegCoverSheet.pdf')
 
-        for item in orderlist:
+        # Only add intro language for sections that exist
+        for item in filtered_orderlist:
             introduction_string += intro_language[item]
 
         introduction_string += ci.about_info
@@ -568,9 +657,16 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
         dir_list_2.insert(0, f'{path_short}/00ACover.pdf')
 
     else:
-
+        # Default file inclusion, but exclude empty sections
         files_to_include = ['Edited IRC Table of Contents (All Classes)', 'Inflation Rev. Proc.',
-                            'Depreciation Rev. Proc.', code_dictionary_entry, reg_dictionary_entry]
+                            'Depreciation Rev. Proc.']
+        
+        # Only include if not empty
+        if not code_is_empty:
+            files_to_include.append(code_dictionary_entry)
+        if not regs_is_empty:
+            files_to_include.append(reg_dictionary_entry)
+            
         for item in files_to_include:
             introduction_string += intro_language[item]
 
@@ -581,16 +677,19 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
             f.write(introduction_string)
         convert_to_pdf(f'{intro_title_base}.html', f'{intro_title_base}.pdf')
 
-        dir_list = sorted(os.listdir(path_short))
+        dir_list = ['00ACover.pdf','01TOCEdited.pdf','02InflationRevProc.pdf','03DepreciationRevProc.pdf']
         dir_list_2 = [f'{path_short}/{x}' for x in dir_list]
         dir_list_2.insert(1, f'{intro_title_base}.pdf')
-        dir_list_2.insert(-1, f"saved_code/{code_name}")
-        dir_list_2.append(f"saved_code/{reg_name}")
-
-        # dir_list_2.insert(0,f'{intro_title_base}.pdf')
+        
+        # Only add code and reg files if they're not empty
+        if not code_is_empty:
+            dir_list_2.append(f"{path_short}/04ACodeCoverSheet.pdf")
+            dir_list_2.append(f"saved_code/{code_name}")
+        if not regs_is_empty:
+            dir_list_2.append(f"{path_short}/05ARegCoverSheet.pdf")
+            dir_list_2.append(f"saved_code/{reg_name}")
 
     # merge all the PDFs to create the whole book
-
     merge_pdfs(dir_list_2, filler_title_pdf)
 
     num_pages = add_page_numbers(
@@ -606,8 +705,6 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
         footer_error = f"Because the number of pages in your PDF was greater than {max_length}, the program was unable to add footers or page numbers."
     else:
         footer_error = ""
-
-    # add the page numbers
 
     return all_errors, footer_error
 
@@ -652,3 +749,7 @@ def create_intro():
         f.write(introduction_string)
     convert_to_pdf(f'{intro_title_base}.html', f'{intro_title_base}.pdf')
 
+# with open(correct_reg_dict, 'r', encoding='utf8') as fp:
+#         regstring = fp.read()
+# reg_dict = json.loads(regstring)
+# print(reg_dict['1.1001-2'])
