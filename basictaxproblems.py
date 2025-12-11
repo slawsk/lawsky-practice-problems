@@ -1,19 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Oct 12 06:28:35 2019
-
-@author: carso
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 27 05:45:43 2019
-
-@author: carso
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Created on Fri Sep 20 11:28:49 2019
 
 @author: sbl083
@@ -29,7 +15,11 @@ Created on Fri Sep 20 11:28:49 2019
 # Implementation
 # =============================================================================
 
+
+# FOR 2026: Change charitable deduction problems, new Section 170(p)
+
 # Imports
+
 
 import numpy as np
 import numpy_financial as npf
@@ -1809,6 +1799,282 @@ def charitable_donation(type_problem="random"):
     judgements_json = json.dumps(formattedjudgements)
     cleananswers = fm.create_clean_answers(possibleanswers, kindofformatting="words")
     return [problem, cleananswers, judgements_json, correct]
+
+def charitable_donation_2026(type_problem="random"):
+    person1 = fm.create_person()
+
+    if type_problem == "random":
+
+        type_donation_list = random.choices(["services", "property"], weights=(1, 2))
+        type_donation = type_donation_list[0]
+
+    else:
+        type_donation = type_problem
+
+    type_gain = random.choice(
+        ["long-term capital gain", "short-term capital gain", "ordinary income"]
+    )
+
+    itemizes = random.choice([True, False])
+
+    if itemizes:
+        itemizes_word = "itemizes"
+        value_property = 100 * random.randint(50, 300)
+    else:
+        itemizes_word = "does not itemize"
+        stded = fm.single.standard_deduction
+        value_property = fm.generate_random_item_hund(stded, 30, 80)
+
+    numbers_list = [value_property]
+
+    def add_unique():
+        while True:
+            x = fm.generate_random_item_hund(value_property, 30, 80)
+            if x not in numbers_list:
+                numbers_list.append(x)
+                return x
+
+    basis_property = add_unique()
+
+    gain = value_property - basis_property
+
+    if gain < 0:
+        gainword = "loss"
+    else:
+        gainword = "gain"
+
+    gain_sentence_true = "It is accurate that contribution of property to a charity is not a realization event."
+
+    gain_question = "Is contribution of property to a charity a realization event?"
+
+    if type_donation == "services":
+
+        problem = f"{person1.name} donates services to a 501(c)(3) organization. If {person1.name} had charged market price for the services, {person1.nom} would have charged {fm.ac(value_property)}, but instead the organization pays {person1.acc} nothing. {person1.name} {itemizes_word} {person1.poss} deductions. How much income, if any, must {person1.name} include in {person1.poss} gross income due to the donation of services, and how much of a deduction, if any, may {person1.name} take due to the donation? (Disregard any limitations that may apply under Section 170(b).)"
+
+        income_question = "Is it necessary to include income when donating services in return for no compensation?"
+
+        correct = "No income, no deduction"
+        income_sentence_true = "It is accurate that no income need be included when services are donated in exchange for no compensation."
+        services_sentence = 'It is accurate that no deduction is available for the donation of services, under <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(g)</a>.'
+        services_question = 'Is any deduction available for the donation of services? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(g)</a>.'
+
+        correct_explanation = (
+            f"<p>Correct. {income_sentence_true} {services_sentence}</p>"
+        )
+
+        judgements = {
+            correct: correct_explanation,
+            f"No income, {fm.ac(value_property)} deduction": f"<p>{income_sentence_true} {services_question}</p>",
+            f"{fm.ac(value_property)} income, no deduction": f"<p>{income_question} {services_sentence}</p>",
+            f"{fm.ac(value_property)} income, {fm.ac(value_property)} deduction": f"<p>{income_question} {services_question}</p>",
+        }
+
+    else:
+
+        problem = f"{person1.name} donates a piece of property worth {fm.ac(value_property)} to a 501(c)(3) organization. The basis of the property is {fm.ac(basis_property)}. If {person1.name} had sold the property, {person1.nom} would have recognized {type_gain}. {person1.name} {itemizes_word} {person1.poss} deductions. How much gain, if any, must {person1.name} recognize due to the donation, and how much of a deduction, if any, may {person1.name} take due to the donation? (Disregard any limitations that may apply under Section 170(b).)"
+
+        if not itemizes:
+            correct = "No gain, no deduction"
+
+            itemize_question = "Is the deduction for charitable donation of property available to nonitemizers?"
+
+            itemize_sentence = "It is accurate that a deduction for charitable donation of property is available only to itemizers."
+
+            correct_explanation = f"Correct. {gain_sentence_true} {itemize_sentence}"
+
+            judgements = {
+                "No gain, no deduction": correct_explanation,
+                f"No gain, {fm.ac(basis_property)} deduction": f"{gain_sentence_true} {itemize_question}",
+                f"No gain, {fm.ac(value_property)} deduction": f"{gain_sentence_true} {itemize_question}",
+                f"{fm.ac(abs(gain))} {gainword}, no deduction": f"{gain_question} {itemize_sentence}",
+                f"{fm.ac(abs(gain))} {gainword}, {fm.ac(basis_property)} deduction": f"{gain_question} {itemize_question}",
+                f"{fm.ac(abs(gain))} {gainword}, {fm.ac(value_property)} deduction": f"{gain_question} {itemize_question}",
+            }
+
+        else:
+
+            # amount_question = 'Consider the amount of the deduction for the donation of property that generates {type_gain} under <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.'
+
+            no_deduction_question = 'With respect to the availability of a deduction, consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(a)</a>.'
+
+            # deduction_accurate = 'That is the correct amount of deduction under <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.'
+
+            if type_gain == "long-term capital gain":
+                correct_filler = f"{fm.ac(value_property)}"
+                wrong_filler = f"{fm.ac(basis_property)}"
+                cite = '<a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>'
+                correct_amount_sentence_amount = "fair market value"
+
+            else:
+                wrong_filler = f"{fm.ac(value_property)}"
+                correct_filler = f"{fm.ac(basis_property)}"
+                cite = '<a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>'
+                correct_amount_sentence_amount = "basis"
+
+            type_property_question = f"What is the amount of deduction available for property that generates {type_gain} when sold? Consider {cite}."
+            correct = f"No gain, {correct_filler} deduction"
+            correct_amount_sentence = f"It is accurate for property that would generate {type_gain} if sold, the deduction is the {correct_amount_sentence_amount} of the property, under {cite}."
+            correct_explanation = (
+                f"<p>Correct. {gain_sentence_true} {correct_amount_sentence}</p>"
+            )
+
+            judgements = {
+                correct: correct_explanation,
+                "No gain, no deduction": f"<p>{gain_sentence_true} {no_deduction_question}</p>",
+                f"No gain, {wrong_filler} deduction": f"<p>{gain_sentence_true} {type_property_question}</p>",
+                f"{fm.ac(abs(gain))} {gainword}, no deduction": f"<p>{gain_question} {no_deduction_question}</p>",
+                f"{fm.ac(abs(gain))} {gainword}, {correct_filler} deduction": f"<p>{gain_question} {correct_amount_sentence}</p>",
+                f"{fm.ac(abs(gain))} {gainword}, {wrong_filler} deduction": f"<p>{gain_question} {type_property_question}</p>",
+            }
+
+    possibleanswers = list(judgements.keys())
+
+    formattedjudgements = fm.format_dict(judgements, formatting="words")
+    judgements_json = json.dumps(formattedjudgements)
+    cleananswers = fm.create_clean_answers(possibleanswers, kindofformatting="words")
+    return [problem, cleananswers, judgements_json, correct]
+
+# def charitable_donation_2026(type_problem="random"):
+#     person1 = fm.create_person()
+
+#     nonitemize_cap = 1000
+    
+#     if type_problem == "random":
+
+#         type_donation_list = random.choices(["services", "property"], weights=(1, 2))
+#         type_donation = type_donation_list[0]
+
+#     else:
+#         type_donation = type_problem
+
+#     type_gain = random.choice(
+#         ["long-term capital gain", "short-term capital gain", "ordinary income"]
+#     )
+
+#     itemizes = random.choice([True, False])
+
+    
+#     if itemizes:
+#         itemizes_word = "itemizes"
+#         while True:
+#             value_property = 100 * random.randint(50, 300)
+#             if value_property != nonitemize_cap:
+#                 break
+#     else:
+#         itemizes_word = "does not itemize"
+#         stded = fm.single.standard_deduction
+#         while True:
+#             value_property =  fm.generate_random_item_hund(stded, 30, 80)
+#             if value_property != nonitemize_cap:
+#                 break
+
+#     numbers_list = [value_property, nonitemize_cap]
+
+#     def add_unique():
+#         while True:
+#             x = fm.generate_random_item_hund(value_property, 30, 80)
+#             gain = value_property - x
+#             if x not in numbers_list and gain not in numbers_list:
+#                 numbers_list.append(x)
+#                 return x
+
+#     basis_property = add_unique()
+    
+#     gain = value_property - basis_property
+#     possible_answers = [0, value_property, basis_property, nonitemize_cap, gain]
+
+#     if type_donation == "services":
+
+#         # amount_paid = basis_property
+#         # value_services = value_property
+#         # amount_donated = gain
+                           
+#         problem = f"{person1.name} donates services to a 501(c)(3) organization. If {person1.name} had charged market price for the services, {person1.nom} would have charged {fm.ac(value_property)}, but instead the organization pays {person1.acc} {fm.ac(basis_property)}. {person1.name} {itemizes_word} {person1.poss} deductions. How much of a deduction, if any, may {person1.name} take due to the donation? (Disregard any limitations that may apply under Section 170(b).)"
+
+#         correct = 0
+
+#         services_question = 'Is any deduction available for the donation of services? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(g)</a>.'
+
+#         correct_explanation = (
+#             f'<p>Correct. No deduction is available for the donation of services, under <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(g)</a>.</p>'
+#         )
+
+#         judgements = {
+#             correct: correct_explanation,
+#             value_property:  services_question,
+#             basis_property: services_question,
+#             gain: services_question,
+#             nonitemize_cap: services_question
+#         }
+
+#     else:
+        
+#         problem = f"{person1.name} donates a piece of property worth {fm.ac(value_property)} to a 501(c)(3) organization. The basis of the property is {fm.ac(basis_property)}. If {person1.name} had sold the property, {person1.nom} would have recognized {type_gain}. {person1.name} {itemizes_word} {person1.poss} deductions. How much of a deduction, if any, may {person1.name} take due to the donation? (Disregard any limitations that may apply under Section 170(b).)"
+                
+#         if type_gain == "long-term capital gain":
+            
+#             if itemizes:
+#                 correct_deduction = value_property
+#                 correct_explanation = '<p>Correct! To the extent property would generate long-term capital gain if sold, the amount deductible is the fair market value of the property. <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>'
+                
+#                 judgements = {
+#                 correct: correct_explanation,
+#                     basis_property: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>',
+#                       gain: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>',
+#                     nonitemize_cap: f"Does {person1.name} itemize deductions?",
+#                     0: '<p> Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170</a>.</p>'
+#                 }
+
+#             # nonitemizer
+#             else:
+#                 correct = min(value_property,nonitemize_cap)
+#                 correct_explanation: f'<p>If {person1.name} itemized deductions, the amount deductible would be {fm.ac(value_property)}, because to the extent property would generate long-term capital gain if sold, the amount deductible is the fair market value of the property. <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>. Because {person1.name} does not itemize deductions, the amount deductible is the lesser of the fair market value of the property (that is, {fm.ac(value_property)}) and {fm.ac(nonitemize_cap)}, the amount provided in <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(p)</a>.</p>'
+                
+#                 judgements = {
+#                 correct: correct_explanation,
+#                     basis_property: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>',
+#                       gain: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>',
+#                     0: '<p> Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170</a>.</p>'
+#                 }
+
+#                 if correct == value_property:
+#                     judgements[nonitemize_cap] = f'<p>Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(p)</a>.</p>. Which is greater, the deduction that would be available if {person1.name} itemized, or the cap described in 170(p)?'
+                    
+#         else:
+
+#             if itemizes:
+#                 correct_deduction = basis_property
+#                 correct_explanation = '<p>Correct! To the extent property would not generate long-term capital gain if sold, the amount deductible is the basis of the property. <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>.</p>'
+                
+#                 judgements = {
+#                 correct: correct_explanation,
+#                     basis_property: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>.</p>',
+#                       gain: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>.</p>',
+#                     nonitemize_cap: f"Does {person1.name} itemize deductions?",
+#                     0: '<p> Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170</a>.</p>'
+#                 }
+
+                
+#             else:
+#                 correct = min(basis_property,nonitemize_cap)
+#                 correct_explanation: f'<p>If {person1.name} itemized deductions, the amount deductible would be {fm.ac(basis_property)}, because to the extent property would not generate long-term capital gain if sold, the amount deductible is, effectively, the basis of the property. <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170</a>.</p> Because {person1.name} does not itemize deductions, the amount deductible is the lesser of the basis of the property (that is, {fm.ac(basis_property)}) and {fm.ac(nonitemize_cap)}, the amount provided in <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(p)</a>.</p>'
+#                 judgements = {
+#                 correct: correct_explanation,
+#                     gain: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>.</p>',
+#                     value_property:  f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170(e)</a>.</p>',
+#                     value
+#                       gain: f'<p>What is the amount of deduction available for property that generates {type_gain} when sold? Consider <a href="https://www.law.cornell.edu/cfr/text/26/1.170A-1" target="_new" rel="noreferrer">Treas Reg. 1.170A-1(c)</a>.</p>',
+#                     0: '<p> Consider <a href="https://www.law.cornell.edu/uscode/text/26/170" target="_new" rel="noreferrer">Section 170</a>.</p>'
+#                 }
+
+#                 if correct == nonitemize_cap:
+                    
+                
+ 
+#     formattedjudgements = fm.format_dict(judgements)
+#     judgements_json = json.dumps(formattedjudgements)
+#     cleananswers = fm.create_clean_answers(possibleanswers)
+#     return [problem, cleananswers, judgements_json, correct]
 
 
 def qri():
@@ -4228,6 +4494,231 @@ def section_1231_netting():
     return [problem, cleananswers, judgements_json, correct]
 
 
+def recapture_2026():
+    person1 = fm.create_person()
+
+    asset = random.choice(dp.full_asset_list)
+
+    if person1.gender == "nonbinary":
+        usepronoun = "use"
+    else:
+        usepronoun = "uses"
+
+    initial_basis = 1000 * random.randint(10, 40)
+
+    while True:
+        years_passed = round(random.random() * asset.recovery_period)
+        if years_passed > 1 and years_passed < asset.recovery_period:
+            break
+
+    total_depreciation = int(
+        fm.depreciate_asset(asset, years_passed, initial_basis, sold=True)[0]
+    )
+    basis_with_depreciation = initial_basis - total_depreciation
+
+    possiblelevels = [
+        "below basis with depreciation",
+        "above original basis",
+        "between original basis and basis with depreciation",
+    ]
+
+    level_of_sale = random.choice(possiblelevels)
+
+    if level_of_sale == "below basis with depreciation":
+        while True:
+            sale_price = fm.generate_random_item_ones(basis_with_depreciation, 60, 90)
+            if sale_price < basis_with_depreciation:
+                break
+
+    elif level_of_sale == "above original basis":
+        while True:
+            sale_price = fm.generate_random_item(initial_basis, 105, 120)
+            if sale_price > initial_basis:
+                break
+
+    else:
+        while True:
+            sale_price = fm.nearestthousand(
+                random.randint(basis_with_depreciation, initial_basis)
+            )
+            if (
+                sale_price not in [basis_with_depreciation, initial_basis]
+                and basis_with_depreciation < sale_price < initial_basis
+            ):
+                break
+
+    gainloss = sale_price - basis_with_depreciation
+    recomputed_basis = basis_with_depreciation + total_depreciation
+
+    if gainloss > 0:
+        recapture = min(recomputed_basis, sale_price) - basis_with_depreciation
+    else:
+        recapture = 0
+
+    question_year = fm.current_year + years_passed
+
+    sale_date = fm.month_day(fm.pick_random_date()) + ", " + str(question_year)
+
+    problem_lang = f"{person1.name} has a {asset.name} that {person1.nom} {usepronoun} in {person1.poss} business."
+
+    if asset.listed == False:
+        period_lang = (
+            f" The class life of the {asset.name} is {asset.class_life} years."
+        )
+    else:
+        period_lang = f" Refer to the statute for the relevant recovery period for the {asset.name}."
+
+    acq_lang = f" {person1.name} acquired the {asset.name} on {fm.date_for_problem()}, for {fm.ac(initial_basis)}, and put the {asset.name} into use that same day. On {sale_date}, {person1.name} sells the {asset.name} for {fm.ac(sale_price)}. {person1.name} may or may not have disposed of other assets used in business in {question_year}."
+
+    question_lang_character = f" What is the character of the gain or loss that {person1.name} recognizes due to the sale of the {asset.name}? Assume that no elections have been made under Section 168(k)(7)."
+
+    question_lang_ordinary_income = f" What is the minimum amount of ordinary gain or loss that {person1.name} recognizes due to the sale of the {asset.name}? Assume that no elections have been made under Section 168(k)(7)."
+
+    possible_questions = [question_lang_character, question_lang_ordinary_income]
+
+    question_lang = random.choice(possible_questions)
+
+    problem = problem_lang + period_lang + acq_lang + question_lang
+
+    # question is overall character of the gain or loss
+    if question_lang == possible_questions[0]:
+
+        possibleanswers = [
+            "Gain, some of which is ordinary, and some of which is 1231 gain, which will be characterized based on other 1231 transactions.",
+            "Gain, all of which is ordinary.",
+            "Gain, all of which is 1231 gain, which will be characterized based on other 1231 transactions.",
+            "Gain, some of which is ordinary, and some of which is capital.",
+            "Gain, all of which is capital.",
+            "Loss, some of which is ordinary, and some of which is 1231 loss, which will be characterized based on other 1231 transactions.",
+            "Loss, all of which is ordinary.",
+            "Loss, all of which is 1231 loss, which will be characterized based on other 1231 transactions.",
+            "Loss, some of which is ordinary, and some of which is capital.",
+            "Loss, all of which is capital.",
+        ]
+
+        if level_of_sale == "below basis with depreciation":
+
+            correct = "Gain, all of which is ordinary."
+
+            judgements_for_gain = {
+                "Gain, some of which is ordinary, and some of which is 1231 gain, which will be characterized based on other 1231 transactions.": "The gain due to recapture is ordinary. Is there other gain?",
+                "Gain, all of which is ordinary.": f'<p>Correct! The basis of the property at the time of sale is $0, because of Section 168(k) bonus depreciation. All of the gain is due to depreciation so all of the gain is recharacterized as ordinary due to <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a> recapture.</p>',
+                'Gain, all of which is 1231 gain, which will be characterized based on all <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> transactions for the year.': "Consider depreciation and recapture.",
+                "Gain, some of which is ordinary, and some of which is capital.": "The gain due to recapture is ordinary. Is there other gain?",
+                "Gain, all of which is capital.": "What about recapture?",
+            }
+
+            judgements_for_loss = {
+                "Loss, some of which is ordinary, and some of which is 1231 loss, which will be characterized based on other 1231 transactions.": "Consider Section 168(k).",
+                "Loss, all of which is ordinary.": "Consider Section 168(k).",
+                "Loss, all of which is 1231 loss, which will be characterized based on other 1231 transactions.": "Consider Section 168(k).",
+                "Loss, some of which is ordinary, and some of which is capital.": "Consider Section 168(k).",
+                "Loss, all of which is capital.": "Consider Section 168(k)."
+            }
+
+        elif level_of_sale == "above original basis":
+
+            correct = "Gain, some of which is ordinary, and some of which is 1231 gain, which will be characterized based on other 1231 transactions."
+
+            judgements_for_gain = {
+                "Gain, some of which is ordinary, and some of which is 1231 gain, which will be characterized based on other 1231 transactions.": "Correct! Because the sale price is greater than the original basis, all of the depreciation will be recaptured. The gain due to the excess of the sale price over the original basis will be 1231 gain.",
+                "Gain, all of which is ordinary.": "Some of the gain, that due to the recapture of the depreciation, will definitely be ordinary. But how can you determine the character of the gain due to the excess of the sale price over the original basis?",
+                "Gain, all of which is 1231 gain, which will be characterized based on other 1231 transactions.": "Consider depreciation and recapture.",
+                "Gain, some of which is ordinary, and some of which is capital.": "Some of the gain, that due to the recapture of the depreciation, will definitely be ordinary. But how can you determine the character of the gain due to the excess of the sale price over the original basis.",
+                "Gain, all of which is capital.": "What about recapture? Also, how can you determine the character of the gain not due to recapture?",
+            }
+
+            judgements_for_loss = {
+                "Loss, some of which is ordinary, and some of which is 1231 loss, which will be characterized based on other 1231 transactions.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is ordinary.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is 1231 loss, which will be characterized based on other 1231 transactions.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, some of which is ordinary, and some of which is capital.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is capital.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+            }
+
+        elif level_of_sale == "between original basis and basis with depreciation":
+
+            correct = "Gain, all of which is ordinary."
+
+            judgements_for_gain = {
+                "Gain, some of which is ordinary, and some of which is 1231 gain, which will be characterized based on other 1231 transactions.": "The gain due to recapture is ordinary. Is there other gain?",
+                "Gain, all of which is ordinary.": f'<p>Correct! The basis of the property at the time of sale is $0, because of the Section 168(k) bonus depreciation. All of the gain is due to depreciation so all of the gain is recharacterized as ordinary due to <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a> recapture.</p>',
+                'Gain, all of which is 1231 gain, which will be characterized based on all <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> transactions for the year.': "Consider depreciation and recapture.",
+                "Gain, some of which is ordinary, and some of which is capital.": "The gain due to recapture is ordinary. Is there other gain?",
+                "Gain, all of which is capital.": "What about recapture?",
+            }
+
+            judgements_for_loss = {
+                "Loss, some of which is ordinary, and some of which is 1231 loss, which will be characterized based on other 1231 transactions.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is ordinary.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is 1231 loss, which will be characterized based on other 1231 transactions.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, some of which is ordinary, and some of which is capital.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+                "Loss, all of which is capital.": "This sale generates gain, not loss. What is the basis of the property at the time of sale? Consider Section 168(k).",
+            }
+
+        judgements = fm.merge(judgements_for_gain, judgements_for_loss)
+
+        formattedjudgements = fm.format_dict(judgements, "words")
+
+        cleananswers = possibleanswers
+
+    if question_lang == question_lang_ordinary_income:
+
+        possibleanswersbegin = [recapture, sale_price, initial_basis,  total_depreciation, gainloss, 0]
+
+        while True:
+            random_answer = total_depreciation + 500 * random.randint(1, 15)
+            if random_answer not in possibleanswersbegin:
+                break
+
+        possibleanswers = possibleanswersbegin + [random_answer]
+
+        if level_of_sale == "below basis with depreciation":
+
+            correct = sale_price
+
+            judgements = {
+                sale_price: f"Correct! Because of Section 168(k), the basis on sale is {fm.ac(0)}. The sale price is below the original basis, so all of the gain, {fm.ac(sale_price)} - {fm.ac(0)} = {fm.ac(sale_price)}, is recapture and thus ordinary gain.",
+                0: f'This would be correct if it were not for bonus depreciation under Section 168(k).',
+                gainloss: f'<p>This would be the loss generated by the sale if it were not for Section 168(k). But even so, <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a> does not result in recapture when there is a loss on the sale. Additionally, the loss would be Section 1231 loss, and therefore its character is based on all <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> transactions for the year. We thus could not know its character without additional information.</p>',
+                total_depreciation: 'This would be the total depreciation for the asset if it were not for Section 168(k).',
+                random_answer: "This number was randomly generated.",
+            }
+
+        elif level_of_sale == "above original basis":
+
+            correct = initial_basis
+
+            judgements = {
+                initial_basis:f'<p>Correct! The total depreciation with bonus depreciation, {fm.ac(initial_basis)}, results in a basis of {fm.ac(0)}. The total gain is therefore {fm.ac(gainloss)}. The portion of this gain that is due to recapture, {fm.ac(initial_basis)}, is ordinary income under <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a>. Because this is a <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> asset, the remainder of the gain is 1231 gain, and its character will be determined by taking into account all 1231 gain and loss for the year.</p>',
+                recapture: 'This would be correct if not for Section 168(k).',
+                0: f'<p>It is true that this is a <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> asset, so to the extent that the regular 1231 rules apply, we cannot know whether this gain is ordinary or capital (because that will be determined based on all 1231 transactions for the year). But what about <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a>?</p>',
+                gainloss: "This is the full amount of gain. It is true that some of this is ordinary. But do we know that all of it is ordinary? What type of asset is this asset, given that it is a depreciable asset used in a trade or business and held for more than one year?",
+                random_answer: "This number was randomly generated.",
+            }
+
+        elif level_of_sale == "between original basis and basis with depreciation":
+
+            correct = sale_price
+
+            judgements = {
+                    sale_price: f"Correct! Because of Section 168(k), the basis on sale is {fm.ac(0)}. The sale price is below the original basis, so all of the gain, {fm.ac(sale_price)} - {fm.ac(0)} = {fm.ac(sale_price)}, is recapture and thus ordinary gain.",
+                recapture: f'This would be correct if not for Section 168(k).',
+                0: f'<p>It is true that this is a <a href="https://www.law.cornell.edu/uscode/text/26/1231" target="_new" rel="noreferrer">Section 1231</a> asset, so to the extent that the regular 1231 rules apply, we cannot know whether this gain is ordinary or capital (because that will be determined based on all 1231 transactions for the year). But what about <a href="https://www.law.cornell.edu/uscode/text/26/1245" target="_new" rel="noreferrer">Section 1245</a>?</p>',
+                random_answer: "This number was randomly generated.",
+                total_depreciation: 'This would be the total depreciation for the asset if it were not for Section 168(k).',
+            }
+
+        formattedjudgements = fm.format_dict(judgements)
+
+    possibleanswers = list(set(possibleanswers))
+    while len(possibleanswers) < 5:
+        possibleanswers, judgements = fm.random_answer_ones(possibleanswers, judgements)
+
+    cleananswers = fm.create_clean_answers(possibleanswers)
+    judgements_json = json.dumps(formattedjudgements)
+    return [problem, cleananswers, judgements_json, correct]
+
 def recapture():
     person1 = fm.create_person()
 
@@ -4615,6 +5106,171 @@ def asset_sale_all():
     cleananswers = fm.create_clean_answers(possibleanswers)
     return [problem, cleananswers, judgements_json, correct]
 
+def asset_sale_all_2026():
+    person1 = fm.create_person()
+
+    number_of_assets = random.randint(1, 3)
+    number_of_stock = random.randint(1, 3)
+    selected_assets = []
+    assets_for_problem = []
+    ordinary = 0
+    total_1231 = 0
+    LTCL = 0
+    LTCG = 0
+    STCL = 0
+    STCG = 0
+    gross_income = 0
+
+    asset_purchase_lang = answer_lang = ""
+    losses_1231 = 0
+    gains_1231 = 0
+
+    for n in range(number_of_stock):
+        while True:
+            listasset = dp.create_asset_facts(type="stock")
+            if listasset.asset not in selected_assets:
+                selected_assets.append(listasset.asset)
+                assets_for_problem.append(listasset)
+                break
+
+    for n in range(number_of_assets):
+        while True:
+            listasset = dp.create_asset_facts()
+            if listasset.asset not in selected_assets:
+                selected_assets.append(listasset.asset)
+                assets_for_problem.append(listasset)
+                break
+
+    for item in assets_for_problem:
+        asset_purchase_lang += f"\n- {item.problem_facts} {item.period_lang}"
+
+        answer_lang += f" {item.answer_facts_all_netting}"
+        total_1231 = total_1231 + item.amount_1231
+
+        ordinary = ordinary + item.ordinary
+
+        gain_or_loss = item.sale_price - item.depreciated_basis
+
+        if gain_or_loss > 0:
+            gross_income += gain_or_loss
+
+        if item.amount_1231 < 0:
+            losses_1231 += item.amount_1231
+        else:
+            gains_1231 += item.amount_1231
+
+        if item.type_of_gain == "capital":
+            if item.long_or_short == "long":
+
+                if item.gain_or_loss_no_depreciation == "gain":
+                    LTCG = LTCG + gain_or_loss
+
+                elif item.gain_or_loss_no_depreciation == "loss":
+                    LTCL = LTCL - gain_or_loss
+
+            elif item.long_or_short == "short":
+
+                if item.gain_or_loss_no_depreciation == "gain":
+                    STCG = STCG + gain_or_loss
+
+                elif item.gain_or_loss_no_depreciation == "loss":
+                    STCL = STCL - gain_or_loss
+
+    if total_1231 <= 0:
+        compare_language = "do not exceed"
+        type_of_1231 = "ordinary"
+        ordinary = ordinary + total_1231
+
+    else:
+        type_of_1231 = "long-term capital"
+        compare_language = "exceed"
+        LTCG += gains_1231
+        LTCL += losses_1231
+
+    net_STCL = max(0, STCL - STCG)
+    net_LTCG = max(0, LTCG - LTCL)
+
+    total_losses = STCL + LTCL
+    total_gains = STCG + LTCG
+
+    net_CG = max(0, net_LTCG - net_STCL)
+
+    net_CL = max(0, total_losses - total_gains)
+
+    offsetting = max(0, min(net_CL, ordinary, 3000))
+
+    carryforward = max(0, net_CL - offsetting)
+
+    if ordinary < 0:
+        offsetting_language = f"There is no additional ordinary gain or income; rather, there is ordinary loss of {fm.ac(-ordinary)}."
+
+    else:
+        offsetting_language = f"Before using any offsetting capital losses, there is {fm.ac(ordinary)} of ordinary income. Capital losses can be used to offset {fm.ac(offsetting)} of that, which reduces the capital losses accordingly."
+
+    # if ordinary_total != ordinary_not_STCG:
+    #     print("stcg taxable")
+    #     stcg_lang = "Additionally, short-term capital gain that is not offset by capital losses is taxed at ordinary rates."
+    # else:
+    #     stcg_lang = ''
+
+    if gains_1231 != 0 or losses_1231 != 0:
+        answer_lang_1231 = f"<br><br>The total amount of 1231 gains is {fm.ac(gains_1231)}. The total amount of 1231 losses is {fm.ac(losses_1231)}. Because the 1231 gains {compare_language} the 1231 losses, all 1231 gains and losses are {type_of_1231} gains and losses under Section 1231(a). Thus there is an additional {fm.ac(gains_1231)} of long-term capital gain and {fm.ac(losses_1231)} of long-term capital loss."
+    else:
+        answer_lang_1231 = "<br><br>There are no 1231 gains or losses."
+
+    answer_lang_capital = f"Therefore, netting all capital gains and losses, there is {fm.ac(net_LTCG)} of net long-term capital gain and {fm.ac(net_STCL)} of net short-term capital loss, resulting in {fm.ac(net_CG)} of net capital gain."
+
+    summary_answer_lang = f"{answer_lang_1231} {answer_lang_capital}"
+
+    problem_lang = f"In {fm.current_year}, {person1.name} sells the following assets. {person1.name} holds all stock for investment, uses each of the other assets in their business, and put each asset used for business into use the same day it was purchased. {person1.name} sells no other assets in {fm.current_year}.\n\n{asset_purchase_lang}"
+
+    # question=random.choice(['capgain','ordinary','losscarry'])
+    question = random.choice(["capgain", "losscarry"])
+
+    if question == "capgain":
+        question_lang = f"\n\nHow much net capital gain, taxed at a favorable rate, does {person1.name} have in {fm.current_year} due to these transactions?"
+        summary_answer_lang_addl = ""
+        correct = net_CG
+
+    # elif question == 'ordinary':
+    #     question_lang= f"<br><br>How much net ordinary gain or loss does {person1.name} have in {fm.current_year} due to these transactions?"
+    #     summary_answer_lang_addl = f"Before using any offsetting capital losses, there is {fm.ac(ordinary)} of income that is not capital gain. There are {fm.ac(offsetting)} of capital losses available to offset ordinary income. Therefore, netting all ordinary gains and losses, and using the offsetting capital losses available, there is {fm.ac(ordinary_total)} of income taxed at ordinary rates.<br>"
+    #     correct = ordinary_total
+
+    elif question == "losscarry":
+        question_lang = f"\n\nHow much capital loss does {person1.name} carry into {fm.current_year+1}?"
+
+        if net_CL == 0:
+            summary_answer_lang_addl = "There is no excess of capital losses over capital gains, so no losses are carried into the next year."
+        else:
+            summary_answer_lang_addl = f"There is an excess of {fm.ac(net_CL)} of capital losses over gains. {offsetting_language} Therefore {fm.ac(carryforward)} of losses are carried into the next year.<br>"
+        correct = carryforward
+
+    problem = problem_lang + question_lang
+
+    answer_lang = (
+        f"Correct!\n\n{answer_lang} {summary_answer_lang}\n\n{summary_answer_lang_addl}"
+    )
+
+    judgements = {correct: answer_lang}
+
+    possibleanswers = [correct, 0]
+
+    if correct == 0:
+        possibleanswers.append(1000 * random.randint(2, 10))
+
+    [possibleanswers, judgements] = fm.random_answer_pot(possibleanswers, judgements, 1)
+    [possibleanswers, judgements] = fm.random_answer_pot(possibleanswers, judgements, 1)
+    [possibleanswers, judgements] = fm.random_answer_pot(possibleanswers, judgements, 0)
+    [possibleanswers, judgements] = fm.random_answer_pot(possibleanswers, judgements, 0)
+    [possibleanswers, judgements] = fm.random_answer_pot(possibleanswers, judgements, 3)
+
+    formattedjudgements = fm.format_dict(judgements)
+    judgements_json = json.dumps(formattedjudgements)
+    cleananswers = fm.create_clean_answers(possibleanswers)
+    return [problem, cleananswers, judgements_json, correct]
+
+
 
 def section_24_credit():
     [taxpayer, spouse] = fm.create_group()
@@ -4632,7 +5288,7 @@ def section_24_credit():
         },
     }
 
-    full_credit = fm.section_24_credit_2020
+    full_credit = fm.section_24_credit
     child_info = []
     child_lang = ""
     credit_amt = number_qual_child = number_qual_rel = 0
@@ -5039,7 +5695,7 @@ def section_21_credit():
 
 # Implementation
 
-functions_dict = {
+functions_dict_2025 = {
     "rates": rates_problems,
     "gross-ups": gross_up,
     "time value of money": tvm,
@@ -5067,6 +5723,39 @@ functions_dict = {
     "capital gain + section 1231 + recapture": asset_sale_all,
 }
 
+functions_dict_2026 = {
+    "rates": rates_problems,
+    "gross-ups": gross_up,
+    "time value of money": tvm,
+    "unrestricted property as compensation": unrestricted_property,
+    "restricted property as compensation": restricted_property,
+    "options as compensation": options_as_comp,
+    "different ways of satisfying a debt": satisfy_debt,
+    "bonds, shifting interest rates, and COD": bonds_COD,
+    "gain from sale of principal residence": principal_res,
+    "COD exclusion": exclusion_COD,
+    "qualified employee discount": qual_empl_disc,
+    "charitable donation deduction": charitable_donation_2026,
+    "home mortgage interest deduction": qri,
+    "taxable property exchange": property_exchange,
+    "basis": basis_problems,
+    "like-kind exchanges": like_kind,
+    "transactions with liabilities": liabilities,
+    "installment sales": installment_sales,
+    "depreciation": depreciation_question,
+    "capital gains and losses": cap_gain_netting,
+    "section 1231 netting": section_1231_netting,
+    "recapture": recapture_2026,
+    "section 24 credit": section_24_credit,
+#    "section 21 credit": section_21_credit,
+    "capital gain + section 1231 + recapture": asset_sale_all_2026,
+}
+
+functions_lookup_dict = {2025: functions_dict_2025,
+                         2026: functions_dict_2026 }
+
+functions_dict = functions_lookup_dict[fm.current_year]
+
 functions_list = ["a random type of problem"] + list(functions_dict.keys())
 
 
@@ -5086,10 +5775,10 @@ def rates_facts(type_of_taxpayer, taxable_income):
     type_of_taxpayer = fm.rates_dict[type_of_taxpayer]
     max_key = max(list(type_of_taxpayer.brackets["TopOfBracket"].keys()))
     max_value = type_of_taxpayer.brackets["TopOfBracket"][max_key]
-    if taxable_income > max_value:
-        response = (
-            f"Please enter taxable income less than {max_value} for this taxpayer."
-        )
+    if not (type(taxable_income) == int):
+        response = "Please enter a numerical value for taxable income."
+    elif taxable_income > max_value:
+        response = f"Please enter taxable income less than {max_value} for this taxpayer."
     else:
         average_rate_answer = fm.rates_facts_average(type_of_taxpayer, taxable_income)
         tax_owed_answer = int(average_rate_answer * taxable_income)

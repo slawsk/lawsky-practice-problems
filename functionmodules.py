@@ -104,17 +104,13 @@ class CorrectVerb:
 
 
 current_year = date.today().year
-# current_year = 2025
-current_year_for_book = 2025
-rev_proc_for_book = "Rev. Proc. 2024-40"
+# current_year = 2026
+current_year_for_book = 2026
+rev_proc_for_book = "Rev. Proc. 2025-32"
 
-code_updated = "July 30, 2025"
+code_updated = "December 1, 2025. At that time, the US Code online was current through Public Law 119-36, and there were no pending changes that amended Title 26"
 
-regs_updated = "July 11, 2025"
-
-# code_updated_bk = "July 11, 2025"
-
-code_updated_bk = "December 5, 2024"
+regs_updated = "December 1, 2025. At that time, Title 26 of the CFR had been last amended on October 2, 2025"
 
 now = datetime.now()
 now_stamp = datetime.timestamp(datetime.now())
@@ -156,107 +152,6 @@ MAX_QUIZ_QUESTIONS = 20
 # (4) Update the code and regulations to keep the code and regs book up to date
 # (5) Update current_year_for_book and rev_proc_for_book above,
 # so people can make their books before the new year
-
-
-# 2024 inflation brackets:
-married_df_2024 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 23200,
-            2: 94300,
-            3: 201050,
-            4: 383900,
-            5: 487450,
-            6: 731200,
-        },
-        "TopOfBracket": {
-            0: 23200,
-            1: 94300,
-            2: 201050,
-            3: 383900,
-            4: 487450,
-            5: 731200,
-            6: 10000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 2320.0,
-            2: 10852.0,
-            3: 34337.0,
-            4: 78221.0,
-            5: 111357.0,
-            6: 196669.5,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
-
-single_df_2024 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 11600,
-            2: 47150,
-            3: 100525,
-            4: 191950,
-            5: 243725,
-            6: 609350,
-        },
-        "TopOfBracket": {
-            0: 11600,
-            1: 47150,
-            2: 100525,
-            3: 191950,
-            4: 243725,
-            5: 609350,
-            6: 10000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 1160.0,
-            2: 5426.0,
-            3: 17168.5,
-            4: 39110.5,
-            5: 55678.5,
-            6: 183647.25,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
-
-hoh_df_2024 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 16550,
-            2: 63100,
-            3: 100500,
-            4: 191950,
-            5: 243700,
-            6: 609350,
-        },
-        "TopOfBracket": {
-            0: 16550,
-            1: 63100,
-            2: 100500,
-            3: 191950,
-            4: 243700,
-            5: 609350,
-            6: 10000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 1655.0,
-            2: 7241.0,
-            3: 15469.0,
-            4: 37417.0,
-            5: 53977.0,
-            6: 181954.5,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
 
 # 2025 inflation brackets:
 married_df_2025 = pd.DataFrame(
@@ -359,45 +254,107 @@ hoh_df_2025 = pd.DataFrame(
 )
 
 
-adjustments_2024_dict = {
-    "married_st_ded": 29200,
-    "single_st_ded": 14600,
-    "hoh_st_ded": 21900,
-    "qbi_married_thresh": 383900,
-    "qbi_single_thresh": 191950,
-    "qbi_hoh_thresh": 191950,
-    "exemption_152": 5050,  # this is the exemption amount for 152(d)(1)(B)
-    "eitc_earned_income_amount": 17400,  # for unmarried, two children, EITC
-    "eitc_threshold_phaseout_amount": 22720,  # for unmarried, two children, EITC
-    "eitc_completed_phaseout": 55768,  # for unmarried, two children, EITC
-    "eitc_max_credit": 6960,  # for unmarried, two children, EITC
-    "eitc_investment_limit": 11600,
-    "rev_proc": "Rev. Proc. 2023-34",
-    "social security cutoff": 168600,
-    "married_df": married_df_2024,
-    "single_df": single_df_2024,
-    "hoh_df": hoh_df_2024,
-}
 
-adjustments_2025_dict_before_bill = {
-    "eitc_earned_income_amount": 17880,  # section 32, for unmarried, two children, EITC
-    "eitc_threshold_phaseout_amount": 23350,  # section 32, for unmarried, two children, EITC
-    "eitc_completed_phaseout": 57310,  # section 32, for unmarried, two children, EITC
-    "eitc_max_credit": 7152,  # section 32, for unmarried, two children, EITC
-    "eitc_investment_limit": 11950,  # section 32
-    "married_st_ded": 30000,  # section 63
-    "single_st_ded": 15000,  # section 63
-    "hoh_st_ded": 22500,  # section 63
-    "exemption_152": 5200,  # section 152(d)(1)(B) exemption amount
-    "qbi_married_thresh": 394600,  # section 199A
-    "qbi_single_thresh": 197300,  # section 199A
-    "qbi_hoh_thresh": 197300,  # section 199A
-    "rev_proc": "Rev. Proc. 2024-40",
-    "social security cutoff": 176100,
-    "married_df": married_df_2025,
-    "single_df": single_df_2025,
-    "hoh_df": hoh_df_2025,
-}
+# 2026 inflation brackets:
+married_df_2026 = pd.DataFrame(
+    {
+        "BottomOfBracket": {
+            0: 0,
+            1: 24800,
+            2: 100800,
+            3: 211400,
+            4: 403550,
+            5: 512450,
+            6: 768700,
+        },
+        "TopOfBracket": {
+            0: 24800,
+            1: 100800,
+            2: 211400,
+            3: 403550,
+            4: 512450,
+            5: 768700,
+            6: 1000000,
+        },
+        "AmountToAdd": {
+            0: 0.0,
+            1: 2480.0,
+            2: 11600.0,
+            3: 35932.0,
+            4: 82048.0,
+            5: 116896.0,
+            6: 206583.50,
+        },
+        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
+    }
+)
+
+single_df_2026 = pd.DataFrame(
+    {
+        "BottomOfBracket": {
+            0: 0,
+            1: 12400,
+            2: 50400,
+            3: 105700,
+            4: 201775,
+            5: 256225,
+            6: 640600,
+        },
+        "TopOfBracket": {
+            0: 12400,
+            1: 50400,
+            2: 105700,
+            3: 201775,
+            4: 256225,
+            5: 640600,
+            6: 1000000,
+        },
+        "AmountToAdd": {
+            0: 0.0,
+            1: 1240.0,
+            2: 5800.0,
+            3: 17966.0,
+            4: 41024.0,
+            5: 58448.0,
+            6: 192979.25,
+        },
+        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
+    }
+)
+
+hoh_df_2026 = pd.DataFrame(
+    {
+        "BottomOfBracket": {
+            0: 0,
+            1: 17700,
+            2: 67450,
+            3: 105700,
+            4: 210750,
+            5: 256200,
+            6: 640600,
+        },
+        "TopOfBracket": {
+            0: 17700,
+            1: 67450,
+            2: 105700,
+            3: 210750,
+            4: 256200,
+            5: 640600,
+            6: 1000000,
+        },
+        "AmountToAdd": {
+            0: 0.0,
+            1: 1770.0,
+            2: 7740.0,
+            3: 16155.0,
+            4: 39207.0,
+            5: 56631.0,
+            6: 191171.0,
+        },
+        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
+    }
+)
+
 
 adjustments_2025_dict = {
     "child_tax_credit_amount": 2200,  # section 24
@@ -420,7 +377,29 @@ adjustments_2025_dict = {
     "hoh_df": hoh_df_2025,
 }
 
-adjustments_dict_dict = {2024: adjustments_2024_dict, 2025: adjustments_2025_dict}
+adjustments_2026_dict = {
+    "child_tax_credit_amount": 2200,  # section 24
+    "eitc_earned_income_amount": 18290,  # section 32, for unmarried, two children, EITC
+    "eitc_threshold_phaseout_amount": 23890,  # section 32, for unmarried, two children, EITC
+    "eitc_completed_phaseout": 58629,  # section 32, for unmarried, two children, EITC
+    "eitc_max_credit": 7316,  # section 32, for unmarried, two children, EITC
+    "eitc_investment_limit": 12200,  # section 32
+    "married_st_ded": 32200,  # section 63
+    "single_st_ded": 16100,  # section 63
+    "hoh_st_ded": 24150,  # section 63
+    "exemption_152": 5300,  # section 152(d)(1)(B) exemption amount
+    "qbi_married_thresh": 403500,  # section 199A
+    "qbi_single_thresh": 201750,  # section 199A
+    "qbi_hoh_thresh": 201750,  # section 199A
+    "rev_proc": "Rev. Proc. 2025-32",
+    "social security cutoff": 184500,
+    "married_df": married_df_2026,
+    "single_df": single_df_2026,
+    "hoh_df": hoh_df_2026,
+}
+
+
+adjustments_dict_dict = {2026: adjustments_2026_dict, 2025: adjustments_2025_dict}
 
 infl_dict = adjustments_dict_dict[current_year]
 
@@ -536,7 +515,14 @@ def dict_add_unique(d1, d2, list):
         if item not in d1.keys():
             d1[item] = d2[item]
 
+def ordinal(n: int):
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    else:
+        suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    return str(n) + suffix
 
+            
 ordinals_dictionary = [
     "0th",
     "1st",
@@ -1103,14 +1089,14 @@ def rates_facts_average(type_of_taxpayer, taxable_income):
     else:
         return tax_owed / taxable_income
 
-
+# duplicate of basictaxproblems function, and apparently never used?
 def rates_facts(type_of_taxpayer, taxable_income):
     max_key = max(list(type_of_taxpayer.brackets["TopOfBracket"].keys()))
     max_value = type_of_taxpayer.brackets["TopOfBracket"][max_key]
+    if not (type(taxable_income) == int):
+        response = "Please enter a numerical value for taxable income."
     if taxable_income > max_value:
-        response = (
-            f"Please enter taxable income less than {max_value} for this taxpayer."
-        )
+        response = f"Please enter taxable income less than {max_value} for this taxpayer."
     else:
         average_rate_answer = rates_facts_average(type_of_taxpayer, taxable_income)
         tax_owed = int(tax_owed_answer(type_of_taxpayer, taxable_income))
@@ -1253,7 +1239,16 @@ def create_problem(n_clicks_submit_types, dropdown_id_value, fn_type):
             {"display": "block"},
         ]
 
+    
+def create_lecture_problem(problemlist):
+    problem = problemlist[0]
+    judgedict = json.loads(problemlist[2])
+    correct = list(judgedict.keys())[0]
+    explanation = json.loads(problemlist[2])[correct]
+    return problem, correct, explanation
 
+
+    
 image_filename = "assets/CodeAndRegsPic.png"
 encoded_image = base64.b64encode(open(image_filename, "rb").read())
 
