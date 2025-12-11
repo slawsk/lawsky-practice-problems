@@ -129,7 +129,7 @@ app.layout = html.Div(
         dcc.Interval(
             id="interval-component", interval=1000, n_intervals=0, disabled=True
         ),
-        dcc.Store(id="task-id-store"),
+        dcc.Store(id="processing-flag",data=False),
         dcc.Store(id="task-input-store"),
         dcc.Store(id="reset-state", data=False),
         html.Div(
@@ -349,7 +349,13 @@ code_and_regs_layout = html.Div(
         html.Div(html.H4("STEP 4: WAIT")),
         dcc.Markdown(faq.be_patient),
         html.Br(),
-        html.Div([dcc.Markdown(id="upload-confirm-all", dangerously_allow_html=True)]),
+        html.Div([
+    dcc.Loading(
+        id="loading-book",
+        type="default",  # or "circle", "dot", "cube"
+        children=dcc.Markdown(id="upload-confirm-all", dangerously_allow_html=True)
+    )
+]),
         html.Br(),
         html.Br(),
         html.Div(
@@ -1062,14 +1068,14 @@ def serve_file_in_dir(path):
 
     return send_from_directory(os.path.dirname(path), os.path.basename(path))
 
-
 @app.callback(
     [
-        Output("task-id-store", "data", allow_duplicate=True),
+        Output("upload-confirm-all", "children"),
+        Output("after-book-options", "style"),
         Output("interval-component", "disabled", allow_duplicate=True),
-        Output("reset-state", "data", allow_duplicate=True),
+        Output("processing-flag", "data", allow_duplicate=True),
     ],
-    [Input("upload-data-all", "contents"), Input("reset-state", "data")],
+    [Input("upload-data-all", "contents")],
     [
         State("submitfile-all", "n_clicks"),
         State("docs-dropdown", "value"),
@@ -1077,83 +1083,42 @@ def serve_file_in_dir(path):
     ],
     prevent_initial_call=True,
 )
-def create_code_regs(contents, reset_state, nclicks, docsdropdown, pagenumbers):
-    if reset_state:
-        return {"task_id": None}, True, False
-
+def create_code_regs(contents, nclicks, docsdropdown, pagenumbers):
     if contents is not None and contents != "" and nclicks > 0:
         fm.remove_old_files("saved_code")
         fm.remove_old_files("CodeRegs/FilesForBook")
+        
         full_file = parse_contents_code_book(contents)
         full_file_b64 = base64.b64encode(full_file).decode("utf-8")
         now = datetime.timestamp(datetime.now())
         book_title = f"SelectedSections.{now}"
+        
         with open(fm.counter_file, "a") as f:
             f.write(f"\n{now}")
-
+        
         pagenumber = 1 in pagenumbers
-
-        task = create_code_book_task.delay(
-            book_title, full_file_b64, now, docsdropdown, pagenumber
+        
+        # Direct call instead of Celery task
+        excel_file = io.BytesIO(base64.b64decode(full_file_b64))
+        all_errors, footer_error = cc.create_code_book(
+            book_title, excel_file, now, docsdropdown, pagenumber
         )
-
-        return {"task_id": task.id}, False, False
-
-    return {"task_id": None}, True, False
-
-
-@app.callback(
-    [
-        Output("upload-confirm-all", "children", allow_duplicate=True),
-        Output("after-book-options", "style"),
-        Output("interval-component", "disabled", allow_duplicate=True),
-    ],
-    [Input("interval-component", "n_intervals")],
-    [State("task-id-store", "data")],
-    prevent_initial_call=True,
-)
-def update_results(n_intervals, task_data):
-
-    if task_data and task_data["task_id"]:
-        task = AsyncResult(task_data["task_id"], app=celery)
-        if task.ready():
-
-            result = task.get()
-            if result["status"] == "success":
-
-                all_errors = result["all_errors"]
-                footer_error = result["footer_error"]
-                download_link = f"[Download your Selected Sections book](/download/saved_code/{result['download_link']})"
-
-                if len(all_errors) > 3:
-                    reg_error = (
-                        f"I could not find the following sections: {all_errors}."
-                    )
-                else:
-                    reg_error = ""
-
-                if len(all_errors) > 3 or len(footer_error) > 1:
-                    message = f"Your file was mostly processed successfully. However, I encountered the following issues. {reg_error} {footer_error} Click on the link below to download your Selected Sections book with those items omitted:\n\n [Download your Selected Sections book]({result['download_link']})"
-                else:
-                    message = f"""Your file was processed successfully. Click on the link below to download your Selected Sections book. Please check your book to make sure it contains all the sections you selected. The files from the government have some inconsistencies in how they are tagged. If you let me know about an issue pulling a particular section or subsection, I can fix the file so that it pulls correctly going forward.
-
-   [Download your Selected Sections book]({result['download_link']})
-
-    """
-
-                return [message, {"display": "block"}, True]
-            elif result["status"] == "failure":
-                specific_problem = result["error"]
-                error_message = f"""
-    The spreadsheet was not able to be processed. Please check the formatting of the spreadsheet you uploaded and try again. The following string of text created an issue for the program: {specific_problem}.
-
-    """
-                return [error_message, {"display": "block"}, True]
+        
+        download_link = f"/download/saved_code/{book_title}.pdf"
+        
+        if len(all_errors) > 3:
+            reg_error = f"I could not find the following sections: {all_errors}."
         else:
-            return [random.choice(fm.waiting_list), {"display": "block"}, False]
-    else:
-        return ["", {"display": "none"}, False]
-
+            reg_error = ""
+        
+        if len(all_errors) > 3 or len(footer_error) > 1:
+            message = f"Your file was mostly processed successfully. However, I encountered the following issues. {reg_error} {footer_error}\n\n[Download your Selected Sections book]({download_link})"
+        else:
+            message = f"Your file was processed successfully.\n\n[Download your Selected Sections book]({download_link})"
+        
+        return [message, {"display": "block"}, True, False]  # Stop interval, clear processing flag
+    
+    return ["", {"display": "none"}, True, False]
 
 @app.callback(
     [

@@ -44,16 +44,10 @@ code_dictionary_entry = 'Code sections you listed on your spreadsheet'
 reg_dictionary_entry = 'Reg sections you listed on your spreadsheet'
 
 possible_include_dict = {'Edited IRC Table of Contents (All Classes)': f'{path_short}/01TOCEdited.pdf',
-                         # 'Edited IRC Table of Contents (Fed Tax)': 'CodeRegs/TOCBasic.pdf',
-                         # 'Edited IRC Table of Contents (Corporate Tax)': 'CodeRegs/TOCCorporate.pdf',
-                         # 'Edited IRC Table of Contents (Partnership Tax)': 'CodeRegs/TOCPartnership.pdf',
                          'Inflation Rev. Proc.': f'{path_short}/02InflationRevProc.pdf',
                          'Depreciation Rev. Proc.': f'{path_short}/03DepreciationRevProc.pdf', code_dictionary_entry: code_file_name, reg_dictionary_entry: reg_file_name}
 
 intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_contents_info,
-                  'Edited IRC Table of Contents (Fed Tax)': ci.table_contents_info,
-                  'Edited IRC Table of Contents (Corporate Tax)': ci.table_contents_info,
-                  'Edited IRC Table of Contents (Partnership Tax)': ci.table_contents_info,
                   'Inflation Rev. Proc.': ci.inflation_info,
                   'Depreciation Rev. Proc.': ci.depreciation_info,
                   code_dictionary_entry: ci.selected_sections_code_info,
@@ -61,13 +55,7 @@ intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_content
 
 possible_files_list = list(possible_include_dict.keys())
 
-# all_code_title_xml = f'CodeNoNotes_{current_year}.xml'
-# all_code_title_html = f'CodeNoNotes_{current_year}.html'
-# all_regs_title = f'RegsNoNotes_{current_year}.html'
-
-
 type_run = convertfile.type_run
-
 
 def find_the_code_section(x):
     return x.split('.', 1)[1].split('-', 1)[0]
@@ -206,10 +194,6 @@ def process_regs_excel(sectionsToUse):
     lambda x: pd.Series(extract_section_and_specific(x))
 )
     
- #   regs_df['Section'] = regs_df['Regulation'].apply(
- #       lambda x: x.split('.', 1)[1].split('-', 1)[0])
- #   regs_df['Specific'] = regs_df['Regulation'].apply(
- #       lambda x: find_the_number(x.split('.', 1)[1].split('-', 1)[1]))
     regs_df['NumberToSort'] = regs_df['Section'].apply(
         lambda x: find_the_number(x))
     regs_df = regs_df.sort_values(by=['NumberToSort', 'Specific'])
@@ -337,7 +321,6 @@ def parseRegs(sectionsToUse, outputTitle):
 
     reg_sections_list = df['Regulation'].tolist()
     subsections_list = df['SubsectionList'].tolist()
-    #listified = [x.split(",") for x in subsections_list]
 
     lookupdict = dict(zip(reg_sections_list, subsections_list))
 
@@ -421,7 +404,7 @@ def convert_to_pdf(input_html, output_pdf):
 
 def add_page_numbers(input_path, output_path, pagenumbers):
     # this adds page numbers and also adds in the footers with what the reg or code section is on the page
-
+    
     # Open the PDF file
     pdf = fitz.open(input_path)
 
@@ -513,32 +496,25 @@ def add_page_numbers(input_path, output_path, pagenumbers):
 
     return num_pages
 
-
-def add_bookmarks(document, codelist, outputname):
-
-    doc = fitz.open(document)
+def add_bookmarks(inputname, section_list, outputname):
+    doc = fitz.open(inputname)
     toc = doc.get_toc()
-
-    for item in codelist:
-        # Define the pattern to search for: item surrounded by three asterisks
-        pattern = rf'\*\*\*{re.escape(str(item))}\*\*\*'
-        to_add = f'§ {item}'  # Bookmark text
-
-        # Search for the pattern on each page
-        for i in range(len(doc)):
-            page = doc[i]
-            text = page.get_text()
-
-            # Search for the pattern, case insensitive
-            if re.search(pattern, text, re.IGNORECASE):
-                toc.append([2, to_add, i + 1])
-                break
-
-    toc = sorted(toc, key=lambda x: x[2])
-    # Set the table of contents
+    
+    # Extract page text 
+    page_texts = [(i, page.get_text()) for i, page in enumerate(doc)]
+    
+    # search for each bookmark
+    for item in section_list:
+        pattern = re.compile(rf'\*\*\*{re.escape(str(item))}\*\*\*', re.IGNORECASE)
+        
+        for page_num, text in page_texts:
+            if pattern.search(text):
+                toc.append([2, f'§ {item}', page_num + 1])
+                break  
+    
+    toc.sort(key=lambda x: (x[2], x[0]))
     doc.set_toc(toc)
-
-    doc.save(f'{outputname}')
+    doc.save(outputname)
 
 
 
@@ -555,7 +531,7 @@ def merge_pdfs(file_paths, output_path):
         # Extract text from the first page of the pdf
         page = pdf[0]  # Get first page
         text = page.get_text()  # Extract the text
-
+    
         # Assume the title is the first line of text on the page
         for line in text.split('\n'):
             # Remove leading/trailing whitespace
@@ -569,7 +545,7 @@ def merge_pdfs(file_paths, output_path):
         if "***" not in title:
             # Use title as the bookmark title
             toc.append([1, title, current_page])
-
+    
         current_page += pdf.page_count  # Update current_page
         merger.insert_pdf(pdf)  # Now insert the contents of this file
 
@@ -581,6 +557,8 @@ def merge_pdfs(file_paths, output_path):
 
 
 def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
+    import time
+    start = time.time()
 
     # create the HTML files with just the code and regulation sections that you want
     introduction_string = ci.intro_info
@@ -592,9 +570,14 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
     
     code_is_empty = code_df.empty
     regs_is_empty = regs_df.empty
+    print(f"Excel processing: {time.time() - start:.2f}s")
     
+    start = time.time()
     all_errors, reg_section_list, code_sections_list = createSelectedCodeRegsHTML(
         sectionsToUse, timenum)
+    print(f"create Selected Code Regs HTML: {time.time() - start:.2f}s")
+    
+    start = time.time()
     
     code_name = f'{code_file_name}.{timenum}.pdf'
     reg_name = f'{reg_file_name}.{timenum}.pdf'
@@ -605,12 +588,14 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
 
     # Only convert code html to PDF if not empty
     if not code_is_empty:
+
         convert_to_pdf(
             f'saved_code/codefillertitle.{timenum}.html', f"saved_code/{code_name}")
         possible_include_dict[code_dictionary_entry] = f"saved_code/{code_name}"
 
     # Only convert reg html to PDF if not empty
     if not regs_is_empty:
+
         convert_to_pdf(
             f'saved_code/regfillertitle.{timenum}.html', f"saved_code/{reg_name}")
         possible_include_dict[reg_dictionary_entry] = f"saved_code/{reg_name}"
@@ -690,16 +675,29 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
             dir_list_2.append(f"saved_code/{reg_name}")
 
     # merge all the PDFs to create the whole book
+    print(f"created PDFS: {time.time() - start:.2f}s")
+    
+    start = time.time()
+
     merge_pdfs(dir_list_2, filler_title_pdf)
+    print(f"merged pdfs: {time.time() - start:.2f}s")
+    
+    start = time.time()
 
     num_pages = add_page_numbers(
         f"{filler_title_pdf}", f'{numbered_name}', pagenumbers)
+    print(f"added page numbers: {time.time() - start:.2f}s")
+    
+    start = time.time()
 
     os.remove(f"{filler_title_pdf}")
     os.rename(f'{numbered_name}', f"{filler_title_pdf}")
-
+    
     add_bookmarks(f"{filler_title_pdf}", all_section_list,
                   f"saved_code/{bookname}.pdf")
+    print(f"added bookmarks: {time.time() - start:.2f}s")
+    
+    start = time.time()
 
     if num_pages > max_length:
         footer_error = f"Because the number of pages in your PDF was greater than {max_length}, the program was unable to add footers or page numbers."
@@ -749,7 +747,43 @@ def create_intro():
         f.write(introduction_string)
     convert_to_pdf(f'{intro_title_base}.html', f'{intro_title_base}.pdf')
 
-# with open(correct_reg_dict, 'r', encoding='utf8') as fp:
-#         regstring = fp.read()
-# reg_dict = json.loads(regstring)
-# print(reg_dict['1.1001-2'])
+
+def test_local():
+    import time
+    
+    # CONFIGURE THESE:
+    excel_file = 'test_sections_long.xlsx'  # Path to your Excel file with code/reg sections
+    output_name = 'test_book'           # Name for output PDF (will be saved_code/test_book.pdf)
+    timenum = int(time.time())      
+    
+    order_list = None
+    
+    add_page_numbers_flag = True
+    
+    print(f"Starting book generation...")
+    print(f"Excel file: {excel_file}")
+    print(f"Output: saved_code/{output_name}.pdf")
+    print(f"Time ID: {timenum}")
+    print("-" * 60)
+    
+
+    all_errors, footer_error = create_code_book(
+            bookname=output_name,
+            sectionsToUse=excel_file,
+            timenum=timenum,
+            orderlist=order_list,
+            pagenumbers=add_page_numbers_flag
+        )
+        
+    print("-" * 60)
+    print("COMPLETE!")
+    print(f"Output file: saved_code/{output_name}.pdf")
+        
+    if all_errors:
+            print("\nErrors encountered:")
+            print(all_errors)
+        
+    if footer_error:
+            print("\nFooter warning:")
+            print(footer_error)
+            
