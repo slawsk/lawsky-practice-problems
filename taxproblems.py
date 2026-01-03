@@ -1103,6 +1103,9 @@ def create_code_regs(contents, nclicks, docsdropdown, pagenumbers):
         all_errors, footer_error = cc.create_code_book(
             book_title, excel_file, now, docsdropdown, pagenumber
         )
+
+        if all_errors.startswith("ROW_LIMIT:"):
+            return [f"Your request contains too many sections. For performance reasons, please limit requests to 250 total sections (Code and regulations combined) at a time.",  {"display": "block"}, True, False]
         
         download_link = f"/download/saved_code/{book_title}.pdf"
         

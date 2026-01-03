@@ -558,6 +558,11 @@ def create_code_book(bookname, sectionsToUse, timenum, orderlist, pagenumbers):
     # Check if sheets are empty before processing
     code_df = process_code_excel(sectionsToUse)
     regs_df = process_regs_excel(sectionsToUse)
+
+    MAX_ROWS = 250
+    total_rows = len(code_df) + len(regs_df)
+    if total_rows > MAX_ROWS:
+        return f"ROW_LIMIT:{total_rows}", ""
     
     code_is_empty = code_df.empty
     regs_is_empty = regs_df.empty
