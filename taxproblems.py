@@ -15,10 +15,10 @@ import base64
 import pandas as pd
 import io
 from flask import send_from_directory, jsonify
-from celery.result import AsyncResult
-from celery_tasks import create_code_book_task
+# from celery.result import AsyncResult
+# from celery_tasks import create_code_book_task
 
-from celery_tasks import celery
+# from celery_tasks import celery
 
 import faq
 import functionmodules as fm

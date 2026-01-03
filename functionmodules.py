@@ -21,6 +21,9 @@ from dash.exceptions import PreventUpdate
 import json
 import base64
 
+# type_run = "home"
+type_run = "pa"
+
 
 class Section724Asset:
     def __init__(
@@ -153,108 +156,6 @@ MAX_QUIZ_QUESTIONS = 20
 # (5) Update current_year_for_book and rev_proc_for_book above,
 # so people can make their books before the new year
 
-# 2025 inflation brackets:
-married_df_2025 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 23850,
-            2: 96950,
-            3: 206700,
-            4: 394600,
-            5: 501050,
-            6: 751600,
-        },
-        "TopOfBracket": {
-            0: 23850,
-            1: 96950,
-            2: 206700,
-            3: 394600,
-            4: 501050,
-            5: 751600,
-            6: 1000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 2385.0,
-            2: 11157.0,
-            3: 35302.0,
-            4: 80398.0,
-            5: 114462.0,
-            6: 202154.5,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
-
-single_df_2025 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 11925,
-            2: 48475,
-            3: 103350,
-            4: 197300,
-            5: 250525,
-            6: 626350,
-        },
-        "TopOfBracket": {
-            0: 11925,
-            1: 48475,
-            2: 103350,
-            3: 197300,
-            4: 250525,
-            5: 626350,
-            6: 1000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 1192.5,
-            2: 5578.5,
-            3: 17651.0,
-            4: 40199.0,
-            5: 57231.0,
-            6: 188769.75,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
-
-hoh_df_2025 = pd.DataFrame(
-    {
-        "BottomOfBracket": {
-            0: 0,
-            1: 17000,
-            2: 64850,
-            3: 103350,
-            4: 197300,
-            5: 250500,
-            6: 626350,
-        },
-        "TopOfBracket": {
-            0: 17000,
-            1: 64850,
-            2: 103350,
-            3: 197300,
-            4: 250500,
-            5: 626350,
-            6: 1000000,
-        },
-        "AmountToAdd": {
-            0: 0.0,
-            1: 1700.0,
-            2: 7442.0,
-            3: 15912.0,
-            4: 38460.0,
-            5: 55484.0,
-            6: 187031.5,
-        },
-        "MarginalRate": {0: 0.1, 1: 0.12, 2: 0.22, 3: 0.24, 4: 0.32, 5: 0.35, 6: 0.37},
-    }
-)
-
-
-
 # 2026 inflation brackets:
 married_df_2026 = pd.DataFrame(
     {
@@ -356,27 +257,6 @@ hoh_df_2026 = pd.DataFrame(
 )
 
 
-adjustments_2025_dict = {
-    "child_tax_credit_amount": 2200,  # section 24
-    "eitc_earned_income_amount": 17880,  # section 32, for unmarried, two children, EITC
-    "eitc_threshold_phaseout_amount": 23350,  # section 32, for unmarried, two children, EITC
-    "eitc_completed_phaseout": 57310,  # section 32, for unmarried, two children, EITC
-    "eitc_max_credit": 7152,  # section 32, for unmarried, two children, EITC
-    "eitc_investment_limit": 11950,  # section 32
-    "married_st_ded": 31500,  # section 63
-    "single_st_ded": 15750,  # section 63
-    "hoh_st_ded": 23625,  # section 63
-    "exemption_152": 5200,  # section 152(d)(1)(B) exemption amount
-    "qbi_married_thresh": 394600,  # section 199A
-    "qbi_single_thresh": 197300,  # section 199A
-    "qbi_hoh_thresh": 197300,  # section 199A
-    "rev_proc": "Rev. Proc. 2024-40",
-    "social security cutoff": 176100,
-    "married_df": married_df_2025,
-    "single_df": single_df_2025,
-    "hoh_df": hoh_df_2025,
-}
-
 adjustments_2026_dict = {
     "child_tax_credit_amount": 2200,  # section 24
     "eitc_earned_income_amount": 18290,  # section 32, for unmarried, two children, EITC
@@ -399,7 +279,7 @@ adjustments_2026_dict = {
 }
 
 
-adjustments_dict_dict = {2026: adjustments_2026_dict, 2025: adjustments_2025_dict}
+adjustments_dict_dict = {2026: adjustments_2026_dict}
 
 infl_dict = adjustments_dict_dict[current_year]
 

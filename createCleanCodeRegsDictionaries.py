@@ -22,12 +22,6 @@ Created on Thu Oct  6 05:59:26 2022
 # Update the introduction to FilesForBook (this can be automated to some extent)
 # Add the correct revenue procedure in FilesForBooks/ AND in assets/
 
-# You must restart the Celery task for this update to work; it seems to cache the older info
-
-# Don't forget to change type_run in convertfile.py after you upload it Python Anywhere--this is about the path for the files
-
-# FOR 2026: FIX 274 SUBSTITUTION
-
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 import os
@@ -46,15 +40,12 @@ from itertools import chain
 current_year = fm.current_year_for_book
 rev_proc = fm.rev_proc_for_book
 
-# DO NOT FORGET TO CHANGE THIS WHEN YOU UPLOAD IT!!!
-
-# location = 'home'
-location = 'PA'
+type_run = fm.type_run
 
 location_dictionary = {'home': 'CodeRegs/RegDictionaryWithJPG.txt',
-                       'PA': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
+                       'pa': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
 
-correct_reg_dict = location_dictionary[location]
+correct_reg_dict = location_dictionary[type_run]
 
 max_length = 450
 code_file_name = '04BCode'
@@ -74,10 +65,6 @@ possible_files_list = list(possible_include_dict.keys())
 # all_code_title_xml = f'CodeNoNotes_{current_year}.xml'
 # all_code_title_html = f'CodeNoNotes_{current_year}.html'
 # all_regs_title = f'RegsNoNotes_{current_year}.html'
-
-
-type_run = convertfile.type_run
-
 
 def find_the_code_section(x):
     return x.split('.', 1)[1].split('-', 1)[0]
@@ -146,21 +133,66 @@ reg_replace_dict= {
 '1.83-1':{'with respect to such property.</p>\n</div>\n<div id=\"p-1.83-1(f)\"><p class=\"indent-1\" data-title=\"1.83-1(f)\"><span class=\"paragraph-hierarchy\"><span class=\"paren\">(</span>f<span class=\"paren\">)</span></span> <em class=\"paragraph-heading\">Examples.</em>  The provisions of this section may be illustrated by the following examples:</p></div>\n<div class=\"example\">':'with respect to such property.</p>\n</div>\n<div id=\"p-1.83-1(f)\"><p class=\"indent-1\" data-title=\"1.83-1(f)\"><span class=\"paragraph-hierarchy\"><span class=\"paren\">(</span>f<span class=\"paren\">)</span></span> <em class=\"paragraph-heading\">Examples.</em>  The provisions of this section may be illustrated by the following examples:</p>\n<div class=\"example\">','Under <a class=\"cfr external\" href=\"/on/2024-07-25/title-26/section-1.83-4#p-1.83-4(b)(2)\">\u00a7 1.83-4(b)(2)</a>, I\'s basis in the X corporation stock is $120 per share.</p>\n</div>\n\n</div>':'Under <a class=\"cfr external\" href=\"/on/2024-07-25/title-26/section-1.83-4#p-1.83-4(b)(2)\">\u00a7 1.83-4(b)(2)</a>, I\'s basis in the X corporation stock is $120 per share.</p>\n</div></div>\n\n</div>'}
 }
 
-
-new_274 = '<subsection class=\"indent2 firstIndent-2\" id=\"idf03db6c2-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s274/o\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\">\u202f Regulatory authority</heading><content><p class=\"indent0\" style=\"-uslm-lc:I11\">The Secretary shall prescribe such regulations as he may deem necessary to carry out the purposes of this section, including regulations prescribing whether subsection (a) or subsection (b) applies in cases where both such subsections would otherwise apply.</p>\n</content>\n</subsection><subsection style="-uslm-lc:I84" topic="prospectiveAmendment" id="idf03db6c5-2a49-11ef-8437-855ef5b8fc19"><heading class="centered fontsize8 smallCaps">Amendment of Section</heading><p style="-uslm-lc:I88" class="indent1 fontsize8 italic"><ref href="/us/pl/115/97/tI/s13304/d">Pub. L. 115–97, title I, § 13304(d)</ref>, (e)(2), <date date="2017-12-22">Dec. 22, 2017</date>, <ref href="/us/stat/131/2126">131 Stat. 2126</ref>, provided that, applicable to amounts incurred or paid after <date date="2025-12-31">Dec. 31, 2025</date>, this section is amended by redesignating subsection (<i>o</i>) as (p) and adding the following new subsection (<i>o</i>):</subsection></p><subsection class=\"indent2 firstIndent-2\" id=\"idf2398656-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\"> Meals Provided at Convenience of Employer</heading><chapeau class=\"indent0\" style=\"-uslm-lc:I11\">Except in the case of an expense described in subsection (e)(8) or (n)(2)(C), no deduction shall be allowed under this chapter for—\u2014</chapeau><paragraph class=\"indent3 firstIndent-2\" id=\"idf2398657-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/1\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"1\">(1)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for the operation of a facility described in section 132(e)(2), and any expense for food or beverages, including under section 132(e)(1), associated with such facility, or</i></p>\n</content>\n</paragraph>\n<paragraph class=\"indent3 firstIndent-2\" id=\"idf2398658-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s1400Z\u20131/c/2\" style=\"-uslm-lc:I79\"><num class=\"bold\" value=\"2\">(2)</num><content><p class=\"indent1\" style=\"-uslm-lc:I12\"> any expense for meals described in section 119(a).</paragraph></content></subsection>'
-
-old_274 = "<subsection class=\"indent2 firstIndent-2\" id=\"idf03db6c2-2a49-11ef-8437-855ef5b8fc19\" identifier=\"/us/usc/t26/s274/o\" style=\"-uslm-lc:I19\"><num class=\"bold\" value=\"o\">(o)</num><heading class=\"bold\">\u202f<ref class=\"footnoteRef\" idref=\"fn002092\">1</ref> Regulatory authority</heading><content><p class=\"indent0\" style=\"-uslm-lc:I11\">The Secretary shall prescribe such regulations as he may deem necessary to carry out the purposes of this section, including regulations prescribing whether subsection (a) or subsection (b) applies in cases where both such subsections would otherwise apply.</p>\n</content>\n</subsection>"
-
 code_replace_dict = {'paragraphs (3) and (4) of sections\u202f<ref class=\"footnoteRef\" idref=\"fn002161\">1</ref> 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain':'paragraphs (3) and (4) of sections [sic] 1222 by substituting \u201c3 years\u201d for \u201c1 year\u201d,</content>\n</paragraph>\n<continuation class=\"indent0 firstIndent0\" style=\"-uslm-lc:I10\">shall be treated as short-term capital gain',
                      "\u2153":" 1/3"
                      
 }
 
 
-second_code_replace_dict = {old_274:new_274}
-
-
 # TO RUN ANNUALLY
+
+def createStatuteNoNotes(titlenumber):
+    # URL: https://uscode.house.gov/download/download.shtml
+    # when you update the code, make sure to change code_updated in functionmodules
+    with open(f'OtherStatutes/GovernmentDownloads/usc{titlenumber}.xml', encoding='utf8') as fp:
+        soup = BeautifulSoup(fp, 'xml')
+
+    soup_str = str(soup)
+
+# Convert the string back to a BeautifulSoup object
+    soup = BeautifulSoup(soup_str, 'xml')
+
+    to_remove = ["note", "notes", "sourceCredit"]
+    for r in to_remove:
+        for p in soup.find_all(r):
+            p.decompose()
+
+    div_elements = soup.find_all('section')
+    div_library = {}
+    for div in div_elements:
+
+        section_number = div.num
+        section_title = div.heading
+        section_number_and_title = f"<section>{section_number}{section_title}</section>"
+        section_number_and_title = section_number_and_title.replace(
+            '\u2013', '-')
+
+        subsection_elements = div.find_all('subsection')
+        new_dict = {}
+        new_dict['num_title_string'] = section_number_and_title
+
+        if subsection_elements:
+            for item in subsection_elements:
+                subsection_number = item.get("identifier").rsplit('/', 1)[1]
+                new_dict[subsection_number] = str(item)
+
+        else:
+            num_tag = div.find('num')
+            if num_tag is not None:
+                num_tag.decompose()
+
+            heading_tag = div.find('heading')
+            if heading_tag is not None:
+                heading_tag.decompose()
+
+            new_dict['all'] = str(div)
+
+        div_library[find_code_for_usc_26(div.get("identifier"))] = new_dict
+
+
+    with open(f'OtherStatutes/Code{titlenumber}Dictionary.txt', 'w', encoding='utf-8') as txt_file:
+        txt_file.write(json.dumps(div_library))
+
 
 
 def create26NoNotes():
@@ -217,7 +249,7 @@ def create26NoNotes():
 
 
 
-    div_library['274']['o'] = new_274
+    # div_library['274']['o'] = new_274
 
 
     with open('CodeRegs/CodeDictionary.txt', 'w', encoding='utf-8') as txt_file:
@@ -307,8 +339,8 @@ def createRegsFile():
         with open(file_path_out, 'w', encoding='utf-8') as file:
             file.write(content)
 
-    replace_text_in_file('CodeRegs/RegDict.txt', 'CodeRegs/RegDictionaryWithJPGForPA.txt', "PA")
-    # replace_text_in_file('RegDict.txt', 'RegDictionaryWithJPG.txt', "home")
+    # replace_text_in_file('CodeRegs/RegDict.txt', 'CodeRegs/RegDictionaryWithJPGForPA.txt', "PA")
+    replace_text_in_file('CodeRegs/RegDict.txt', 'CodeRegs/RegDictionaryWithJPG.txt', "home")
 
 def create_clean_files():
     print("creating code dictionary")
@@ -316,9 +348,15 @@ def create_clean_files():
     print("creating reg dictionary")
     createRegsFile()
 
+
+titlelist= [11,15,18,21,28,31,42,52]
+    
+def create_clean_titles(titlelist):
+    map(createStatuteNoNotes,titlelist)
+
 # create_clean_files()
 
-# create26NoNotes()
+create26NoNotes()
 
 # createRegsFile()
 

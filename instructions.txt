@@ -1,0 +1,45 @@
+
+When Law Changes
+
+1. Download the files for the code and regulations
+
+    Regulations:
+
+    # URL: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1 , save the HTML file
+    # for the 15a installment sale regs, https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-15a
+    # For the 301 regs, go to here and save the relevant regs with the appropriate titles (see below): https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR5ffaf3310af6b61
+    # 601 Regs: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-H/part-601 file called title-26-procedural-rules.html
+    # tax returns or statements: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFR69a3d5af789efa1
+    # additions to tax: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-A/part-1/subject-group-ECFR1d0453abf9d86e0
+    # records tatements special returns: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFR1b5d05d4bfe19f9/subject-group-ECFR2bb42ef5f1a3a92
+    # 301 regs, 6651: addition-to-tax-additional-amounts: https://www.ecfr.gov/current/title-26/chapter-I/subchapter-F/part-301/subpart-ECFRe7a848e7ecebb4b/subject-group-ECFR90240e9b8fcd266
+    # for the 25 regs, go to https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-25
+    # for the 20 regs, go to https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-20
+    # for the 26 regs, https://www.ecfr.gov/current/title-26/chapter-I/subchapter-B/part-26
+
+    Code: URL: https://uscode.house.gov/download/download.shtml
+
+2. Run "update_all.py", which will create the new code and reg dictionaries, extract the images, zip the reg dictionary and the jpg pictures, and create the new table of contents.
+
+3. Edit the table of contents by hand if necessary to update it, then convert to PDF and put into CodeRegs/FilesForBooks/
+
+4. Update the "current as of" date for the code and regs in functionmodules
+
+5. Push to repository
+
+6. Go to PythonAnywhere, pull, and run cleanup_zip.py
+
+Annually
+
+1. Add the current updated Revenue Procedure to FilesForBook/ and assets/ - for FilesForBooks, also add a cover sheet: revise the markdown file in MdFilesForBook, then convert to PDF and add to the front of the rev proc, the put in CodeRegs/FilesForBook/02InflationRevProc.pdf
+
+2. Add the cover page to FilesForBook/ : find the markdown file in MdFilesForBook, and do pandoc cover_page.md -o ../CodeRegs/FilesForBook/00ACover.pdf
+
+3. Update the function module:
+
+- current year for the book year in fm.current_year_for_book
+- current Rev Proc for the book year in fm.rev_proc_for_book
+
+4. Update the introduction to FilesForBook (this can be automated to some extent)
+
+# Don't forget to change type_run in functionmodules.py after you upload it Python Anywhere--this is about the path for the files

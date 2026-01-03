@@ -5,9 +5,6 @@ Created on Thu Oct  6 05:59:26 2022
 @author: Sarah
 """
 
-
-# Don't forget to change type_run in convertfile.py after you upload it Python Anywhere--this is about the path for the files
-
 from bs4 import BeautifulSoup, Tag
 import pandas as pd
 import os
@@ -19,22 +16,18 @@ import json
 import create_intro as ci
 from xhtml2pdf import pisa
 from PIL import Image
-
-
 from itertools import chain
+
+type_run = fm.type_run
 
 current_year = fm.current_year_for_book
 rev_proc = fm.rev_proc_for_book
 
-# DO NOT FORGET TO CHANGE THIS WHEN YOU UPLOAD IT!!!
-
-# location = 'home'
-location = 'PA'
 
 location_dictionary = {'home': 'CodeRegs/RegDictionaryWithJPG.txt',
-                       'PA': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
+                       'pa': 'CodeRegs/RegDictionaryWithJPGForPA.txt'}
 
-correct_reg_dict = location_dictionary[location]
+correct_reg_dict = location_dictionary[type_run]
 
 max_length = 450
 code_file_name = '04BCode'
@@ -54,8 +47,6 @@ intro_language = {'Edited IRC Table of Contents (All Classes)': ci.table_content
                   reg_dictionary_entry: ci.selected_sections_regs_info}
 
 possible_files_list = list(possible_include_dict.keys())
-
-type_run = convertfile.type_run
 
 def find_the_code_section(x):
     return x.split('.', 1)[1].split('-', 1)[0]
@@ -295,7 +286,7 @@ def parseRegs(sectionsToUse, outputTitle):
         <html>
           <head>
           <meta charset="utf-8">
-            <link href="/mnt/c/Users/sbl083/Dropbox/Python/taxwebsite/CodeRegs/regsStyleFast.css" rel="stylesheet" />
+            <link href="/home/penguin/projects/tax-website-working/CodeRegs/regsStyleFast.css" rel="stylesheet" />
           </head>
           <body>"""
     else:
@@ -473,9 +464,9 @@ def add_page_numbers(input_path, output_path, pagenumbers):
                     bookmark_x = 20  # left side of the page
                 else:  # odd page number
                     # right side of the page, assuming each character is roughly the size of the font
-                    bookmark_x = page_width - len(bookmark) * font_size
+                    bookmark_x = page_width - 20 - len(bookmark) * font_size
 
-                y = page_height - 20  # Adjust the position vertically
+                y = page_height - 30  # Adjust the position vertically
 
                 # Add the page number
                 if pagenumbers:
