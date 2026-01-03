@@ -32,10 +32,15 @@ h4, h2 {
     margin-left: 0pt;
     font-size: 14pt;
     font-weight: bold;
-    padding-top: 24pt;
+    padding-top: -12pt;
     padding-bottom: -14pt;
     text-transform: uppercase;
     line-height: 15pt;
+}
+
+h6 {
+    font-size: 1pt;
+    color: white;
 }
 
 a {

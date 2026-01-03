@@ -28,7 +28,7 @@ h1  {
     margin-left: 0pt;
     font-size: 14pt;
     font-weight: bold;
-    padding-top: 24pt;
+    padding-top: -10pt;
     padding-bottom: -14pt;
     text-transform: uppercase;
     line-height: 15pt;
@@ -49,6 +49,12 @@ h5  {
     font-size: 11pt;
     display: inline;
     padding-right: 8pt
+}
+
+
+h6 {
+    font-size: 1pt;
+    color: white;
 }
 
 .paragraph {
